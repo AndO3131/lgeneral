@@ -67,6 +67,7 @@ extern Camp_Entry *camp_cur_scen;
 extern Setup setup;
 extern int  term_game, sdl_quit;
 extern List *prev_scen_core_units;
+extern char *prev_scen_fname;
 
 /*
 ====================================================================
@@ -235,9 +236,6 @@ int deploy_turn;		/* 1 if this is the deployment-turn */
 static Action *top_committed_action;/* topmost action not to be removed */
 static struct MessagePane *camp_pane; /* state of campaign message pane */
 static char *last_debriefing;   /* text of last debriefing */
-
-int core_transfer_allowed = 0;	/* if true, the core units will be transferred
-									from previous scenario */
 
 /*
 ====================================================================
@@ -4248,6 +4246,8 @@ void engine_delete()
     scen_clear_setup();
     if (prev_scen_core_units)
 	list_delete(prev_scen_core_units);
+    if (prev_scen_fname)
+	free(prev_scen_fname);
     gui_delete();
 }
 
@@ -4287,7 +4287,6 @@ int engine_init()
             setup.type = SETUP_CAMP_BRIEFING;
             
 		/* new campaign so clear core unit transfer list if any */
-		core_transfer_allowed = 0;
 		if (prev_scen_core_units)
 			list_clear(prev_scen_core_units);
             return 1;
@@ -4460,7 +4459,6 @@ void engine_run()
             engine_shutdown();
         }
         if ( scen_done() ) {
-		core_transfer_allowed = 0; /* reset for safety */
             if ( camp_loaded ) {
                 engine_store_debriefing(scen_get_result());
                 /* determine next scenario in campaign */
@@ -4474,21 +4472,12 @@ void engine_run()
                 else if ( !camp_cur_scen->scen ) { /* options */
                     setup.type = SETUP_CAMP_BRIEFING;
                     reinit = 1;
-                    
-			/* allow transfer core units from previous scenario 
-			   for scenarios with optional choice as well */
-			if ( strcmp(camp_cur_scen->core_transfer,"allowed") == 0 )
-				core_transfer_allowed = 1;
                 }
                 else {
                     /* next scenario */
                     sprintf( setup.fname, "%s", camp_cur_scen->scen );
                     setup.type = SETUP_CAMP_BRIEFING;
                     reinit = 1;
-                    
-			/* check whether we should transfer core units from previous scenario */
-			if ( strcmp(camp_cur_scen->core_transfer,"allowed") == 0 )
-				core_transfer_allowed = 1;
                 }
             }
             else {
