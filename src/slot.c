@@ -58,7 +58,7 @@ extern char *camp_fname;
 extern Camp_Entry *camp_cur_scen;
 extern Map_Tile **map;
 extern List *prev_scen_core_units;
-extern int core_transfer_allowed;
+extern char *prev_scen_fname;
 
 /*
 ====================================================================
@@ -741,7 +741,10 @@ static void save_prev_scen_core_units( FILE *file )
 	save_int(file, num);
 	if (num == 0)
 		return; /* no more data */
-		   
+
+	/* save scenario file name */
+	save_string(file, prev_scen_fname);
+
 	/* save entries */
 	list_reset(prev_scen_core_units);
 	while ((prop = list_next(prev_scen_core_units))) {
@@ -768,7 +771,14 @@ static void load_prev_scen_core_units( FILE *file )
 	/* create list if not yet existing */
 	if (!prev_scen_core_units)
 		prev_scen_core_units = list_create( LIST_AUTO_DELETE, LIST_NO_CALLBACK );
-		
+	else
+		list_clear(prev_scen_core_units);
+
+	/* read scenario file name */
+	if (prev_scen_fname)
+		free(prev_scen_fname);
+	prev_scen_fname = load_string(file);
+
 	/* create and push entries to list */
 	for (i = 0; i < num; i++) {
 		prop = calloc( 1, sizeof( transferredUnitProp ) );
@@ -1021,10 +1031,6 @@ int slot_load( int id )
         camp_set_cur( str );
         free( str );
         
-	if ( strcmp(camp_cur_scen->core_transfer,"allowed") == 0 )
-		core_transfer_allowed = 1;
-	else
-		core_transfer_allowed = 0;
 	if (store_version >= StoreCoreTransferList)
 		load_prev_scen_core_units( file );
 	else if (prev_scen_core_units)

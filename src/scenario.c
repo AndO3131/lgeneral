@@ -22,6 +22,7 @@
 #include "unit.h"
 #include "file.h"
 #include "map.h"
+#include "campaign.h"
 #include "scenario.h"
 #include "localize.h"
 
@@ -56,9 +57,8 @@ extern Font *log_font;
 extern Setup setup;
 extern int deploy_turn;
 extern List *unit_lib;
-
+extern Camp_Entry *camp_cur_scen;
 extern int camp_loaded;
-extern int core_transfer_allowed; //somewhere in engine.c
 
 /*
 ====================================================================
@@ -68,6 +68,7 @@ Scenario data.
 
 List *prev_scen_core_units = 0;	//list of units transfered between scenarios
 				//type: transferredUnitProp in unit.h
+char *prev_scen_fname = 0;	//file name of previous scenario
 
 Setup setup;            /* engine setup with scenario information */
 Scen_Info *scen_info = 0;
@@ -196,6 +197,31 @@ static void update_nations_purchase_flag()
 			nations[i].no_purchase = 0;
 		else 
 			nations[i].no_purchase = 1;
+}
+
+/** Check if core unit transfer is possible. */
+static int core_transfer_allowed()
+{
+	if (!camp_loaded)
+		return 0; /* transferring is only for campaign */
+	if (!prev_scen_core_units)
+		return 0; /* no core units saved from last scenario */
+	if (prev_scen_core_units->count == 0)
+		return 0; /* no units in list */
+	if (strcmp(camp_cur_scen->core_transfer,"denied") == 0)
+		return 0; /* core transfer is always denied */
+	if (strcmp(camp_cur_scen->core_transfer,"allowed") == 0)
+		return 1; /* core transfer is always allowed */
+
+	/* core transfer is okay if scenario (file name) matches
+	 * the from clause, e.g., from:pg/Poland */
+	if (strncmp(camp_cur_scen->core_transfer,"from:",5))
+		return 0; /* doesn't start with from: */
+	if (prev_scen_fname == 0)
+		return 0; /* previous scenario file name missing */
+	if (strcmp(camp_cur_scen->core_transfer+5, prev_scen_fname) == 0)
+		return 1; /* previous scenario matches */
+	return 0;
 }
 
 /*
@@ -563,7 +589,7 @@ int scen_load( const char *fname )
     avail_units = list_create( LIST_AUTO_DELETE, unit_delete );
     vis_units = list_create( LIST_NO_AUTO_DELETE, LIST_NO_CALLBACK );
 
-	if ( camp_loaded && core_transfer_allowed )
+	if ( core_transfer_allowed() )
 		unit_ref += scen_load_core_units(); /* transfer old units */
 
     if ( !parser_get_entries( pd, "units", &entries ) ) goto parser_failure;
@@ -635,7 +661,7 @@ int scen_load( const char *fname )
         /* actual unit */
         unit = unit_create( unit_prop, trsp_prop, &unit_base );
         /* put unit to active or reinforcements list */		//not so fast
-	if ( unit->core != 1 || ( !core_transfer_allowed ) )
+	if ( unit->core != 1 || ( !core_transfer_allowed() ) )
 	{				//if unit is core, and we have
 	    if ( !unit_delayed ) {	//to transfer forces, we shouldn't
 		list_add( units, unit );//put them. Exception: unit->core=2
@@ -1123,7 +1149,15 @@ int scen_save_core_units( )
     int n_units = 0;		//how many units we saved?
     Unit * current;
     transferredUnitProp * cur;	//local copy of unit parameters
-    
+
+	/* save file name for restricted core transfers */
+#ifdef DEBUG_CORETRANSFER
+	printf("saving core units for %s\n", scen_info->fname);
+#endif
+	if (prev_scen_fname)
+		free(prev_scen_fname);
+	prev_scen_fname = strdup(scen_info->fname);
+
     if ( !prev_scen_core_units && units )
 	prev_scen_core_units = list_create( LIST_AUTO_DELETE, LIST_NO_CALLBACK );
 
