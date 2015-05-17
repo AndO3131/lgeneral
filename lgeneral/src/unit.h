@@ -126,16 +126,21 @@ typedef struct _Unit {
 /*
 ====================================================================
 Data needed to transfer unit between scenarios
+FIXME: id strings may have any length but 32 should be more than 
+enough and simplifies the handling... will break with longer ids!
 ====================================================================
 */
 typedef struct {
-    char id[6];
-    char nation[4];
-    char name[24];
-    char trsp_id[6];
-    char tag[32];
-    int str;
-    int exp;
+	Unit_Lib_Entry prop;
+	Unit_Lib_Entry trsp_prop;
+	char prop_id[32];
+	char trsp_prop_id[32];
+	char name[24];
+	char player_id[32];
+	char nation_id[32];
+	int str;
+	int exp;
+	char tag[32];
 } transferredUnitProp;
 
 /*
