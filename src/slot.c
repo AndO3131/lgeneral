@@ -748,13 +748,16 @@ static void save_prev_scen_core_units( FILE *file )
 	/* save entries */
 	list_reset(prev_scen_core_units);
 	while ((prop = list_next(prev_scen_core_units))) {
-		save_string(file, prop->id);
-		save_string(file, prop->nation);
+		save_unit_lib_entry(file, &prop->prop);
+		save_unit_lib_entry(file, &prop->trsp_prop);
+		save_string(file, prop->prop_id);
+		save_string(file, prop->trsp_prop_id);
 		save_string(file, prop->name);
-		save_string(file, prop->trsp_id);
-		save_string(file, prop->tag);
+		save_string(file, prop->player_id);
+		save_string(file, prop->nation_id);
 		save_int(file, prop->str);
 		save_int(file, prop->exp);
+		save_string(file, prop->tag);
 	}
 }
 static void load_prev_scen_core_units( FILE *file )
@@ -765,8 +768,11 @@ static void load_prev_scen_core_units( FILE *file )
 	
 	/* load number */
 	num = load_int(file);
-	if (num == 0)
+	if (num == 0) {
+		if (prev_scen_core_units)
+			list_clear(prev_scen_core_units);
 		return; /* nothing follows */
+	}
 	
 	/* create list if not yet existing */
 	if (!prev_scen_core_units)
@@ -783,23 +789,29 @@ static void load_prev_scen_core_units( FILE *file )
 	for (i = 0; i < num; i++) {
 		prop = calloc( 1, sizeof( transferredUnitProp ) );
 		
+		load_unit_lib_entry(file, &prop->prop);
+		load_unit_lib_entry(file, &prop->trsp_prop);
+		
 		str = load_string(file);
-		snprintf( prop->id, sizeof(prop->id), "%s",str);
+		snprintf( prop->prop_id, sizeof(prop->prop_id), "%s",str);
 		free(str);
 		str = load_string(file);
-		snprintf( prop->nation, sizeof(prop->nation), "%s",str);
+		snprintf( prop->trsp_prop_id, sizeof(prop->trsp_prop_id), "%s",str);
 		free(str);
 		str = load_string(file);
 		snprintf( prop->name, sizeof(prop->name), "%s",str);
 		free(str);
 		str = load_string(file);
-		snprintf( prop->tag, sizeof(prop->tag), "%s",str);
+		snprintf( prop->player_id, sizeof(prop->player_id), "%s",str);
 		free(str);
 		str = load_string(file);
-		snprintf( prop->trsp_id, sizeof(prop->trsp_id), "%s",str);
+		snprintf( prop->nation_id, sizeof(prop->nation_id), "%s",str);
 		free(str);
 		prop->str = load_int(file);
 		prop->exp = load_int(file);
+		str = load_string(file);
+		snprintf( prop->tag, sizeof(prop->tag), "%s",str);
+		free(str);
 		
 		list_add(prev_scen_core_units, prop);
 	}

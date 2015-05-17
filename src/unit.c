@@ -1342,18 +1342,28 @@ Unit *unit_duplicate( Unit *unit )
 
 transferredUnitProp *unit_create_transfer_props( Unit *unit )
 {
-    transferredUnitProp *result = calloc( 1, sizeof( transferredUnitProp ) );
-    snprintf( result->id, sizeof(result->id), "%s",unit->prop.id);
-    snprintf( result->nation,sizeof(result->nation),"%s",unit->nation->id);
-    snprintf( result->name,sizeof(result->name),"%s",unit->name);
-    snprintf( result->tag,sizeof(result->tag),"%s",unit->tag);
-    if( unit->trsp_prop.id )
-	snprintf( result->trsp_id,sizeof(result->trsp_id),"%s",unit->trsp_prop.id );
-    else
-	snprintf( result->trsp_id,sizeof(result->trsp_id),"none" );
-    result->str = unit->str;
-    result->exp = unit->exp;
-    return result;
+	transferredUnitProp *result = calloc( 1, sizeof( transferredUnitProp ) );
+
+	/* copy basic property structs
+	 * ALL POINTERS WILL BE REALLOCATED AND BROKEN IN NEXT SCENARIO! */
+	memcpy(&result->prop, &unit->prop, sizeof(unit->prop));
+	memcpy(&result->trsp_prop, &unit->trsp_prop, sizeof(unit->trsp_prop));
+	
+	snprintf( result->prop_id, sizeof(result->prop_id), "%s", unit->prop.id);
+	/* do not keep temporary air/sea transporter */
+	if( unit->trsp_prop.id && !(unit->trsp_prop.flags & SWIMMING)
+					&& !(unit->trsp_prop.flags & FLYING))
+		snprintf( result->trsp_prop_id,sizeof(result->trsp_prop_id),"%s",unit->trsp_prop.id );
+	else
+		snprintf( result->trsp_prop_id,sizeof(result->trsp_prop_id),"none" );
+	
+	snprintf( result->name, sizeof(result->name),"%s", unit->name);
+	snprintf( result->nation_id, sizeof(result->nation_id), "%s",unit->nation->id);
+	snprintf( result->player_id, sizeof(result->player_id), "%s",unit->player->id);
+	result->str = unit->str;
+	result->exp = unit->exp;
+	snprintf( result->tag, sizeof(result->tag), "%s",unit->tag);
+	return result;
 }
 
 /*

@@ -1225,25 +1225,60 @@ int scen_load_core_units()
 	current = list_first( prev_scen_core_units );
 	do
 	{
-	    unit_prop = unit_lib_find( current->id );
-	    memset( &unit_base, 0, sizeof( Unit ) );
-	    unit_base.nation = nation_find( current->nation );
-	    unit_base.player = player_get_by_nation( unit_base.nation );
-	    unit_base.core = 1;
-	    strcpy_lt( unit_base.name, current->name, 31 );
-	    unit_base.x = 2+n_units;
-	    unit_base.y = 2;
-	    unit_base.str = current->str;
-	    unit_base.entr = 0;
-	    unit_base.exp_level = current->exp/100;//Probably improper thing
-	    trsp_prop = unit_lib_find( current->trsp_id );
-	    unit_base.orient = unit_base.player->orient;
-	    sprintf( unit_base.tag,"%s",current->tag );//second improper thing
+		/* fix all pointers and icon settings in properties */
+		unit_prop = unit_lib_find( current->prop_id );
+		current->prop.id = unit_prop->id;
+		current->prop.name = unit_prop->name;
+		current->prop.icon = unit_prop->icon;
+		current->prop.icon_tiny = unit_prop->icon_tiny;
+		current->prop.icon_type = unit_prop->icon_type;
+		current->prop.icon_w = unit_prop->icon_w;
+		current->prop.icon_h = unit_prop->icon_h;
+		current->prop.icon_tiny_w = unit_prop->icon_tiny_w;
+		current->prop.icon_tiny_h = unit_prop->icon_tiny_h;
+#ifdef WITH_SOUND
+		current->prop.wav_alloc = unit_prop->wav_alloc;
+		current->prop.wav_move = unit_prop->wav_move;
+#endif
+		trsp_prop = unit_lib_find( current->trsp_prop_id );
+		if (trsp_prop) {
+			current->trsp_prop.id = trsp_prop->id;
+			current->trsp_prop.name = trsp_prop->name;
+			current->trsp_prop.icon = trsp_prop->icon;
+			current->trsp_prop.icon_tiny = trsp_prop->icon_tiny;
+			current->trsp_prop.icon_type = trsp_prop->icon_type;
+			current->trsp_prop.icon_w = trsp_prop->icon_w;
+			current->trsp_prop.icon_h = trsp_prop->icon_h;
+			current->trsp_prop.icon_tiny_w = trsp_prop->icon_tiny_w;
+			current->trsp_prop.icon_tiny_h = trsp_prop->icon_tiny_h;
+#ifdef WITH_SOUND
+			current->trsp_prop.wav_alloc = trsp_prop->wav_alloc;
+			current->trsp_prop.wav_move = trsp_prop->wav_move;
+#endif
+		}
 
-	    unit = unit_create( unit_prop, trsp_prop, &unit_base );
-	    unit->core = 1;
-	    list_add( reinf, unit );
-	    n_units++;
+		/* create unit base */
+		memset( &unit_base, 0, sizeof( Unit ) );
+		strcpy_lt( unit_base.name, current->name, 20 );
+		unit_base.core = 1;
+		unit_base.player = player_get_by_id( current->player_id );
+		unit_base.nation = nation_find( current->nation_id );
+		unit_base.str = current->str;
+		unit_base.orient = unit_base.player->orient;
+		strcpy_lt( unit_base.tag, current->tag, 31 );
+		
+		/* create unit */
+		unit_prop = &current->prop;
+		if (trsp_prop)
+			trsp_prop = &current->trsp_prop;
+		unit = unit_create( unit_prop, trsp_prop, &unit_base );
+		
+		/* set experience */
+		unit_add_exp(unit, current->exp);
+		
+		/* add to reinforcements */
+		list_add( reinf, unit );
+		n_units++;
 	}
 	while ( (current = list_next( prev_scen_core_units )) );
     }
