@@ -1160,6 +1160,8 @@ int scen_save_core_units( )
 
     if ( !prev_scen_core_units && units )
 	prev_scen_core_units = list_create( LIST_AUTO_DELETE, LIST_NO_CALLBACK );
+    else if (prev_scen_core_units) 
+	list_clear(prev_scen_core_units);
 
     if ( units )
 	if ( !list_empty( units ) )
