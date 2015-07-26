@@ -69,6 +69,7 @@ france_sealion { scenario = pg/France
     minor = "Congratulations for conquering France and for bringing an overwhelming victory to the Reich. France has surrendered, and its dependencies will be put under German protectorate. Yet it was too late to finish preparations for the invasion of England in time."
     defeat = "@france"
   }
+  coretransfer = "allowed"
 }
 france { scenario = pg/France
   title = "5th June 1940"
@@ -79,6 +80,7 @@ france { scenario = pg/France
     minor = "Congratulations for conquering France and for bringing an overwhelming victory to the Reich. France has surrendered, and its dependencies will be put under German protectorate."
     defeat = "Making Germany face another disaster like in the World War has forced the Reich to surrender and sign an overly unfavourable peace treaty."
   }
+  coretransfer = "allowed"
 }
 france_selection {
   briefing = "Now there are two front lines to take care of. Herr General, which theater do you want to participate in?"
@@ -145,6 +147,7 @@ barbarossa_XE_selection {
   briefing = "@barbarossa_selection"
   next { moscow = earlymoscow_XE kiev = kiev_XE }
   options { moscow = "@barbarossa_selection" kiev = "@barbarossa_selection" }
+  coretransfer = "allowed"
 }
 barbarossa_selection {
   briefing = "High Command was impressed to such an extent by your excellent skills that we decided to delegate the decision of a critical strategic question to you.##General staff is divided into two camps. The first is proposing the opportunity to pocket and destroy a large amount of Soviet forces near Kiev before we proceed on our march towards Moscow. The second is proposing to leave aside Kiev and directly head towards Moscow before Autumn weather will slow down our advance.##Herr General, which strategy shall we pursue?"
@@ -153,6 +156,7 @@ barbarossa_selection {
     moscow = "We take the early route towards Moscow."
     kiev = "Let us battle the Soviet forces around Kiev."
   }
+  coretransfer = "allowed"
 }
 
 kiev_XE { scenario = pg/Kiev
@@ -160,6 +164,7 @@ kiev_XE { scenario = pg/Kiev
   briefing = "@kiev"
   next { major = moscow41_XE minor = moscow41_XE defeat = sevastapol_XE }
   debriefings { major = "@kiev" minor = "@kiev" defeat = "@kiev" }
+  coretransfer = "allowed"
 }
 kiev { scenario = pg/Kiev
   title = "23rd August 1941"
@@ -170,6 +175,7 @@ kiev { scenario = pg/Kiev
     minor = "After your victory over Soviet resistence, we expect Russia's reserves of men an material to be depleted."
     defeat = "Your failure to decimate Russian troops in time enabled them to assemble and perform a counter-strike against our lines. Thus for 1941, all of our operations on the Eastern front had to cease."
   }
+  coretransfer = "from:pg/Barbarossa"
 }
 
 earlymoscow_XE { scenario = pg/EarlyMoscow
@@ -180,6 +186,7 @@ earlymoscow_XE { scenario = pg/EarlyMoscow
     major = "Moscow has fallen, and the Soviet Union surrendered to the Reich! You have achieved what Napoleon only dreamed of. All of Russia has been put under German administration, and we have already begun exploiting its vast resources. Your decision to take the early route towards Moscow was right, and therefore you get awarded the highest order medal of the Reich, the Knight's Cross with Oak Leaves and Swords."
     minor = "@earlymoscow" defeat = "@earlymoscow"
   }
+  coretransfer = "allowed"
 }
 earlymoscow { scenario = pg/EarlyMoscow
   title = "8th September 1941"
@@ -190,6 +197,7 @@ earlymoscow { scenario = pg/EarlyMoscow
     minor = "@moscow41"
     defeat = "@moscow41"
   }
+  coretransfer = "allowed"
 }
 
 moscow41_XE { scenario = pg/Moscow41
@@ -201,6 +209,7 @@ moscow41_XE { scenario = pg/Moscow41
     minor = "@moscow41"
     defeat = "@moscow41"
   }
+  coretransfer = "allowed"
 }
 moscow41 { scenario = pg/Moscow41
   title = "2nd October 1941"
@@ -211,6 +220,7 @@ moscow41 { scenario = pg/Moscow41
     minor = "Your initial capture of Moscow let arise hope that Russia would surrender. Unfortunately, fresh Siberian reserves started a counter-attack and expelled our exhausted and worn down spearheads out of the capital. While we managed to establish a stable front line again, we could not attempt another advance in 1941."
     defeat = "Not capturing Moscow in time gave the Russian adversaries plenty of opportunity to mobilise troops from Siberia and perform a counterattack. While we managed to establish a stable front line again, we could not attempt another advance in 1941."
   }
+  coretransfer = "allowed"
 }
 moscow41_selection {
   briefing = "To prove your skills in another theater, High Command offers to you leadership over the Africa Corps fighting at El Alamein.##Herr General, do you wish to be transferred to Africa, or do you want to stay on the Eastern front?"
@@ -298,6 +308,7 @@ kharkov_XE { scenario = pg/Kharkov
   briefing = "@kharkov"
   next { major = moscow43_XE minor = kursk_XE defeat = byelorussia_XE }
   debriefings { major = "@kharkov" minor = "@kharkov" defeat = "@kharkov" }
+  coretransfer = "from:pg/Stalingrad"
 }
 kharkov { scenario = pg/Kharkov
   title = "11th February 1943"
@@ -308,6 +319,7 @@ kharkov { scenario = pg/Kharkov
     minor = "You bravely haltet the Russian winter offensive and managed to establish a stable front line."
     defeat = "Your failure at this mission forced the Reich to take back the front lines to compensate for German casualties faced in the battle."
   }
+  coretransfer = "from:pg/Stalingrad"
 }
 
 kursk_XE { scenario = pg/Kursk
@@ -412,6 +424,7 @@ anzio { scenario = pg/Anzio
     minor = "Holding Rome has kept the Allied from invading our heartlands from the South."
     defeat = "The mission was a disaster. Not sustaining allowed the Allies to invade Germany from the South, forces upon us an unfavourable peace treaty like the one in 1918."
   }
+  coretransfer = "from:pg/Husky"
 }
 anzio_selection {
   briefing = "Due to your exceptional leadership skills, you are offered command over Army Group Center in Russia.##Herr General, do you want to defend the Reich against Soviet forces in Byelorussia, or fight against the upcoming invasion of France?"
@@ -458,6 +471,7 @@ cobra_XR { scenario = pg/Cobra
   briefing = "@cobra"
   next { major = ardennes_XR minor = marketgarden_XR defeat = marketgarden_XR }
   debriefings { major = "@cobra" minor = "@cobra" defeat = "@cobra" }
+  coretransfer = "allowed"
 }
 cobra { scenario = pg/Cobra
   title = "25th July 1944"
@@ -468,6 +482,7 @@ cobra { scenario = pg/Cobra
     minor = "You sustained long enough to allow High Command to build up defenses in the rear."
     defeat = "The Allied landings have been outright successful, and France is now definitely lost."
   }
+  coretransfer = "allowed"
 }
 
 ardennes_XR { scenario = pg/Ardennes
@@ -479,6 +494,7 @@ ardennes_XR { scenario = pg/Ardennes
     minor = "@ardennes"
     defeat = "@ardennes"
   }
+  coretransfer = "from:pg/MarketGarden"
 }
 ardennes { scenario = pg/Ardennes
   title = "16th December 1944"
@@ -489,6 +505,7 @@ ardennes { scenario = pg/Ardennes
     minor = "Despite your initial success in the Ardennes, the Allies denied our peace offering. With reinforcements arrived, they managed to drive us back to the limits of the Reich."
     defeat = "Wacht am Rhein was an utter failure. Massive Allied reinforcements drove our troops back to the limits of the Reich."
   }
+  coretransfer = "from:pg/MarketGarden"
 }
 
 marketgarden_XR { scenario = pg/MarketGarden
@@ -543,6 +560,7 @@ middleeast { scenario = pg/MiddleEast
   debriefings {
     defeat = "Adverse weather and supply conditions forced our troops out of Mesopotamia, while English couter-attacks forced us out of Egypt. We basically have to start at the beginning now."
   }
+  coretransfer = "allowed"
 }
 middleeast_selection {
   briefing = "Your decisive victory in Mesopotamia has terminally weakened the English forces. Thus, there is a big opportunity to prepare an invasion of England, and end the war in the West. On the other hand, you may choose to continue advancing towards the Caucasus.##Herr General, which operation do you want to take command of?"
@@ -564,6 +582,7 @@ torch_selection {
   briefing = "Your leadership skills are currently asked for at two places. You may choose to lead the upcoming Summer offensive in Russia against the pocket of Kursk, or to defend Italy against the expected invasion of allied troops.##Which battle do you want to participate in?"
   next { south = husky east = kursk }
   options { south = "Husky" east = "Kursk" }
+  coretransfer = "allowed"
 }
 
 husky { scenario = pg/Husky
@@ -574,11 +593,13 @@ husky { scenario = pg/Husky
     minor = "You managed to score a victory. Yet, our former Ally, the Italians have surrendered, thus making your efforts crumble in vain."
     defeat = "The total defeat on the Southern front made Italy surrender to the Allies."
   }
+  coretransfer = "allowed"
 }
 husky_selection {
   briefing = "Your exemplary victory in Sicily has considerably impressed General staff. Therefore, you are offered command over the strike force against Moscow.##Herr General, do you want to stay in Italy, or do you want to be transferred to the Eastern front?"
   next { south = anzio east = moscow43 }
   options { south = "Staying in Italy" east = "Moscow" }
+  coretransfer = "allowed"
 }
 
 caucasus { scenario = pg/Caucasus
@@ -639,6 +660,7 @@ berlinwest { scenario = pg/BerlinWest
     minor = "You bravely fended off the Allied onslaught from the Reich's limits. Combined with your earlier victory over Russia allowed us to return to the pre-war status-quo in the West."
     defeat = "@berlin"
   }
+  coretransfer = "from:pg/Ardennes"
 }
 
 [***** Final Messages *****]
