@@ -168,7 +168,10 @@ int main( int argc, char **argv )
     }
     
     /* SDL required for graphical conversion */
-    SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER );
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0) {
+        printf( "lgc-pg requires a running graphical desktop environment. \n");
+        exit( 1 );
+    }
     SDL_SetVideoMode( 320, 240, 16, SDL_SWSURFACE );
     atexit( SDL_Quit );
     /* show nice image */
