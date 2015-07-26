@@ -837,7 +837,7 @@ void slots_init()
     FILE *file = 0;
     /* set all slots empty */
     for ( i = 0; i < SLOT_COUNT; i++ ) {
-        sprintf( slots[i].name, "<emtpy>" );
+        sprintf( slots[i].name, "<empty>" );
         slots[i].fname[0] = 0;
         slots[i].valid = 0;
     }
