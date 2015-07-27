@@ -88,7 +88,7 @@ void str_to_date( Date *date, char *str )
     for ( i = 0; i < strlen( str ); i++ )
         if ( str[i] == '.' ) {
             strncpy( aux_str, str, i);
-            date->month = atoi( aux_str ) - 1;
+            date->month = atoi( aux_str );
             break;
         }
     str = str + i + 1;
@@ -104,10 +104,10 @@ void date_to_str( char *str, Date date, int type )
             sprintf(str, "%i.%i.%i", date.day, date.month, date.year );
             break;
         case FULL_NAME_DATE:
-            sprintf(str, "%i. %s %i", date.day, tr(full_month_names[date.month]), date.year );
+            sprintf(str, "%i. %s %i", date.day, tr(full_month_names[date.month-1]), date.year );
             break;
         case SHORT_NAME_DATE:
-            sprintf(str, "%i. %s %i", date.day, tr(short_month_names[date.month]), date.year );
+            sprintf(str, "%i. %s %i", date.day, tr(short_month_names[date.month-1]), date.year );
             break;
     }
 }
