@@ -322,13 +322,14 @@ Unit_Lib_Entry *get_good_unit( List *ulist, int flag )
 }
 
 /** Purchase new units (shamelessly use functions from purchase_dlg for this).*/
-extern int player_get_purchase_unit_limit( Player *player );
+extern int player_get_purchase_unit_limit( Player *player, 
+				int *core_limit, int *aux_limit );
 extern List *get_purchase_nations( void );
 extern List *get_purchasable_unit_lib_entries( const char *nationid, 
 				const char *uclassid, const Date *date );
 extern int player_can_purchase_unit( Player *p, Unit_Lib_Entry *unit,
 							Unit_Lib_Entry *trsp);
-extern void player_purchase_unit( Player *player, Nation *nation,
+extern void player_purchase_unit( Player *player, Nation *nation, int core,
 			Unit_Lib_Entry *unit_prop, Unit_Lib_Entry *trsp_prop );
 static void ai_purchase_units()
 {
@@ -336,7 +337,7 @@ static void ai_purchase_units()
 	List *ulist = NULL; /* list of purchasable unit lib entries */
 	Unit_Lib_Entry *e = NULL;
 	Nation *n = NULL;
-	int ulimit = player_get_purchase_unit_limit(cur_player);
+	int ulimit = player_get_purchase_unit_limit(cur_player,0,0);
 	struct {
 		Unit_Lib_Entry *unit; /* unit to be bought */
 		Unit_Lib_Entry *trsp; /* its transporter if not NULL */
@@ -441,7 +442,7 @@ static void ai_purchase_units()
 						buy_options[j].unit,
 						buy_options[j].trsp)) {
 			player_purchase_unit( cur_player, 
-				&nations[buy_options[j].unit->nation],
+				&nations[buy_options[j].unit->nation],0,
 				buy_options[j].unit,buy_options[j].trsp);
 			AI_DEBUG(1, "Prestige remaining: %d\n",
 						cur_player->cur_prestige);

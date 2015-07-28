@@ -24,7 +24,8 @@ typedef struct {
 	Nation *cur_nation; /* pointer in global nations */
 	Unit_Class *cur_uclass; /* pointer in global unit_classes */
 	Unit_Class *trsp_uclass; /* pointer in global unit classes */
-	int cur_unit_limit; /* number of units that can be purchased */
+	int cur_aux_limit; /* number of units that can be purchased */
+	int cur_core_limit; /* number of units that can be purchased */
 } PurchaseDlg;
 
 /** Purchase dialogue interface, see C-file for detailed comments. */
