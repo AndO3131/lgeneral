@@ -349,6 +349,8 @@ int scen_load( const char *fname )
 	
 	/* unit limit (0 = no limit) */
 	parser_get_int(sub, "unit_limit", &player->unit_limit);
+	/* core units + aux units = unit_limit */
+	parser_get_int(sub, "core_unit_limit", &player->core_unit_limit);
 	
         if ( !parser_get_value( sub, "orientation", &str, 0 ) ) goto parser_failure;
         if ( STRCMP( str, "right" ) ) /* alldirs not implemented yet */

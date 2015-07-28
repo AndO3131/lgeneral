@@ -42,6 +42,7 @@ extern List *reinf;
 extern List *avail_units;
 extern List *units;
 extern int turn;
+extern int camp_loaded;
 
 /****** Private *****/
 
@@ -280,29 +281,67 @@ static void render_unit_lib_entry_info( Unit_Lib_Entry *entry,
 }
 
 /** Calculate how many units player may purchase: Unit limit - placed units - 
- * ordered units - deployable units. Return number or -1 if no limit. */
-int player_get_purchase_unit_limit( Player *player )
+ * ordered units - deployable units. Return number or -1 if no limit.
+ * If pointers set return core/aux detailled values. 
+ * Not static as used in ai.c */
+int player_get_purchase_unit_limit( Player *player, 
+				int *core_limit, int *aux_limit )
 {
-	int limit = player->unit_limit;
+	int cl = player->core_unit_limit;
+	int al = player->unit_limit - player->core_unit_limit;
 	Unit *u = NULL;
 	
-	if (limit == 0)
+	/* if no campaign loaded there are only aux units.
+	 * for proper calculation shift core limit to aux */
+	if (!camp_loaded) {
+		al += cl;
+		cl = 0;
+	}
+	
+	if (player->unit_limit == 0) {	/* no limit */
+		if (core_limit)
+			*core_limit = -1;
+		if (aux_limit)
+			*aux_limit = -1;
 		return -1;
+	}
 	
 	/* units placed on map */
 	list_reset( units );
 	while ((u = list_next( units )))
-		if (u->player == player && u->killed == 0)
-			limit--;
+		if (u->player == player && u->killed == 0) {
+			if (u->core)
+				cl--;
+			else
+				al--;
+		}
 	/* units ordered, not yet arrived */	
 	list_reset( reinf );
 	while ((u = list_next( reinf )))
-		if (u->player == player)
-			limit--;
+		if (u->player == player) {
+			if (u->core)
+				cl--;
+			else
+				al--;
+		}
 	/* units arrived, not yet placed */
-	limit -= avail_units->count;
+	list_reset( avail_units );
+	while ((u = list_next( avail_units ))) {
+		if (u->core)
+			cl--;
+		else
+			al--;
+	}
 	
-	return limit;
+	if (cl < 0)
+		cl = 0;
+	if (al < 0)
+		al = 0;
+	if (core_limit)
+		*core_limit = cl;
+	if (aux_limit)
+		*aux_limit = al;
+	return cl + al;
 }
 
 /** Check whether player @p can purchase unit lib entry @unit with
@@ -315,7 +354,7 @@ int player_can_purchase_unit( Player *p, Unit_Lib_Entry *unit,
 {
 	int cost = unit->cost + ((trsp)?trsp->cost:0);
 	
-	if (player_get_purchase_unit_limit(p) == 0)
+	if (player_get_purchase_unit_limit(p,0,0) == 0)
 		return 0;
 	if (p->cur_prestige < cost)
 		return 0;
@@ -404,27 +443,40 @@ static void update_unit_purchase_info( PurchaseDlg *pdlg )
 	frame_apply( pdlg->main_group->frame );
 }
 
-/** Modify @pdlg's current unit limit by adding @add and render unit limit. */
-static void update_purchase_unit_limit( PurchaseDlg *pdlg, int add )
+/** Modify @pdlg's current unit limit by adding @add and render unit 
+ * limit. If core is set add to core count otherwise auxiliary count. */
+static void update_purchase_unit_limit( PurchaseDlg *pdlg, int add, int core )
 {
 	SDL_Surface *contents = pdlg->ulimit_frame->contents;
 	char str[16];
 	int y = 7;
 	
-	if (pdlg->cur_unit_limit != -1) {
-		pdlg->cur_unit_limit += add;
-		if (pdlg->cur_unit_limit < 0)
-			pdlg->cur_unit_limit = 0;
+	if (core) {
+		if (pdlg->cur_core_limit != -1) {
+			pdlg->cur_core_limit += add;
+			if (pdlg->cur_core_limit < 0)
+				pdlg->cur_core_limit = 0;
+		}
+	} else if (pdlg->cur_aux_limit != -1) {
+		pdlg->cur_aux_limit += add;
+		if (pdlg->cur_aux_limit < 0)
+			pdlg->cur_aux_limit = 0;
 	}
 	
 	SDL_FillRect( contents, 0, 0x0 );
 	gui->font_std->align = ALIGN_X_CENTER | ALIGN_Y_TOP;
 	write_line(contents, gui->font_std, tr("Available:"), contents->w/2, &y );
-	if (pdlg->cur_unit_limit == -1)
+	if (pdlg->cur_core_limit == -1 && pdlg->cur_aux_limit == -1)
+		strcpy( str, "---" );
+	else if (pdlg->cur_core_limit == 0 && pdlg->cur_aux_limit == 0)
 		strcpy( str, tr("None") );
-	else
-		snprintf(str, 16, "%d %s", pdlg->cur_unit_limit,
-			(pdlg->cur_unit_limit==1)?tr("Unit"):tr("Units"));
+	else {
+		if (camp_loaded)
+			snprintf(str, 16, "%d / %d", pdlg->cur_core_limit,
+					pdlg->cur_aux_limit);
+		else
+			snprintf(str, 16, "%d", pdlg->cur_aux_limit);
+	}
 	write_line( contents, gui->font_std, str, contents->w/2, &y );
 	
 	frame_apply( pdlg->ulimit_frame );
@@ -444,7 +496,7 @@ static void update_purchasable_units( PurchaseDlg *pdlg )
 /** Purchase unit for player @player. @nation is nation of unit (should match
  * with list of player but is not checked), @unit_prop and @trsp_prop are the
  * unit lib entries (trsp_prop may be NULL for no transporter). */
-void player_purchase_unit( Player *player, Nation *nation,
+void player_purchase_unit( Player *player, Nation *nation, int core, 
 			Unit_Lib_Entry *unit_prop, Unit_Lib_Entry *trsp_prop )
 {
 	Unit *unit = NULL, unit_base;
@@ -453,6 +505,7 @@ void player_purchase_unit( Player *player, Nation *nation,
 	memset( &unit_base, 0, sizeof( Unit ) );
 	unit_base.nation = nation;
 	unit_base.player = player;
+	unit_base.core = core;
 	/* FIXME: no global counter to number unit so use plain name */
 	snprintf(unit_base.name, sizeof(unit_base.name), "%s", unit_prop->name);
 	unit_base.delay = turn + 1; /* available next turn */
@@ -496,17 +549,21 @@ static void player_refund_unit( Player *p, Unit *u )
  * function. */
 static void handle_purchase_button( PurchaseDlg *pdlg )
 {
+	int core;
+	
 	Nation *nation = lbox_get_selected_item( pdlg->nation_lbox );
 	Unit_Lib_Entry *unit_prop = lbox_get_selected_item( pdlg->unit_lbox );
 	Unit_Lib_Entry *trsp_prop = lbox_get_selected_item( pdlg->trsp_lbox );
 	Unit *reinf_unit = lbox_get_selected_item( pdlg->reinf_lbox );
 
 	if (reinf_unit == NULL) {
-		player_purchase_unit( cur_player, nation, unit_prop, trsp_prop );
-		update_purchase_unit_limit( pdlg, -1 );
+		core = (pdlg->cur_core_limit > 0)?1:0;
+		player_purchase_unit( cur_player, nation, core, unit_prop, trsp_prop );
+		update_purchase_unit_limit( pdlg, -1, core);
 	} else {
+		core = reinf_unit->core;
 		player_refund_unit( cur_player, reinf_unit );
-		update_purchase_unit_limit( pdlg, 1 );
+		update_purchase_unit_limit( pdlg, 1, core );
 	}
 	lbox_set_items( pdlg->reinf_lbox, get_reinf_units() );
 	update_unit_purchase_info( pdlg );
@@ -795,9 +852,10 @@ void purchase_dlg_reset( PurchaseDlg *pdlg )
 	if (pdlg->cur_uclass == NULL) /* list box empty */
 		pdlg->cur_uclass = &unit_classes[0];
 	pdlg->trsp_uclass = get_purchase_trsp_class();
-	pdlg->cur_unit_limit = player_get_purchase_unit_limit( cur_player );
+	player_get_purchase_unit_limit( cur_player,
+			&pdlg->cur_core_limit, &pdlg->cur_aux_limit);
 	
 	lbox_set_items( pdlg->reinf_lbox, get_reinf_units() );
 	update_purchasable_units(pdlg);
-	update_purchase_unit_limit(pdlg, 0);
+	update_purchase_unit_limit(pdlg, 0, 0);
 }

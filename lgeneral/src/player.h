@@ -39,6 +39,7 @@ typedef struct {
     int nation_count;   /* number of nations controlled */
     List *allies;       /* list of the player's allies */
     int unit_limit;     /* max number of units (placed + ordered) */
+    int core_unit_limit;     /* max number of core units (placed + ordered) */
     int air_trsp_count; /* number of air transporters */
     int sea_trsp_count; /* number of sea transporters */
     Unit_Lib_Entry *air_trsp; /* default air transporter */
