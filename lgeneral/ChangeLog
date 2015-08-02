@@ -1,3 +1,4 @@
+1.3.0:
 - fixed seg fault in lgc-pg when running headless (2015/07/26 Markus Koschany)
 - compatibility flag added for GCC5 (2015/07/26 Markus Koschany)
 - added core unit transfer for campaign (2014/05/01 Tez Bartlomiej)
