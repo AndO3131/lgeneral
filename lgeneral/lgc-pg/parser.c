@@ -489,7 +489,7 @@ PData* parser_read_file( char *tree_name, char *fname )
     FILE *file = 0;
     PData *top = 0;
     /* open file */
-    if ( ( file = fopen( fname, "r" ) ) == 0 ) {
+    if ( ( file = fopen( fname, "rb" ) ) == 0 ) {
         sprintf( parser_error, "%s: file not found", fname );
         return 0;
     }

@@ -293,7 +293,7 @@ int terrain_convert_database( void )
     printf( "Terrain database...\n" );
     
     snprintf( path, MAXPATHLEN, "%s/maps/%s.tdb", dest_path, target_name );
-    if ( ( file = fopen( path, "w" ) ) == 0 ) {
+    if ( ( file = fopen( path, "wb" ) ) == 0 ) {
         fprintf( stderr, "%s: access denied\n", path );
         return 0;
     }

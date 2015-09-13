@@ -299,7 +299,7 @@ PG_Shp *shp_load( const char *fname )
     int icon_maxw = 60, icon_maxh = 50;
     
     snprintf( path, MAXPATHLEN, "%s/%s", source_path, fname );
-    if ( ( file = fopen_ic( path, "r" ) ) == NULL ) {
+    if ( ( file = fopen_ic( path, "rb" ) ) == NULL ) {
         printf("Could not open file %s\n",path);
         return NULL;
     }   

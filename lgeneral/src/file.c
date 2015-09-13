@@ -61,7 +61,7 @@ Returns a list of files, or 0 if error.
 static List *file_get_order_list( const char *orderfile )
 {
     List *l = 0;
-    FILE *f = fopen( orderfile, "r" );
+    FILE *f = fopen( orderfile, "rb" );
     if (!f) {
         fprintf( stderr, tr("%s cannot be opened\n"), orderfile );
         return 0;
@@ -179,7 +179,7 @@ List* dir_get_entries( const char *path, const char *root, const char *ext )
         /* check regular file */
         if ( S_ISREG( fstat.st_mode ) ) {
             /* test it */
-            if ( ( file = fopen( file_name, "r" ) ) == 0 ) continue;
+            if ( ( file = fopen( file_name, "rb" ) ) == 0 ) continue;
             fclose( file );
             /* check if this file has the proper extension */
             if ( ext )

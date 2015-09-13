@@ -38,7 +38,7 @@ General system includes.
 Important local includes
 ====================================================================
 */
-#include "sdl.h"
+#include "lg-sdl.h"
 #include "image.h"
 #include "misc.h"
 #include "list.h"

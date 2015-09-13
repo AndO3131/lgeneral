@@ -851,7 +851,7 @@ void slots_init()
     while ( ( entry = readdir( dir ) ) != 0 ) {
         if ( is_saved_game( entry->d_name, &i ) ) {
             sprintf( slots[i].fname, "%s/%s", config.dir_name, entry->d_name );
-            if ( ( file = fopen( slots[i].fname, "r" ) ) == 0 ) {
+            if ( ( file = fopen( slots[i].fname, "rb" ) ) == 0 ) {
                 fprintf( stderr, tr("'%s': file not found\n"), slots[i].fname );
                 break;
             }
@@ -932,7 +932,7 @@ int slot_save( int id, char *name )
     /* get file name */
     sprintf( path, "%s/lg_save_%i", config.dir_name, id );
     /* open file */
-    if ( ( file = fopen( path, "w" ) ) == 0 ) {
+    if ( ( file = fopen( path, "wb" ) ) == 0 ) {
         fprintf( stderr, tr("%s: not found\n"), path );
         return 0;
     }
@@ -1004,11 +1004,7 @@ int slot_load( int id )
     /* get file name */
     sprintf( path, "%s/lg_save_%i", config.dir_name, id );
     /* open file */
-#ifdef WIN32
     if ( ( file = fopen( path, "rb" ) ) == 0 ) {
-#else
-    if ( ( file = fopen( path, "r" ) ) == 0 ) {
-#endif
         fprintf( stderr, tr("%s: not found\n"), path );
         return 0;
     }

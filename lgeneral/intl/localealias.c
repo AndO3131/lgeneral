@@ -235,7 +235,7 @@ read_alias_file (fname, fname_len)
   memcpy (&full_fname[fname_len], aliasfile, sizeof aliasfile);
 #endif
 
-  fp = fopen (full_fname, "r");
+  fp = fopen (full_fname, "rb");
   if (fp == NULL)
     {
       FREE_BLOCKS (block_list);

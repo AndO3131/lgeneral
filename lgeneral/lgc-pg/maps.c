@@ -117,7 +117,7 @@ int maps_convert( int map_id )
     printf( "Maps...\n" );
     /* name file (try the one in lgc-pg as fallback) */
     snprintf( path, MAXPATHLEN, "%s/mapnames.str", source_path );
-    if ( (name_file = fopen_ic( path, "r" )) == NULL ) {
+    if ( (name_file = fopen_ic( path, "rb" )) == NULL ) {
         fprintf( stderr, "ERROR: mapnames not found in %s?\n", source_path);
         return 0;
     }
@@ -133,7 +133,7 @@ int maps_convert( int map_id )
     for ( i = start; i <=end; i++ ) {
         /* open set file */
         snprintf( path, MAXPATHLEN, "%s/map%02d.set", source_path, i );
-        if (( source_file = fopen_ic( path, "r" ) ) == NULL) {
+        if (( source_file = fopen_ic( path, "rb" ) ) == NULL) {
             fprintf( stderr, "%s: file not found\n", path );
             /* for custom campaign not all maps/scenarios may be present so 
              * don't consider this fatal, just continue */
@@ -151,7 +151,7 @@ int maps_convert( int map_id )
         else
             snprintf( path, MAXPATHLEN, "%s/scenarios/%s",
                                                 dest_path, target_name );
-        if ( ( dest_file = fopen( path, (map_id==-1)?"w":"a" ) ) == NULL ) {
+        if ( ( dest_file = fopen( path, (map_id==-1)?"wb":"ab" ) ) == NULL ) {
             fprintf( stderr, "%s: access denied\n", path );
             fclose( source_file );
             return 0;

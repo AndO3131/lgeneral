@@ -1,5 +1,5 @@
 /***************************************************************************
-                          sdl.c  -  description
+                          lg-sdl  -  description
                              -------------------
     begin                : Thu Apr 20 2000
     copyright            : (C) 2000 by Michael Speck
@@ -15,7 +15,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "sdl.h"
+#include "lg-sdl.h"
 
 #include "misc.h"
 

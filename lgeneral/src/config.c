@@ -22,7 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "sdl.h"
+#include "lg-sdl.h"
 #include "config.h"
 #include "parser.h"
 #include "localize.h"
@@ -44,11 +44,7 @@ void check_config_dir_name()
 
         fprintf( stderr, tr("Couldn't find/open config directory '%s'\n"
                             "Attempting to create it... "), config.dir_name );
-#ifdef WIN32
-        res = mkdir( config.dir_name );
-#else
         res = mkdir( config.dir_name, S_IRWXU );
-#endif
         if ( res != 0 )
             fprintf( stderr, tr("failed\n") );
         else
@@ -127,7 +123,7 @@ void save_config( )
     char file_name[512];
 
     sprintf( file_name, "%s/%s", config.dir_name, "lgeneral.conf" );
-    if ( ( file = fopen( file_name, "w" ) ) == 0 )
+    if ( ( file = fopen( file_name, "wb" ) ) == 0 )
         fprintf( stderr, tr("Cannot access config file '%s' to save settings\n"), file_name );
     else {
         fprintf( file, "@\n" );

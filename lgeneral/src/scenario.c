@@ -969,7 +969,7 @@ int scen_check_result( int after_last_turn )
     char fname[512];
     FILE *f;
     snprintf(fname, sizeof fname, "%s/.lgames/.scenresult", getenv("HOME"));
-    f = fopen(fname, "r");
+    f = fopen(fname, "rb");
     if (f) {
         unsigned len;
         scen_result[0] = '\0';

@@ -10,7 +10,7 @@
 #include <SDL.h>
 #include <stdlib.h>
 #include "lgeneral.h"
-#include "sdl.h"
+#include "lg-sdl.h"
 #include "date.h"
 #include "event.h"
 #include "image.h"

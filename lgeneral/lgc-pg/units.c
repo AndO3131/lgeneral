@@ -374,7 +374,7 @@ int units_find_panzequp()
     char path[MAXPATHLEN];
     
     snprintf( path, MAXPATHLEN, "%s/panzequp.eqp", source_path );
-    if ( ( file = fopen_ic( path, "r" ) ) ) {
+    if ( ( file = fopen_ic( path, "rb" ) ) ) {
         fclose( file );
         return 1;
     }
@@ -392,7 +392,7 @@ int units_find_tacicons()
     char path[MAXPATHLEN];
     
     snprintf( path, MAXPATHLEN, "%s/tacicons.shp", source_path );
-    if ( ( file = fopen_ic( path, "r" ) ) ) {
+    if ( ( file = fopen_ic( path, "rb" ) ) ) {
         fclose( file );
         return 1;
     }
@@ -460,14 +460,14 @@ int units_convert_database( char *tac_icons )
         snprintf( path, MAXPATHLEN, "%s/scenarios/%s", dest_path, target_name );
     else
         snprintf( path, MAXPATHLEN, "%s/units/%s.udb", dest_path, target_name );
-    if ( ( dest_file = fopen( path, single_scen?"a":"w" ) ) == 0 ) {
+    if ( ( dest_file = fopen( path, single_scen?"ab":"wb" ) ) == 0 ) {
         fprintf( stderr, "%s: write access denied\n", path );
         goto failure;
     }
     
     /* open file 'panzequp.eqp' */
     snprintf( path, MAXPATHLEN, "%s/panzequp.eqp", source_path );
-    if ( ( source_file = fopen_ic( path, "r" ) ) == NULL ) {
+    if ( ( source_file = fopen_ic( path, "rb" ) ) == NULL ) {
         fprintf( stderr, "%s: can't open file\n", path );
         goto failure;
     }

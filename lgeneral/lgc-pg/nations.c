@@ -85,7 +85,7 @@ int nations_convert( void )
     /* nation database */
     printf( "Nation database...\n" );
     snprintf( path, MAXPATHLEN, "%s/nations/%s.ndb", dest_path, target_name );
-    if ( ( file = fopen( path, "w" ) ) == 0 ) {
+    if ( ( file = fopen( path, "wb" ) ) == 0 ) {
         fprintf( stderr, "%s: access denied\n", path );
         return 0;
     }

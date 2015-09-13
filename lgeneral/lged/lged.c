@@ -350,7 +350,7 @@ static void init_tool(int argc, char **argv) {
   /* check whether we're started from within the source directory */
   {
     const char *path = srcdir_path_from_bindir("README.lgeneral");
-    FILE *f = fopen(path, "r");
+    FILE *f = fopen(path, "rb");
     within_source_tree = !!f;
     if (f) fclose(f);
     free((void *)path);
@@ -378,7 +378,7 @@ static void init_tool(int argc, char **argv) {
   
   /* check whether reinforcements file exists */
   {
-    FILE *f = fopen(reinfrc, "r");
+    FILE *f = fopen(reinfrc, "rb");
     if (!f)
       fprintf(stderr, "Warning: No reinforcements file at %s. New list created.\n", reinfrc);
     if (f) fclose(f);
