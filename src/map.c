@@ -730,8 +730,11 @@ Way_Point* map_get_unit_way_points( Unit *unit, int x, int y, int *count, Unit *
     /* same tile ? */
     if ( unit->x == x && unit->y == y ) return 0;
     /* allocate memory */
-    way = calloc( unit->cur_mov + 1, sizeof( Way_Point ) );
-    reverse = calloc( unit->cur_mov + 1, sizeof( Way_Point ) );
+    int maxpoints = unit->cur_mov;
+    if (mask[x][y].mount == 1)
+        maxpoints = (unit->trsp_prop.mov>unit->prop.mov?unit->trsp_prop.mov:unit->prop.mov);
+    way = calloc( maxpoints + 1, sizeof( Way_Point ) );
+    reverse = calloc( maxpoints + 1, sizeof( Way_Point ) );
     /* it's easiest to get positions in reverse order */
     next_x = x; next_y = y; *count = 0;
     while ( next_x != unit->x || next_y != unit->y ) {
