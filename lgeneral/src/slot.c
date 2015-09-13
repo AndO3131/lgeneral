@@ -615,6 +615,7 @@ Unit* load_unit( FILE *file )
     unit->nation = nation_find( str );
     free( str );
     /* recalculate members that aren't stored */
+    unit->terrain = map[unit->x][unit->y].terrain;
     unit_adjust_icon( unit );
     unit->exp_level = unit->exp / 100;
     unit_update_bar( unit );
