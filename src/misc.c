@@ -19,7 +19,7 @@
 #include "parser.h"
 #include "localize.h"
 #include "paths.h"
-#include "sdl.h"
+#include "lg-sdl.h"
 
 #include <time.h>
 #include <stdlib.h>

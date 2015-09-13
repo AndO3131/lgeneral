@@ -174,7 +174,7 @@ int load_reinf()
     char *line;
     Unit *unit;
     int i, j, k, count;
-    FILE *file = fopen( reinfrc, "r" );
+    FILE *file = fopen( reinfrc, "rb" );
     List *list, *args;
     if ( file ) 
         list = file_read_lines( file );
@@ -227,7 +227,7 @@ int save_reinf()
 {
     Unit *unit;
     int i, j;
-    FILE *file = fopen( reinfrc, "w" );
+    FILE *file = fopen( reinfrc, "wb" );
     if ( file == 0 ) return 0;
     for ( i = 0; i < SCEN_COUNT; i++ )
     {
@@ -271,7 +271,7 @@ void build_reinf()
 {
     Unit *unit;
     int i, j, nat;
-    FILE *file = fopen( reinf_output, "w" );
+    FILE *file = fopen( reinf_output, "wb" );
     if ( file ) {
         for ( i = 0; i < SCEN_COUNT; i++ ) {
             if ( reinf[AXIS][i]->count == 0 )

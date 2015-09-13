@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "sdl.h"
+#include "lg-sdl.h"
 #include "list.h"
 #include "misc.h"
 #include "file.h"

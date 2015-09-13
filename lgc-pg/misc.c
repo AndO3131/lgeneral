@@ -357,11 +357,11 @@ void copy_ic( char *sname, char *dname )
     int size;
     char *buffer;
     FILE *source, *dest;
-    if ( ( source = fopen_ic( sname, "r" ) ) == 0 ){
+    if ( ( source = fopen_ic( sname, "rb" ) ) == 0 ){
         fprintf( stderr, "%s: file not found\n", sname );
         return;
     }
-    if ( ( dest = fopen( dname, "w" ) ) == 0 ) {
+    if ( ( dest = fopen( dname, "wb" ) ) == 0 ) {
         fprintf( stderr, "%s: write access denied\n", dname );
         return;
     }
@@ -380,11 +380,11 @@ void copy( char *sname, char *dname )
     int size;
     char *buffer;
     FILE *source, *dest;
-    if ( ( source = fopen( sname, "r" ) ) == 0 ){
+    if ( ( source = fopen( sname, "rb" ) ) == 0 ){
         fprintf( stderr, "%s: file not found\n", sname );
         return;
     }
-    if ( ( dest = fopen( dname, "w" ) ) == 0 ) {
+    if ( ( dest = fopen( dname, "wb" ) ) == 0 ) {
         fprintf( stderr, "%s: write access denied\n", dname );
         return;
     }

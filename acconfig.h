@@ -15,5 +15,6 @@
 @BOTTOM@
 
 #ifdef HAVE_BROKEN_MKDIR
-#  define mkdir(s,p) mkdir(s)
+#  include <direct.h>
+#  define mkdir(s,p) _mkdir(s)
 #endif

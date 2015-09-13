@@ -17,7 +17,7 @@
 
 #include <SDL.h>
 #include <stdlib.h>
-#include "sdl.h"
+#include "lg-sdl.h"
 #include "image.h"
 
 /*

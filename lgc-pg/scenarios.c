@@ -271,7 +271,7 @@ int scen_add_flags( FILE *dest_file, FILE *scen_file, int id )
     }
     /* open set file */
     snprintf( path, MAXPATHLEN, "%s/map%02i.set", source_path, id );
-    if ( ( map_file = fopen_ic( path, "r" ) ) == 0 ) {
+    if ( ( map_file = fopen_ic( path, "rb" ) ) == 0 ) {
         fprintf( stderr, "%s: file not found\n", path );
         return 0;
     }
@@ -909,7 +909,7 @@ int scenarios_convert( int scen_id )
         if (strcmp(target_name, "pg") == 0) {
             /* write out order of preferred listing */
             snprintf( path, MAXPATHLEN, "%s/scenarios/pg/.order", dest_path );
-            aux_file = fopen( path, "w" );
+            aux_file = fopen( path, "wb" );
             if ( aux_file ) {
                 for (i = 0; i < sizeof fnames/sizeof fnames[0]; i++)
                     fprintf( aux_file, "%s\n", fnames[i] );
@@ -938,7 +938,7 @@ int scenarios_convert( int scen_id )
     /* open scen stat file containing scenario names and descriptions */
     if ( scen_id == -1 ) {
         snprintf( path, MAXPATHLEN, "%s/scenstat.bin", source_path );
-        if ((scenstat_file = fopen_ic(path, "r")) == NULL)
+        if ((scenstat_file = fopen_ic(path, "rb")) == NULL)
             goto failure;
     }
     
@@ -946,7 +946,7 @@ int scenarios_convert( int scen_id )
     for ( i = start; i <=end; i++ ) {
         /* open scenario file */
         snprintf( path, MAXPATHLEN, "%s/game%03d.scn", source_path, i );
-        if ((scen_file = fopen_ic(path, "r")) == NULL) {
+        if ((scen_file = fopen_ic(path, "rb")) == NULL) {
             fprintf( stderr, "%s: file not found\n", path );
             if (scen_id == -1 && strcmp(target_name,"pg")) {
                 map_or_scen_files_missing = 1;
@@ -994,7 +994,7 @@ int scenarios_convert( int scen_id )
         } else
             snprintf( path, MAXPATHLEN, "%s/scenarios/%s", 
                                                     dest_path, target_name );
-        if ( ( dest_file = fopen( path, "w" ) ) == 0 ) {
+        if ( ( dest_file = fopen( path, "wb" ) ) == 0 ) {
             fprintf( stderr, "%s: access denied\n", path );
             goto failure;
         }

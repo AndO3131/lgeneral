@@ -6,7 +6,7 @@ INCLUDES = -I$(top_srcdir)/util $(INTLINCLUDES)
 lgeneral_SOURCES = main.c \
 config.c date.c \
 file.c map.c nation.c \
-player.c scenario.c sdl.c misc.c unit.c \
+player.c scenario.c lg-sdl.c misc.c unit.c \
 audio.c parser.c list.c unit_lib.c \
 terrain.c image.c slot.c gui.c purchase_dlg.c \
 event.c windows.c action.c campaign.c \
@@ -21,7 +21,7 @@ man_MANS = lgeneral.6
 EXTRA_DIST = lgeneral.h \
 config.h date.h engine.h \
 file.h map.h nation.h player.h \
-player.h scenario.h sdl.h misc.h unit.h unit.h \
+player.h scenario.h lg-sdl.h misc.h unit.h unit.h \
 audio.h parser.h list.h unit_lib.h \
 terrain.h image.h slot.h gui.h purchase_dlg.h \
 event.h windows.h action.h campaign.h \
