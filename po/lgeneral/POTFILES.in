@@ -3,7 +3,7 @@ src/windows.c
 src/nation.c
 src/gui.c
 src/map.c
-src/sdl.c
+src/lg-sdl.c
 src/campaign.c
 src/unit_lib.c
 src/scenario.c
