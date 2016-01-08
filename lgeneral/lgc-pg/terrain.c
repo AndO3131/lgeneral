@@ -34,6 +34,7 @@ extern char *dest_path;
 extern char target_name[128];
 extern char *move_types[];
 extern int   move_type_count;
+extern int separate_bridges;
 
 /*
 ====================================================================
@@ -190,7 +191,7 @@ static int terrain_convert_tiles( char id, PG_Shp *shp, char *fname )
     SDL_Surface *surf;
     char path[MAXPATHLEN];
     int count = 0;
-    int is_road = !strcmp( fname, "road" );
+    int broken_pos = 0;
     
     /* count occurence */
     for ( i = 0; i < terrain_tile_count; i++ )
@@ -218,16 +219,17 @@ static int terrain_convert_tiles( char id, PG_Shp *shp, char *fname )
     pos = 0; count = 0;
     for ( i = 0; i < terrain_tile_count; i++ )
         if ( tile_type[i] == id ) {
-			/* road tile no 0 is buggy ... */
-			if (!is_road || count != 0) {
+			/* road tile #37 is buggy ... */
+			if (i != 37) {
                 srect.y = i * 50;
                 drect.x = pos;
                 SDL_BlitSurface( shp->surf, &srect, surf, &drect );
-			}
-			/* ... but can be repaired by mirroring tile no 3 */
-			if (is_road && count == 3) {
+			} else
+				broken_pos = pos;
+			/* ... but can be repaired by mirroring tile #49 */
+			if (i == 49) {
 				srect.y = i * 50;
-                drect.x = 0 * 60;
+				drect.x = broken_pos;
 				copy_surf_mirrored(shp->surf, &srect, surf, &drect);
 			}
 			pos += 60;
@@ -429,7 +431,8 @@ int terrain_convert_graphics( void )
     if ( ( shp = shp_load( "TACMAP.SHP" ) ) == 0 ) goto failure;
     if ( !terrain_convert_tiles( 'c', shp, "clear" ) ) goto failure;
     if ( !terrain_convert_tiles( 'r', shp, "road" ) ) goto failure;
-    if ( !terrain_convert_tiles( 'b', shp, "bridge" ) ) goto failure;
+    if (separate_bridges) /* if not, it's replaced with r ids */
+	if ( !terrain_convert_tiles( 'b', shp, "bridge" ) ) goto failure;
     if ( !terrain_convert_tiles( '#', shp, "fields" ) ) goto failure;
     if ( !terrain_convert_tiles( '~', shp, "rough" ) ) goto failure;
     if ( !terrain_convert_tiles( 'R', shp, "river" ) ) goto failure;

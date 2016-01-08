@@ -1,3 +1,9 @@
+1.3.1:
+- bridge terrain type is now optional for compatibility (2016/01/08 MS) 
+- adjusted file access mode and other stuff for portability (2015/09/13 Ivan Baidakou)
+- fixed seg fault on loading game (2015/09/13 Galland)
+- fixed seg fault that could occur on mounting unit (2015/09/13 Galland)
+
 1.3.0:
 - fixed seg fault in lgc-pg when running headless (2015/07/26 Markus Koschany)
 - compatibility flag added for GCC5 (2015/07/26 Markus Koschany)

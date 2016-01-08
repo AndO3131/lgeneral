@@ -41,9 +41,13 @@ int use_def_pal = 0; /* always use default PG palette regardless of whether
 int map_or_scen_files_missing = 0; /* some map/scenario files were missing */
 int apply_unit_mods = 0; /* apply PG specific modifications (e.g., determine 
                             nation by name, mirror images, correct spelling) */
+int separate_bridges = 0; /* split of bridges into separate terrain type */
 /* unofficial options */
 const char *axis_name = 0, *allies_name =  0;
 const char *axis_nations = 0, *allies_nations = 0; /* comma-separated */
+
+extern int terrain_tile_count;
+extern char tile_type[];
 
 void print_help()
 {
@@ -62,6 +66,7 @@ void print_help()
     "                     or custom campaign assuming it uses the PG unit database\n"\
     "                     (maybe slightly changed) \n"\
     "    --help           this help\n"\
+    "    --separate-bridges  split bridges and roads into two terrain types\n" \
     "Example:\n   lgc-pg -s /mnt/cdrom/DAT\n"\
     "See README.lgc-pg for more information.\n" );
     exit( 0 );
@@ -91,6 +96,8 @@ int parse_args( int argc, char **argv )
             apply_unit_mods = 1;
         if ( !strcmp( "-h", argv[i] ) || !strcmp( "--help", argv[i] ) )
             print_help(); /* will exit */
+        if ( !strcmp( "--separate-bridges", argv[i] ) )
+            separate_bridges = 1;
         /* unoffical options */
         if ( !strcmp( "--axis_name", argv[i] ) )
             axis_name = argv[i + 1];
@@ -131,6 +138,13 @@ int parse_args( int argc, char **argv )
         apply_unit_mods = 1; /* always for PG campaign of course */
     if (tacicons_name[0] == 0)
         sprintf( tacicons_name, "%s.bmp", target_name );
+        
+	if (separate_bridges == 0) {
+		/* b -> r */
+		for (i = 0; i < terrain_tile_count; i++)
+			if (tile_type[i] == 'b')
+				tile_type[i] = 'r';
+	}
 
     printf( "Settings:\n" );
     printf( "  Source: %s\n", source_path );
@@ -148,6 +162,8 @@ int parse_args( int argc, char **argv )
         printf( "  Use Individual Palettes\n" );
     if ( apply_unit_mods )
         printf( "  Apply PG unit modifications\n" );
+    if (separate_bridges)
+	printf( "  Have separate terrain type 'bridge'\n");
     return 1;
 }
 
