@@ -317,6 +317,8 @@ int terrain_convert_database( void )
     /* terrain types */
     fprintf( file, "<terrain\n" );
     for ( i = 0; i < NUM_TERRAIN_TYPES; i++ ) {
+		if (!separate_bridges && terrainTypes[i].id=='b') 
+			continue; /* skip bridge definition if road is used instead */
         fprintf( file, "<%c\n", terrainTypes[i].id );
         fprintf( file, "name»%s\n", terrainTypes[i].name );
         fprintf( file, "<image\n" );
@@ -432,7 +434,7 @@ int terrain_convert_graphics( void )
     if ( !terrain_convert_tiles( 'c', shp, "clear" ) ) goto failure;
     if ( !terrain_convert_tiles( 'r', shp, "road" ) ) goto failure;
     if (separate_bridges) /* if not, it's replaced with r ids */
-	if ( !terrain_convert_tiles( 'b', shp, "bridge" ) ) goto failure;
+      if ( !terrain_convert_tiles( 'b', shp, "bridge" ) ) goto failure;
     if ( !terrain_convert_tiles( '#', shp, "fields" ) ) goto failure;
     if ( !terrain_convert_tiles( '~', shp, "rough" ) ) goto failure;
     if ( !terrain_convert_tiles( 'R', shp, "river" ) ) goto failure;
