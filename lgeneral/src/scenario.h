@@ -92,14 +92,18 @@ enum {
     VSUBCOND_TURNS_LEFT,
     VSUBCOND_CTRL_HEX_NUM,
     VSUBCOND_UNITS_KILLED,
-    VSUBCOND_UNITS_SAVED
+    VSUBCOND_UNITS_SAVED,
+    VSUBCOND_UNITS_ESCAPED
 };
 typedef struct {
     int type;           /* type as above */
     Player *player;     /* player this condition is checked for */
     int x,y;            /* special */
-    int count;           
+    int count;          /* of relevant tagged units */
     char tag[32];       /* tag of unit group */
+    int coords[100][2];	/* coordinates for escaping */
+    int coord_count;
+    int remove;			/* remove escaped units immediately */	
 } VSubCond;
 typedef struct {
     VSubCond *subconds_or;    /* sub conditions linked with logical or */

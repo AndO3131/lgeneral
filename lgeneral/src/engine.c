@@ -2817,7 +2817,8 @@ static void engine_check_events(int *reinit)
                                                         if ( ( unit = engine_get_select_unit( mx, my, region ) ) && cur_unit != unit ) {
                                                             /* first capture the flag for the human unit */
                                                             if ( cur_ctrl == PLAYER_CTRL_HUMAN ) {
-                                                                if ( engine_capture_flag( cur_unit ) ) {
+                                                                if ( engine_capture_flag( cur_unit ) ||
+																		map[cur_unit->x][cur_unit->y].escape_zone) {
                                                                     /* CHECK IF SCENARIO IS FINISHED */
                                                                     if ( scen_check_result( 0 ) )  {
                                                                         engine_finish_scenario();
@@ -2863,7 +2864,8 @@ static void engine_check_events(int *reinit)
                                                 else {
                                                     /* first capture the flag for the human unit */
                                                     if ( cur_ctrl == PLAYER_CTRL_HUMAN ) {
-                                                        if ( engine_capture_flag( cur_unit ) ) {
+                                                        if ( engine_capture_flag( cur_unit ) ||
+																map[cur_unit->x][cur_unit->y].escape_zone ) {
                                                             /* CHECK IF SCENARIO IS FINISHED */
                                                             if ( scen_check_result( 0 ) )  {
                                                                 engine_finish_scenario();
@@ -3682,7 +3684,8 @@ static void engine_update( int ms )
                      * original Panzer General behaviour
                      */
                     if ( cur_ctrl == PLAYER_CTRL_CPU ) {
-                        if ( engine_capture_flag( move_unit ) ) {
+                        if ( engine_capture_flag( move_unit ) ||
+								map[move_unit->x][move_unit->y].escape_zone ) {
                             /* CHECK IF SCENARIO IS FINISHED */
                             if ( scen_check_result( 0 ) )  {
                                 engine_finish_scenario();
