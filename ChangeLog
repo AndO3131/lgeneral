@@ -1,3 +1,4 @@
+- new victory condition: units may escape to certain area (2016/09/04 MS)
 - always generate gfx sub directories (2016/08/28 MS)
 - do not generate terrain info for bridges if not split off (2016/08/28 MS)
 

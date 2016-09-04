@@ -939,6 +939,12 @@ void gui_show_full_info( Unit *unit )
     DEST( contents, x, y, nation_flag_width, nation_flag_height );
     SOURCE( nation_flags, 0, unit->nation->flag_offset );
     blit_surf();
+    /* tag (if any) */
+    if (unit->tag[0] != 0) {
+		x = border; y = border + hex_h - gui->font_std->height;
+		snprintf(str,8,"[%s]",unit->tag);
+		write_line( contents, gui->font_std, str, x, &y );
+	}
     /* name and type */
     x = border; y = border + hex_h;
     write_line( contents, gui->font_std, unit->name, x, &y );
@@ -1145,6 +1151,9 @@ void gui_render_subcond( VSubCond *cond, char *str )
             break;
         case VSUBCOND_UNITS_SAVED:
             sprintf( str, tr("save units with tag '%s'"), cond->tag );
+            break;
+        case VSUBCOND_UNITS_ESCAPED:
+            sprintf( str, tr("units with tag '%s' escape"), cond->tag );
             break;
     }
 }

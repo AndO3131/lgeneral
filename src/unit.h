@@ -116,7 +116,7 @@ typedef struct _Unit {
                                    same turn */
     char tag[32];               /* if tag is set the unit belongs to a unit group that
                                    is monitored by the victory conditions units_killed()
-                                   and units_saved() */
+                                   and units_saved() and units_escaped() */
     int eval_score;             /* between 0 - 1000 indicating the worth of the unit */
     /* AI eval */
     int target_score;           /* when targets of an AI unit are gathered this value is set

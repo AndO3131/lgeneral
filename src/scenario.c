@@ -156,6 +156,35 @@ static int subcond_check( VSubCond *cond )
             if ( count == cond->count )
                 return 1;
             return 0;
+        case VSUBCOND_UNITS_ESCAPED:
+			/* check all tagged units of player (or ally) whether they are 
+			* on a map tile marked as escape_zone */
+			list_reset( units );
+			count = 0;
+			while ( ( unit = list_next( units ) ) ) {
+				if ( !player_is_ally( cond->player, unit->player ) )
+					continue; /* not our unit */
+				if ( unit->tag[0] == 0 || !STRCMP( unit->tag, cond->tag ) )
+					continue; /* not or differently tagged */
+				if (unit->killed)
+					continue; /* has already been handeled or lost */
+                if (map[unit->x][unit->y].escape_zone) {
+					/* kill (the only true escape) unit directly? */
+					if (cond->remove) {
+						/* XXX not sure if this is ok here,
+						 * better place would be engine.c:2866
+						 * when deselecting unit on right click
+						 * but maybe it is ok here */
+						 map_remove_unit(unit);
+						 unit->killed = 1;
+						 cond->count--; /* only works if there is ONE condition for escaping only! */
+					} else 
+						count++; /* escaped but not removed directly */
+				}
+			}
+            if ( count == cond->count )
+                return 1;
+            return 0;
     }
     return 0;
 }
@@ -509,6 +538,35 @@ int scen_load( const char *fname )
                         strcpy_lt( vconds[i].subconds_and[j].tag, str, 31 );
                         vconds[i].subconds_and[j].count = 0; /* units will be counted */
                     }
+                    else
+                    if ( STRCMP( pd_vsubcond->name, "units_escaped" ) ) {
+                        vconds[i].subconds_and[j].type = VSUBCOND_UNITS_ESCAPED;
+                        if ( !parser_get_value( pd_vsubcond, "player", &str, 0 ) ) goto parser_failure;
+                        vconds[i].subconds_and[j].player = player_get_by_id( str );
+                        if ( !parser_get_value( pd_vsubcond, "tag", &str, 0 ) ) goto parser_failure;
+                        strcpy_lt( vconds[i].subconds_and[j].tag, str, 31 );
+                        if ( parser_get_value( pd_vsubcond, "remove", &str, 0 ) && str[0] == '1') 
+							vconds[i].subconds_and[j].remove = 1;
+						else
+							vconds[i].subconds_and[j].remove = 0;
+                        vconds[i].subconds_and[j].coord_count = 0;
+						if ( parser_get_values( pd_vsubcond, "coordinates", &values ) && values->count>0 )
+						{
+							list_reset( values );
+							while ( ( lib = list_next( values ) ) ) {
+								get_coord( lib, &x, &y );
+								vconds[i].subconds_and[j].coords[vconds[i].subconds_and[j].coord_count][0]=x;
+								vconds[i].subconds_and[j].coords[vconds[i].subconds_and[j].coord_count][1]=y;
+								vconds[i].subconds_and[j].coord_count++;
+								/* map is already created so set tile as escape zone */
+								map[x][y].escape_zone = 1;
+								/* XXX hardcoded limit, see scenario.h */
+								if (vconds[i].subconds_and[j].coord_count == 100)
+									break;
+							}
+						}
+						vconds[i].subconds_and[j].count = 0; /* units will be counted */
+                    }
                     j++;
                 }
             }
@@ -648,14 +706,16 @@ int scen_load( const char *fname )
         if ( parser_get_value( sub, "tag", &str, 0 ) ) {
             strcpy_lt( unit_base.tag, str, 31 );
             /* check all subconds for UNITS_SAVED and increase the counter
-               if this unit is allied */
+               if this unit is allied; same for UNITS_ESCAPED */
             for ( i = 1; i < vcond_count; i++ ) {
                 for ( j = 0; j < vconds[i].sub_and_count; j++ )
-                    if ( vconds[i].subconds_and[j].type == VSUBCOND_UNITS_SAVED )
+                    if ( vconds[i].subconds_and[j].type == VSUBCOND_UNITS_SAVED ||
+							vconds[i].subconds_and[j].type == VSUBCOND_UNITS_ESCAPED)
                         if ( STRCMP( unit_base.tag, vconds[i].subconds_and[j].tag ) )
                             vconds[i].subconds_and[j].count++;
                 for ( j = 0; j < vconds[i].sub_or_count; j++ )
-                    if ( vconds[i].subconds_or[j].type == VSUBCOND_UNITS_SAVED )
+                    if ( vconds[i].subconds_or[j].type == VSUBCOND_UNITS_SAVED ||
+							vconds[i].subconds_or[j].type == VSUBCOND_UNITS_ESCAPED)
                         if ( STRCMP( unit_base.tag, vconds[i].subconds_or[j].tag ) )
                             vconds[i].subconds_or[j].count++;
             }

@@ -950,6 +950,12 @@ void map_draw_terrain( SDL_Surface *surf, int map_x, int map_y, int x, int y )
         SOURCE( terrain_icons->grid, 0, 0 );
         blit_surf();
     }
+    /* escape zone? do danger mask overlay with less transparency */
+    if (tile->escape_zone) {
+		DEST( surf, x, y, hex_w, hex_h );
+		SOURCE( terrain_icons->danger, 0, 0);
+		alpha_blit_surf(DANGER_ALPHA/2);
+	}
 }
 /*
 ====================================================================
