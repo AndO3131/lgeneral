@@ -565,7 +565,10 @@ int scen_load( const char *fname )
 									break;
 							}
 						}
-						vconds[i].subconds_and[j].count = 0; /* units will be counted */
+						if ( !parser_get_int( pd_vsubcond, "count", &vconds[i].subconds_and[j].count ) )
+							vconds[i].subconds_and[j].count = 0; /* units will be counted */
+						else
+							vconds[i].subconds_and[j].count *= -1; /* XXX add sign to prevent counting when reading unit flags */
                     }
                     j++;
                 }
@@ -711,13 +714,15 @@ int scen_load( const char *fname )
                 for ( j = 0; j < vconds[i].sub_and_count; j++ )
                     if ( vconds[i].subconds_and[j].type == VSUBCOND_UNITS_SAVED ||
 							vconds[i].subconds_and[j].type == VSUBCOND_UNITS_ESCAPED)
-                        if ( STRCMP( unit_base.tag, vconds[i].subconds_and[j].tag ) )
-                            vconds[i].subconds_and[j].count++;
+						if( vconds[i].subconds_and[j].count>=0 ) /* negative means fixed predefined count */
+							if ( STRCMP( unit_base.tag, vconds[i].subconds_and[j].tag ) )
+								vconds[i].subconds_and[j].count++;
                 for ( j = 0; j < vconds[i].sub_or_count; j++ )
                     if ( vconds[i].subconds_or[j].type == VSUBCOND_UNITS_SAVED ||
 							vconds[i].subconds_or[j].type == VSUBCOND_UNITS_ESCAPED)
-                        if ( STRCMP( unit_base.tag, vconds[i].subconds_or[j].tag ) )
-                            vconds[i].subconds_or[j].count++;
+						if( vconds[i].subconds_or[j].count>=0 ) /* negative means fixed predefined count */
+							if ( STRCMP( unit_base.tag, vconds[i].subconds_or[j].tag ) )
+								vconds[i].subconds_or[j].count++;
             }
         }
         /* actual unit */
@@ -745,6 +750,13 @@ int scen_load( const char *fname )
 	    unit_ref++;
 	}
     }
+    /* check if any escape condition has negative count
+     * -> fixed number of units to be saved: remove sign */
+	for ( i = 1; i < vcond_count; i++ )
+		for ( j = 0; j < vconds[i].sub_and_count; j++ )
+			if ( vconds[i].subconds_and[j].type == VSUBCOND_UNITS_ESCAPED )
+				if( vconds[i].subconds_and[j].count < 0)
+					vconds[i].subconds_and[j].count *= -1;
     /* load deployment hexes */
     if ( parser_get_entries( pd, "deployfields", &entries ) ) {
         list_reset( entries );
