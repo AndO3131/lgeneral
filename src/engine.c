@@ -68,6 +68,8 @@ extern Setup setup;
 extern int  term_game, sdl_quit;
 extern List *prev_scen_core_units;
 extern char *prev_scen_fname;
+extern Scen_Message *sMessages;
+extern int sMessage_count;
 
 /*
 ====================================================================
@@ -726,6 +728,7 @@ static void engine_show_turn_info()
     int text_x, text_y;
     int time_factor;
     char text[400];
+    int n;
     FULL_DEST( sdl.screen );
     fill_surf( 0x0 );
 #if 0
@@ -780,14 +783,23 @@ static void engine_show_turn_info()
         sprintf( text, tr("Last Turn") );
     write_text( gui->font_turn_info, sdl.screen, text_x, text_y, text, OPAQUE );
 
+	text_y += gui->font_turn_info->height;
 	/* hint about available reinforcements */
 	if (avail_units->count > 0) {
-		text_y += gui->font_turn_info->height;
 		text_y += gui->font_turn_info->height;
 		sprintf( text, tr("New units can be deployed!") );
 		write_text( gui->font_turn_info, sdl.screen, text_x, text_y, text, OPAQUE );
 	}
-	
+	/* user-defined hints */
+	if( sMessages )
+	{
+		n = 0;
+		text_y += gui->font_turn_info->height;
+		for( n = 0; n < sMessage_count; n++ )
+			if( sMessages[n].turn == turn )
+				if( !strcmp( sMessages[n].player->id, cur_player->id ) )
+					write_text( gui->font_turn_info, sdl.screen, text_x, text_y, sMessages[n].message, OPAQUE );
+	}
     refresh_screen( 0, 0, 0, 0 );
     SDL_PumpEvents(); event_clear();
     time_factor = 3000/20;		/* wait 3 sec */

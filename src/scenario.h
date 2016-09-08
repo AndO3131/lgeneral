@@ -113,6 +113,11 @@ typedef struct {
     char result[64];
     char message[128];
 } VCond;
+typedef struct {
+	Player *player;		//who should see that message
+	int turn;		//and when
+	char message[128];	//and what is that message anyway
+} Scen_Message;
 
 /*
 ====================================================================
