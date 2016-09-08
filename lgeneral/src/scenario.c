@@ -90,6 +90,8 @@ char scen_message[128] = ""; /* the final scenario message is saved here */
 int vcond_check_type = 0;   /* test victory conditions this turn */
 VCond *vconds = 0;          /* victory conditions */
 int vcond_count = 0;
+Scen_Message *sMessages = NULL;	/* messages to show during the scenario */
+int sMessage_count = 0;		/* and their number */
 static int *casualties;	/* sum of casualties grouped by unit class and player */
 
 /*
@@ -782,6 +784,31 @@ int scen_load( const char *fname )
             }
         }
     }
+    /* load messages */
+    if ( parser_get_entries( pd, "messages", &entries ) ) {
+	/* count and alloc scenario messages */
+	list_reset( entries );
+	while ( ( list_next( entries ) ) )
+		sMessage_count++;
+	sMessages = calloc( sMessage_count, sizeof( Scen_Message ) );
+
+	/* load them now */
+	list_reset( entries ); i = 0;
+	while ( ( sub = list_next( entries ) ) ) {
+		if ( !parser_get_value( sub, "player", &str, 0 ) )
+			goto parser_failure;
+		sMessages[i].player = player_get_by_id( str );
+		if ( !sMessages[i].player )
+			goto parser_failure;
+		if( !parser_get_int( sub, "turn", &sMessages[i].turn ) )
+			goto parser_failure;
+		if( !parser_get_value( sub, "text", &str,0) )
+			goto parser_failure;
+		else
+			strcpy_lt( sMessages[i].message, str, 128 );
+		i++;
+	}
+    }
     parser_free( &pd );
 
     casualties = calloc( scen_info->player_count * unit_class_count, sizeof casualties[0] );
@@ -954,6 +981,15 @@ void scen_delete()
         }
         free( vconds ); vconds = 0;
         vcond_count = 0;
+    }
+    if( sMessages ) {
+/*        for ( i = 0; i < sMessage_count; i++ ) {
+		free( sMessages[i].message );
+		free( sMessages[i].player );
+	}
+*/	free( sMessages );
+	sMessages = NULL;
+	sMessage_count = 0;
     }
     if ( units ) {
         list_delete( units );

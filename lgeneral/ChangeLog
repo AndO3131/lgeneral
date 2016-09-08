@@ -1,3 +1,4 @@
+- in custom scenarios messages can be displayed at turn begin (2016/09/05 Tez Bartlomiej)
 - added count attribute to escape condition (2016/09/05 Tez Bartlomiej)
 - new victory condition: units may escape to certain area (2016/09/04 MS)
 - always generate gfx sub directories (2016/08/28 MS)
