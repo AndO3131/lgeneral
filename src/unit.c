@@ -244,7 +244,7 @@ static int unit_attack( Unit *unit, Unit *target, int type, int real, int force_
 #endif
     /* in a real combat a submarine may evade */
     if ( real && type == UNIT_ACTIVE_ATTACK && ( target->sel_prop->flags & DIVING ) ) { 
-        if ( DICE(10) <= 7 + ( target->exp_level - unit->exp_level ) / 2 )
+        if ( DICE(10) <= 6 + ( target->exp_level - unit->exp_level ) / 2 )
         {
             strike = ATK_NO_STRIKE;
             ret |= AR_EVADED;
