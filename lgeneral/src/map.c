@@ -1589,6 +1589,13 @@ is given, check whether it is any
 */
 static int map_check_deploy_center( Player *player, Unit *unit, int mx, int my )
 {
+    //that part allows planes to spawn from an aircraft carrier
+    if( unit )
+	if(unit->sel_prop->flags&FLYING)
+		if( map_tile(mx,my)->g_unit )
+			if( (map_tile(mx,my)->g_unit->sel_prop->flags & CARRIER) )
+				if( player_is_ally( map_tile(mx,my)->g_unit->player, unit->player ) )
+					return 1;
     if (map[mx][my].deploy_center!=1||!map[mx][my].player) return 0;
     if (!player_is_ally(map[mx][my].player,player)) return 0;
     if (unit)
