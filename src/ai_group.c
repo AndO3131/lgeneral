@@ -301,11 +301,17 @@ int ai_evaluate_hex( AI_Eval *eval )
         /* conquering a flag gives a bonus */
         if ( map[eval->x][eval->y].player )
             if ( !player_is_ally( eval->unit->player, map[eval->x][eval->y].player ) )
+            {
+		//however ships are unable to do that
+		if( (eval->unit->sel_prop->flags & SWIMMING) )
+			eval->mov_score -= 1000;
+		else
                 if ( map[eval->x][eval->y].g_unit == 0 ) {
                     eval->mov_score += 600;
                     if ( map[eval->x][eval->y].obj )
                         eval->mov_score += 600;
                 }
+            }
         /* if this position allows debarking or is just one hex away
            this tile receives a big bonus. */
         if ( eval->unit->embark == EMBARK_SEA ) {
