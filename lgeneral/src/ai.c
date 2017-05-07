@@ -545,7 +545,12 @@ void ai_run( void )
                     dist = 1000; found = 0;
                     for ( i = 1; i < map_w - 1; i++ )
                         for ( j = 1; j < map_h - 1; j++ )
-                            if ( mask[i][j].aux > 0 && mask[i][j].aux < dist ) {
+                            if ( mask[i][j].aux > 0 && mask[i][j].aux < dist )
+                            //that line is to avoid unit deployment in enemy
+                            //city, that makes it impossible to capture
+                            //it by the AI
+                            if( !map_tile(i,j)->player || ( map_tile(i,j)->player == cur_player ) )
+                             {
                                 dist = mask[i][j].aux;
                                 x = i; y = j;
                                 found = 1; /* deploy close to enemy */
