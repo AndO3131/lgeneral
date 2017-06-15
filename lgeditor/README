@@ -1,0 +1,67 @@
+LGeneral (Map )Editor
+=====================
+
+
+Installation
+------------
+The usual 
+	./configure
+	make
+	make install
+It tries to find LGeneral on its own. If it fails use --with-lgendir manually.
+
+
+Getting Started
+---------------
+Run from terminal with		
+
+	lgeditor <MAPNAME> [<WIDTH> <HEIGHT>]
+
+If map exists (full path!) it tries to load the map and ignores width and
+height. If map is not found a new empty map of size width by height is created
+and map name is set as map file name.
+
+Example for new map: lgeditor /home/me/tmp/mymap 60 30
+Example for loading map: lgeditor /usr/local/share/lgeneral/maps/map01
+
+BEWARE: The latter requires you to be root or mess around with permissions in a
+way you don't want to. Better to copy maps to some user directory and edit 
+there. When done copy it back to LGeneral's directory (or install LGeneral to 
+some own directory like /home/me/tmp/ in the first place).
+
+It should most definitely be run from a terminal. If not, a new map is created
+(size 30x30) to be saved in current directory (whatever this is) with file name
+newmap. You could type in the wanted file name including path but it is 
+bothersome as the GUI is very simple. Also you can change map size only from
+command line.
+
+
+Using it
+--------
+On the left-hand side you can select terrain class and tile. At the bottom you 
+can set the name which is reset to default on changing the class. E.g. to get 
+a river, select river, type the river's name and use whatever tiles you need.
+The name is kept. If you switch to let's say town the name is reset.
+
+You can left-click on the map or keep left mouse button pressed and move mouse
+around to set new tiles. With right click you reset to some random grass tile.
+Scrolling can only be done by cursor keys.
+
+SPECIAL BONUS: Set a name and use middle mouse button to only change the name.
+Useful to, e.g, rename rivers or bigger towns afterwards. Should work with 
+dragging as well but doesn't. Which is a bug (SDL doesn't seem to deliver button
+state right).
+
+At the bottom you can set the file name (including the path). No in-word editing
+possible, so changing the first character means erasing all the others. Therefore
+it is best to start lgeditor in your map directory and use no path at all (to have
+it saved in current location).
+
+L loads map, S saves map, Q quits (no prompting). There is no undo. Suggestion:
+Start with something like mymap. When a certain portion is done, change name to
+mymap1 and save. Like this go up in numbers. You can go back to earlier versions
+by changing file name. Copy final product to LGeneral's directory.
+
+
+That's it for now. Pretty basic so far but it should work.
+Michael
