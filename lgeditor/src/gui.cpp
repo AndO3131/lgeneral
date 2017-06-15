@@ -49,6 +49,9 @@ void renderCell(int id, SDL_Texture *t, int w, int h)
 				data->countries[gui->list->getSelId()].icon->copy(0,0,w/2,h/2);
 			else /* victory hex */
 				data->countries[gui->list->getSelId()].icon->copy(0,0,w,h);
+		} else if (gui->curItemView == ID_UNITITEMS) {
+			int uid = data->getUnitByIndex(gui->list->getSelId(),id);
+			data->units[uid].icons->copy(0,0,0,0,w,h);
 		}
 	}
 
@@ -77,6 +80,13 @@ void handleAction(int id, Widget *w, const SDL_Event *e)
 		gui->list->setItems(v);
 		gui->iv->setSize(0);
 		break;
+	case ID_UNITITEMS:
+		gui->curItemView = ID_UNITITEMS;
+		for (unsigned int i = 0; i < data->uclasses.size(); i++)
+			v.push_back(data->uclasses[i].name);
+		gui->list->setItems(v);
+		gui->iv->setSize(0);
+		break;
 	case ID_LISTSELECT:
 		if (gui->list->getSelId() != -1) {
 			if (gui->curItemView == ID_TERRAINITEMS) {
@@ -86,6 +96,15 @@ void handleAction(int id, Widget *w, const SDL_Event *e)
 			}
 			else if (gui->curItemView == ID_NATIONITEMS)
 				gui->iv->setSize(2);
+			else if (gui->curItemView == ID_UNITITEMS)
+				gui->iv->setSize(data->countUnitsInClass(gui->list->getSelId()));
+		}
+		break;
+	case ID_ITEMSELECT:
+		if (gui->curItemView == ID_UNITITEMS) {
+			int uid = data->getUnitByIndex(gui->list->getSelId(),gui->iv->getSelId());
+			gui->tedit->setText(data->units[uid].name);
+			gui->tedit->draw();
 		}
 		break;
 	case ID_SAVE:
@@ -112,21 +131,24 @@ GUI::GUI()
 	w1 = new Widget(NULL, Geom(0, 0, -1, -1), bk, false);
 	tooltip = new Label(w1, Geom((float)0.23,0.02,0.7,0.03),bk,true,font,
 			((std::string)("LGeneral Location: " + lgenpath)).c_str());
-	w = new Button(w1, Geom((float)0.02, 0.02, 0.09, 0.03),
+	w = new Button(w1, Geom((float)0.02, 0.02, 0.06, 0.03),
 			bk2, true, font, "Terrain");
 	w->setTooltip(tooltip,"Select Terrain List");
 	w->setActionHandler(handleAction,ID_TERRAINITEMS);
-	w->hide(); /* XXX hide for now */
-	w = new Button(w1, Geom((float)0.12, 0.02, 0.09, 0.03),
+	w = new Button(w1, Geom((float)0.09, 0.02, 0.06, 0.03),
 			bk2, true, font, "Flags");
 	w->setTooltip(tooltip,"Select Flag List");
 	w->setActionHandler(handleAction,ID_NATIONITEMS);
-	w->hide(); /* XXX hide for now */
+	w = new Button(w1, Geom((float)0.16, 0.02, 0.05, 0.03),
+			bk2, true, font, "Units");
+	w->setTooltip(tooltip,"Select Unit List");
+	w->setActionHandler(handleAction,ID_UNITITEMS);
 	list = new Listbox(w1, Geom((float)0.02, 0.07, 0.19, 0.3),
 			bk,true,sbw,icons,font,NULL,0);
 	list->setActionHandler(handleAction,ID_LISTSELECT);
 	iv = new ItemView(w1,Geom((float)0.02,0.39,0.19,0.54),
 			bk,true,sbw,icons,2,5,renderCell,0);
+	iv->setActionHandler(handleAction,ID_ITEMSELECT);
 	tedit = new Edit(w1, Geom((float)0.02, 0.95, 0.19, 0.03), bk2, true, font, 512);
 	tedit->setTooltip(tooltip,"Terrain name");
 	nedit = new Edit(w1, Geom((float)0.23, 0.95, 0.7, 0.03), bk2, true, font, 512);

@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 			h = MAXMAPH;
 	}
 
-	new MainWindow("Window", -1, -1);
+	new MainWindow("Window", 800, 600);
 	data = new Data(w, h);
 	gui = new GUI();
 	gui->nedit->setText(fname);
