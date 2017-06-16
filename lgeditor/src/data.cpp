@@ -346,10 +346,6 @@ static void unit_lib_delete_entry( void *ptr )
     free( entry );
 }
 
-/*
-    create an surface
-    MUST NOT BE USED IF NO SDLSCREEN IS SET
-*/
 SDL_Surface* create_surf(int w, int h, int f)
 {
 	Uint32 rmask, gmask, bmask, amask;
@@ -370,8 +366,7 @@ SDL_Surface* create_surf(int w, int h, int f)
         fprintf(stderr, "ERR: ssur_create: not enough memory to create surface...\n");
         exit(1);
     }
-//    SDL_SetColorKey(sur, SDL_SRCCOLORKEY, 0x0);
-//    SDL_SetAlpha(sur, 0, 0); /* no alpha */
+    SDL_SetColorKey(sur, SDL_TRUE, 0x0);
     return sur;
 }
 
@@ -809,7 +804,7 @@ Data::Data(int w, int h)
 		ui.icon = new Image(u->icon);
 		ui.cid = u->uclass;
 		if (u->nation == -1)
-			u->nation = 22; /* no nation = GB */
+			u->nation = 19; /* no nation partisans = SU */
 		ui.nid = u->nation;
 		unitlib.push_back(ui);
 	}
@@ -826,6 +821,8 @@ Data::Data(int w, int h)
 			map[i][j].tid[0] = 0;
 			map[i][j].tid[1] = rand() % 6 + 12;
 			map[i][j].fid = -1;
+			map[i][j].gid = -1;
+			map[i][j].aid = -1;
 			map[i][j].obj = 0;
 			map[i][j].name = terrain[map[i][j].tid[0]].name;
 		}

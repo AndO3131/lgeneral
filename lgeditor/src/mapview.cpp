@@ -56,6 +56,8 @@ void MapView::render()
 				continue;
 
 			MapTile *t = &data->map[i][j];
+			int tw = data->terrain[t->tid[0]].tiles->getGridWidth();
+			int th = data->terrain[t->tid[0]].tiles->getGridHeight();
 
 			/* render map tile */
 			data->terrain[t->tid[0]].tiles->copy(t->tid[1],0,dx,dy);
@@ -64,8 +66,6 @@ void MapView::render()
 				data->selectFrame->copy(dx,dy);
 			/* add flag if any */
 			if (t->fid != -1) {
-				int tw = data->terrain[t->tid[0]].tiles->getGridWidth();
-				int th = data->terrain[t->tid[0]].tiles->getGridHeight();
 				Image *i =data->countries[t->fid].icon;
 				int fw = i->getWidth();
 				int fh = i->getHeight();
@@ -84,6 +84,19 @@ void MapView::render()
 							255, 255, 0, SDL_ALPHA_OPAQUE);
 					SDL_RenderDrawLines(mrc, pts, 5);
 				}
+			}
+			/* add units */
+			if (t->gid != -1) {
+				UnitInfo &ui = data->unitlib[t->gid];
+				int ux = (tw - ui.icon->getWidth()) / 2;
+				int uy = (th - ui.icon->getHeight()) / 2 + th/4;
+				ui.icon->copy(dx + ux, dy + uy);
+			}
+			if (t->aid != -1) {
+				UnitInfo &ui = data->unitlib[t->aid];
+				int ux = (tw - ui.icon->getWidth()) / 2;
+				int uy = (th - ui.icon->getHeight()) / 2 - th/4;
+				ui.icon->copy(dx + ux, dy + uy);
 			}
 
 			/* adjust draw position */
@@ -141,26 +154,40 @@ void MapView::setTile(bool clear, bool onlyname)
 		return; /* no selection */
 
 	int cat, sub,item;
+	MapTile &tile = data->map[sx][sy];
 	gui->getSelection(cat,sub,item);
 
 	if (cat == ID_TERRAINITEMS) {
 		if (clear) {
-			data->map[sx][sy].tid[0] = 0;
-			data->map[sx][sy].tid[1] = rand() % 6 + 12;
-			data->map[sx][sy].name = data->terrain[0].name;
+			tile.tid[0] = 0;
+			tile.tid[1] = rand() % 6 + 12;
+			tile.name = data->terrain[0].name;
 		} else if (sub != -1 && item != -1 && !onlyname) {
-			data->map[sx][sy].tid[0] = sub;
-			data->map[sx][sy].tid[1] = item;
-			data->map[sx][sy].name = gui->tedit->getText();
+			tile.tid[0] = sub;
+			tile.tid[1] = item;
+			tile.name = gui->tedit->getText();
 		} else if (sub != -1 && onlyname) {
-			data->map[sx][sy].name = gui->tedit->getText();
+			tile.name = gui->tedit->getText();
 		}
 	} else if (cat == ID_NATIONITEMS) {
 		if (clear)
-			data->map[sx][sy].fid = -1;
+			tile.fid = -1;
 		else if (sub != -1 && item != -1) {
-			data->map[sx][sy].fid = sub;
-			data->map[sx][sy].obj = (item == 1);
+			tile.fid = sub;
+			tile.obj = (item == 1);
+		}
+	} else if (cat == ID_UNITITEMS) {
+		if (clear) {
+			tile.gid = -1;
+			tile.aid = -1;
+		}else {
+			int uid = data->getUnitByIndex(sub,item);
+			/* FIXME class 8,9,10 are flying... correct solution
+			 * would be to check for class flying flag */
+			if (sub >= 8 && sub <= 10)
+				tile.aid = uid;
+			else
+				tile.gid = uid;
 		}
 	}
 }
