@@ -50,7 +50,7 @@ fi
 
 )
 
-CXXFLAGS="$CXXFLAGS $(sdl2-config --cflags) -Wall"
+CXXFLAGS="$CXXFLAGS $(sdl2-config --cflags) -Wall -O0 -g"
 CXXFLAGS="$CXXFLAGS -DDATADIR=\\\"$datdir\\\" -DLGENDIR=\\\"$lgendir\\\""
 LIBS="$LIBS $(sdl2-config --libs)"
 

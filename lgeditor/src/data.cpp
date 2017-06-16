@@ -301,7 +301,7 @@ typedef struct {
     int ammo;       /* max ammunition */
     int fuel;       /* max fuel (0 if not used) */
     SDL_Surface *icon;      /* tactical icon */
-    SDL_Surface *icon_tiny; /* half the size; used to display air and ground unit at one tile */
+//    SDL_Surface *icon_tiny; /* half the size; used to display air and ground unit at one tile */
     int icon_type;          /* either single or all_dirs */
     int icon_w, icon_h;     /* single icon size */
     int icon_tiny_w, icon_tiny_h; /* single icon size */
@@ -339,7 +339,6 @@ static void unit_lib_delete_entry( void *ptr )
     if ( entry->id ) free( entry->id );
     if ( entry->name ) free( entry->name );
     if ( entry->icon ) SDL_FreeSurface( entry->icon );
-    if ( entry->icon_tiny ) SDL_FreeSurface( entry->icon_tiny );
 #ifdef WITH_SOUND
     if ( entry->wav_alloc && entry->wav_move )
         wav_free( entry->wav_move );
@@ -425,6 +424,8 @@ static void unit_get_icon_geometry( int icon_id, SDL_Surface *icons, int *width,
     (*width)++;
     /* pixel beside left upper measure key is color key */
     *key = get_pixel( icons, 1, *offset );
+
+    printf("%d: %d x %d at %d\n",icon_id,*width,*height,*offset);
 }
 
 /*
@@ -486,20 +487,17 @@ mov_types and unit classes will be loaded (may only happen once)
 */
 int unit_lib_load(const char *fname, int main )
 {
-    int i, j, icon_id;
+    int i, icon_id;
     SDL_Surface *icons = NULL;
     int icon_type;
     int width, height, offset;
     Uint32 color_key;
-    int byte_size, y_offset;
-    char *pix_buffer;
     Unit_Lib_Entry *unit;
     MyList *entries;
     PData *pd, *sub, *subsub;
     char path[512];
     char *str;
     char *domain = 0;
-    float scale;
     /* log info */
     int  log_dot_limit = 40; /* maximum of dots */
     int  log_dot_count = 0; /* actual number of dots displayed */
@@ -617,12 +615,11 @@ int unit_lib_load(const char *fname, int main )
 	/* nation (if not found or 'none' unit can't be purchased) */
 	unit->nation = -1; /* undefined */
 	if ( parser_get_value( sub, "nation", &str, 0) && strcmp(str,"none") ) {
-		/* XXX somehow get nation shit together
-		for (Uint8 i = 0; i < countries.size(); i++)
-			if (countries[i].id == str) {
+		for (i = 0; i < nation_count; i++)
+			if (STRCMP(nations[i].id,str)) {
 				unit->nation = i;
 				break;
-			}*/
+			}
 	}
         /* class id */
         unit->uclass = 0;
@@ -704,53 +701,22 @@ int unit_lib_load(const char *fname, int main )
          * if picture_type is not ALL_DIRS, picture is a single picture looking to the right;
          * add a flipped picture looking to the left
          */
-        {
-            /* set size */
-            unit->icon_w = width;
-            unit->icon_h = height;
-            /* create pic and copy first pic */
-            unit->icon = create_surf( unit->icon_w * 2, unit->icon_h, SDL_SWSURFACE );
-            SDL_Rect srect = {0, 0, 0, offset};
-            SDL_Rect drect = {0, 0, unit->icon_w, unit->icon_h};
-            SDL_BlitSurface(icons, &srect, unit->icon, &drect);
-            /* remove measure dots */
-            set_pixel( unit->icon, 0, 0, color_key );
-            set_pixel( unit->icon, 0, unit->icon_h - 1, color_key );
-            set_pixel( unit->icon, unit->icon_w - 1, 0, color_key );
-            /* set transparency */
-//            SDL_SetColorKey( unit->icon, SDL_SRCCOLORKEY, color_key );
-            /* get format info */
-            byte_size = icons->format->BytesPerPixel;
-            y_offset = 0;
-            pix_buffer = (char*)calloc( byte_size, sizeof( char ) );
-            /* get second by flipping first one */
-            for ( j = 0; j < unit->icon_h; j++ ) {
-                for ( i = 0; i < unit->icon_w; i++ ) {
-                    memcpy( pix_buffer,
-                            (char*)unit->icon->pixels +
-                            y_offset +
-                            ( unit->icon_w - 1 - i ) * byte_size,
-                            byte_size );
-                    memcpy( (char*)unit->icon->pixels +
-                            y_offset +
-                            unit->icon_w * byte_size +
-                            i * byte_size,
-                            pix_buffer, byte_size );
-                }
-                y_offset += unit->icon->pitch;
-            }
-            /* free mem */
-            free( pix_buffer );
-        }
-        scale = 1.5;
-        unit->icon_tiny = create_surf( unit->icon->w * ( 1.0 / scale ), unit->icon->h * ( 1.0 / scale ), SDL_SWSURFACE );
-        unit->icon_tiny_w = unit->icon_w * ( 1.0 / scale ); unit->icon_tiny_h = unit->icon_h * ( 1.0 / scale );
-        for ( j = 0; j < unit->icon_tiny->h; j++ ) {
-            for ( i = 0; i < unit->icon_tiny->w; i++ )
-                set_pixel( unit->icon_tiny,
-                           i, j,
-                           get_pixel( unit->icon, scale * i, scale * j ) );
-        }
+
+        /* set size */
+        unit->icon_w = width;
+        unit->icon_h = height;
+        /* create pic and copy first pic */
+        unit->icon = create_surf( unit->icon_w, unit->icon_h, SDL_SWSURFACE );
+        SDL_Rect srect = {0, offset, unit->icon_w, unit->icon_h};
+        SDL_Rect drect = {0, 0, unit->icon_w, unit->icon_h};
+        SDL_BlitSurface(icons, &srect, unit->icon, &drect);
+        /* remove measure dots */
+        set_pixel( unit->icon, 0, 0, color_key );
+        set_pixel( unit->icon, 0, unit->icon_h - 1, color_key );
+        set_pixel( unit->icon, unit->icon_w - 1, 0, color_key );
+        /* set transparency */
+        //            SDL_SetColorKey( unit->icon, SDL_SRCCOLORKEY, color_key );
+
         /* use color key of 'big' picture */
   //      SDL_SetColorKey( unit->icon_tiny, SDL_SRCCOLORKEY, color_key );
         /* add unit to database */
@@ -773,6 +739,7 @@ int unit_lib_load(const char *fname, int main )
     free(domain);
     SDL_FreeSurface(icons);
     return 1;
+
 parser_failure:
     fprintf( stderr, "%s\n", parser_get_error() );
 failure:
@@ -825,7 +792,6 @@ Data::Data(int w, int h)
 		countries.push_back(ni);
 	}
 	delete flags;
-	nations_delete();
 
 	unit_lib_load("pg.udb",1);
 	for (int i = 0; i < unit_class_count; i++) {
@@ -840,11 +806,17 @@ Data::Data(int w, int h)
 		UnitInfo ui;
 		ui.id = u->id;
 		ui.name = u->name;
-		ui.icons = new GridImage(u->icon,u->icon_w,u->icon_h);
+		ui.icon = new Image(u->icon);
 		ui.cid = u->uclass;
-		units.push_back(ui);
+		if (u->nation == -1)
+			u->nation = 22; /* no nation = GB */
+		ui.nid = u->nation;
+		unitlib.push_back(ui);
 	}
 	unit_lib_delete();
+
+	/* nations is needed in unit lib load so delete here */
+	nations_delete();
 
 	/* generate empty standard map width size */
 	mapw = w;
@@ -866,8 +838,8 @@ Data::~Data()
 		delete terrain[i].tiles;
 	for (unsigned int i = 0; i < countries.size(); i++)
 		delete countries[i].icon;
-	for (unsigned int i = 0; i < units.size(); i++)
-		delete units[i].icons;
+	for (unsigned int i = 0; i < unitlib.size(); i++)
+		delete unitlib[i].icon;
 }
 
 void Data::loadMap(std::string fname)
@@ -987,16 +959,16 @@ void Data::saveMap(std::string fn)
 int Data::countUnitsInClass(int cid)
 {
 	int c = 0;
-	for (unsigned int i = 0; i < units.size(); i++)
-		if (units[i].cid == cid)
+	for (unsigned int i = 0; i < unitlib.size(); i++)
+		if (unitlib[i].cid == cid)
 			c++;
 	return c;
 }
 
 int Data::getUnitByIndex(int cid, int uid)
 {
-	for (unsigned int i = 0; i < units.size(); i++)
-		if (units[i].cid == cid) {
+	for (unsigned int i = 0; i < unitlib.size(); i++)
+		if (unitlib[i].cid == cid) {
 			if (uid == 0)
 				return i;
 			uid--;

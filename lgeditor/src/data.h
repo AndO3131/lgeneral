@@ -39,7 +39,8 @@ typedef struct {
 	std::string id;
 	std::string name;
 	int cid; /* class id */
-	GridImage *icons;
+	int nid; /* nation id */
+	Image *icon;
 } UnitInfo;
 typedef struct {
 	int tid[2]; /* terrain type and pic id */
@@ -66,7 +67,7 @@ public:
 	std::vector<WeatherInfo> weather;
 	std::vector<NationInfo> countries;
 	std::vector<UnitClassInfo> uclasses;
-	std::vector<UnitInfo> units; /* lib entries */
+	std::vector<UnitInfo> unitlib;
 
 	int mapw, maph;
 	MapTile map[MAXMAPW][MAXMAPH];

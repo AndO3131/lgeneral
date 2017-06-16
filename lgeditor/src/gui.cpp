@@ -36,22 +36,26 @@ bool GUI::leave = false;
 
 void renderCell(int id, SDL_Texture *t, int w, int h)
 {
+	int sel = gui->list->getSelId();
+
 	SDL_SetRenderTarget(mrc,t);
 	SDL_SetRenderDrawColor(mrc,0,0,0,128);
 	SDL_SetTextureBlendMode(t, SDL_BLENDMODE_BLEND);
 	SDL_RenderFillRect(mrc,NULL);
 
-	if (gui->list->getSelId() != -1) {
+	if (sel != -1) {
 		if (gui->curItemView == ID_TERRAINITEMS)
-			data->terrain[gui->list->getSelId()].tiles->copy(id,0,0,0,w,h);
+			data->terrain[sel].tiles->copy(id,0,0,0,w,h);
 		else if (gui->curItemView == ID_NATIONITEMS) {
 			if (id == 0) /* normal flag */
-				data->countries[gui->list->getSelId()].icon->copy(0,0,w/2,h/2);
+				data->countries[sel].icon->copy(0,0,w/2,h/2);
 			else /* victory hex */
-				data->countries[gui->list->getSelId()].icon->copy(0,0,w,h);
+				data->countries[sel].icon->copy(0,0,w,h);
 		} else if (gui->curItemView == ID_UNITITEMS) {
-			int uid = data->getUnitByIndex(gui->list->getSelId(),id);
-			data->units[uid].icons->copy(0,0,0,0,w,h);
+			int uid = data->getUnitByIndex(sel,id);
+			UnitInfo &ui = data->unitlib[uid];
+			ui.icon->copy(0,0,w,h);
+			data->countries[ui.nid].icon->copy(0,0);
 		}
 	}
 
@@ -103,7 +107,7 @@ void handleAction(int id, Widget *w, const SDL_Event *e)
 	case ID_ITEMSELECT:
 		if (gui->curItemView == ID_UNITITEMS) {
 			int uid = data->getUnitByIndex(gui->list->getSelId(),gui->iv->getSelId());
-			gui->tedit->setText(data->units[uid].name);
+			gui->tedit->setText(data->unitlib[uid].name);
 			gui->tedit->draw();
 		}
 		break;
