@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "widgets.h"
+#include "parser.h"
 #include "data.h"
 #include "mapview.h"
 #include "gui.h"
@@ -66,8 +67,9 @@ int main(int argc, char **argv)
 	new MainWindow("Window", 800, 600);
 	data = new Data(w, h);
 	gui = new GUI();
+	/* DEBUG: */fname = "./Berlin";
 	gui->nedit->setText(fname);
-	data->loadMap(fname); /* might fail */
+	data->loadScenario(fname); /* might fail */
 
 	gui->run();
 

@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "widgets.h"
+#include "parser.h"
 #include "data.h"
 #include "mapview.h"
 #include "gui.h"
@@ -112,11 +113,11 @@ void handleAction(int id, Widget *w, const SDL_Event *e)
 		}
 		break;
 	case ID_SAVE:
-		data->saveMap(gui->nedit->getText());
+		data->saveScenario(gui->nedit->getText(),NULL);
 		gui->mv->render();
 		break;
 	case ID_LOAD:
-		data->loadMap(gui->nedit->getText());
+		data->loadScenario(gui->nedit->getText());
 		gui->mv->render();
 		break;
 	}

@@ -24,6 +24,7 @@
 #include <sstream>
 
 #include "widgets.h"
+#include "parser.h"
 #include "data.h"
 #include "mapview.h"
 #include "gui.h"

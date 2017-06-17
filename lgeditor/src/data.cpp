@@ -23,8 +23,8 @@
 #include <list>
 #include <sstream>
 #include "widgets.h"
-#include "data.h"
 #include "parser.h"
+#include "data.h"
 
 extern std::string lgenpath;
 static const char * get_gamedir() {
@@ -420,7 +420,7 @@ static void unit_get_icon_geometry( int icon_id, SDL_Surface *icons, int *width,
     /* pixel beside left upper measure key is color key */
     *key = get_pixel( icons, 1, *offset );
 
-    printf("%d: %d x %d at %d\n",icon_id,*width,*height,*offset);
+//    printf("%d: %d x %d at %d\n",icon_id,*width,*height,*offset);
 }
 
 /*
@@ -814,6 +814,24 @@ Data::Data(int w, int h)
 	nations_delete();
 
 	/* generate empty standard map width size */
+	resetMap(w,h);
+}
+Data::~Data()
+{
+	delete grid;
+	delete selectFrame;
+	for (unsigned int i = 0; i < terrain.size(); i++)
+		delete terrain[i].tiles;
+	for (unsigned int i = 0; i < countries.size(); i++)
+		delete countries[i].icon;
+	for (unsigned int i = 0; i < unitlib.size(); i++)
+		delete unitlib[i].icon;
+	if (scen)
+		parser_free(&scen);
+}
+
+void Data::resetMap(int w, int h)
+{
 	mapw = w;
 	maph = h;
 	for (int i = 0; i < mapw; i++)
@@ -826,17 +844,6 @@ Data::Data(int w, int h)
 			map[i][j].obj = 0;
 			map[i][j].name = terrain[map[i][j].tid[0]].name;
 		}
-}
-Data::~Data()
-{
-	delete grid;
-	delete selectFrame;
-	for (unsigned int i = 0; i < terrain.size(); i++)
-		delete terrain[i].tiles;
-	for (unsigned int i = 0; i < countries.size(); i++)
-		delete countries[i].icon;
-	for (unsigned int i = 0; i < unitlib.size(); i++)
-		delete unitlib[i].icon;
 }
 
 void Data::loadMap(std::string fname)
@@ -860,15 +867,11 @@ void Data::loadMap(std::string fname)
 	//if ( !terrain_load( str ) ) goto failure;
 	if ( !parser_get_values( pd, "tiles", &tiles ) ) goto parser_failure;
 	/* map itself */
+	resetMap(mapw,maph);
 	list_reset( tiles );
 	for ( y = 0; y < maph; y++ )
 		for ( x = 0; x < mapw; x++ ) {
 			tile = (char*)list_next( tiles );
-			/* no flag */
-			map[x][y].fid = -1;
-			map[x][y].obj = 0;
-			map[x][y].tid[0] = 0;
-			map[x][y].tid[1] = 0;
 			/* check tile type */
 			for ( j = 0; j < terrain.size(); j++ )
 				if ( terrain[j].id.c_str()[0] == tile[0] )
@@ -951,6 +954,135 @@ void Data::saveMap(std::string fn)
 	fprintf( dest_file, "\n" );
 
 	fclose( dest_file );
+}
+
+void Data::loadScenario(std::string fname)
+{
+	char *str;
+	MyList *list;
+	PData *entry;
+
+	scen = parser_read_file("Scenario", fname.c_str());
+	if (scen == NULL) {
+		printf("ERROR: Could not load Scenario %s\n",fname.c_str());
+		return;
+	}
+
+	/* FIXME we load nations and units for PG in constructor thus
+	 * restricting us to scenarios using default data. anything
+	 * custom won't work unless we load it here as well (like the map) */
+
+	/* load map */
+	if ( !parser_get_value( scen, "map", &str, 0 ) )
+		loadMap(fname); // it's in us
+	else {
+		std::string path = lgenpath + "/maps/" + str;
+		loadMap(path.c_str());
+	}
+
+	/* load flags */
+	if (parser_get_entries(scen,"flags",&list)) {
+		list_reset(list);
+		while ((entry = (PData*)list_next(list))) {
+			int x,y,obj;
+			char *n;
+			parser_get_int(entry,"x",&x);
+			parser_get_int(entry,"y",&y);
+			parser_get_int(entry,"obj",&obj);
+			parser_get_string(entry,"nation",&n);
+			map[x][y].obj = obj;
+			for (unsigned int i = 0; i < countries.size();i++)
+				if (countries[i].id == n) {
+					map[x][y].fid = i;
+					break;
+				}
+			free(n);
+		}
+	}
+
+	/* load units */
+	/* FIXME units need to be loaded properly otherwise
+	 * transporters and reinforcements get lost.
+	 */
+	if (parser_get_entries(scen,"units",&list)) {
+		list_reset(list);
+		while ((entry = (PData*)list_next(list))) {
+			int x,y;
+			char *id;
+			if (!parser_get_int(entry,"x",&x))
+				continue; /* reinf */
+			parser_get_int(entry,"y",&y);
+			parser_get_string(entry,"id",&id);
+			for (unsigned int i = 0; i < unitlib.size();i++)
+				if (unitlib[i].id == id) {
+					if (unitlib[i].cid >= 8 &&
+							unitlib[i].cid <= 10)
+						map[x][y].aid = i;
+					else
+						map[x][y].gid = i;
+					break;
+				}
+			free(id);
+		}
+	}
+}
+
+void Data::saveScenario(std::string fname, PData *mpd)
+{
+	/* save PData tree recursively, replacing what can already be
+	 * changed by the editor:
+	 * map (always in file now)
+	 * flags
+	 * units (exp=0,entr=min,str=10 fixed for now)
+	 */
+	const char *path = fname.c_str();
+	const char entryToken = 0xbb;
+	const char itemToken = 0xb0;
+	static FILE *dest_file;
+	char *str;
+	int i;
+	PData *pd;
+	int root = 0;
+
+	if (mpd == NULL) {
+		printf("Saving scenario as %s\n",path);
+
+		/* open dest file */
+		if ( ( dest_file = fopen( path, "wb" ) ) == NULL ) {
+			fprintf( stderr, "%s: access denied\n", path );
+			return;
+		}
+
+		/* magic for new file */
+		fprintf( dest_file, "@\n" );
+
+		mpd = scen;
+		root = 1;
+	}
+
+	/* save recursively */
+	list_reset(mpd->entries);
+	while ((pd = (PData*)list_next(mpd->entries))) {
+		if (pd->values) {
+			fprintf(dest_file, "%s%c",pd->name,entryToken);
+			list_reset(pd->values);
+			i = 0;
+			while ((str = (char*)list_next(pd->values))) {
+				fprintf(dest_file, "%s", str);
+				if (++i < pd->values->count)
+					fprintf(dest_file, "%c", itemToken);
+			}
+			fprintf(dest_file,"\n");
+		} else if (pd->entries) {
+			/* save recursively */
+			fprintf(dest_file, "<%s\n",pd->name);
+			saveScenario(fname,pd);
+			fprintf(dest_file, ">\n");
+		}
+	}
+
+	if (root)
+		fclose( dest_file );
 }
 
 int Data::countUnitsInClass(int cid)
