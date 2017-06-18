@@ -43,9 +43,18 @@ typedef struct {
 	Image *icon;
 } UnitInfo;
 typedef struct {
+	std::string id;
+	int libidx; /* index in unit lib */
+	std::string nat;
+	int core;
+	int x, y;
+	int str, entr, exp;
+	std::string trsp;
+} Unit;
+typedef struct {
 	int tid[2]; /* terrain type and pic id */
-	int gid; /* ground unit */
-	int aid; /* air unit */
+	Unit gunit; /* ground unit */
+	Unit aunit; /* air unit */
 	int fid; /* flag id */
 	int obj; /* objective */
 	std::string name; /* tile name */
@@ -81,6 +90,7 @@ public:
 	void saveMap(std::string fname);
 	void loadScenario(std::string fname);
 	void saveScenario(std::string fname, PData *mpd);
+	void saveUnit(Unit &u, FILE *fh);
 
 	int countUnitsInClass(int cid);
 	int getUnitByIndex(int cid, int uid);

@@ -839,8 +839,8 @@ void Data::resetMap(int w, int h)
 			map[i][j].tid[0] = 0;
 			map[i][j].tid[1] = rand() % 6 + 12;
 			map[i][j].fid = -1;
-			map[i][j].gid = -1;
-			map[i][j].aid = -1;
+			map[i][j].gunit.id = "";
+			map[i][j].aunit.id = "";
 			map[i][j].obj = 0;
 			map[i][j].name = terrain[map[i][j].tid[0]].name;
 		}
@@ -1007,24 +1007,71 @@ void Data::loadScenario(std::string fname)
 	if (parser_get_entries(scen,"units",&list)) {
 		list_reset(list);
 		while ((entry = (PData*)list_next(list))) {
-			int x,y;
-			char *id;
+			int x,y,core,entr,strength,exp;
+			std::string id, nat, trsp;
+			char *str;
+
 			if (!parser_get_int(entry,"x",&x))
 				continue; /* reinf */
 			parser_get_int(entry,"y",&y);
-			parser_get_string(entry,"id",&id);
+			parser_get_int(entry,"str",&strength);
+			parser_get_int(entry,"entr",&entr);
+			parser_get_int(entry,"exp",&exp);
+			parser_get_int(entry,"core",&core);
+			if (parser_get_string(entry,"id",&str)) {
+				id = str;
+				free(str);
+			}
+			if (parser_get_string(entry,"nation",&str)) {
+				nat = str;
+				free(str);
+			}
+			if (parser_get_string(entry,"trsp",&str)) {
+				trsp = str;
+				free(str);
+			}
+
 			for (unsigned int i = 0; i < unitlib.size();i++)
 				if (unitlib[i].id == id) {
+					Unit *u;
 					if (unitlib[i].cid >= 8 &&
 							unitlib[i].cid <= 10)
-						map[x][y].aid = i;
+						u = &map[x][y].aunit;
 					else
-						map[x][y].gid = i;
+						u = &map[x][y].gunit;
+					u->libidx = i;
+					u->id = id;
+					u->x = x;
+					u->y = y;
+					u->core = core;
+					u->str = strength;
+					u->exp = exp;
+					u->nat = nat;
+					u->trsp = trsp;
 					break;
 				}
-			free(id);
 		}
 	}
+}
+
+void Data::saveUnit(Unit &u, FILE *fh)
+{
+	const char entryToken = 0xbb;
+
+	printf("saving %s\n",u.id.c_str());
+
+	fprintf(fh, "<unit\n");
+	fprintf(fh, "id%c%s\n", entryToken, u.id.c_str());
+	fprintf(fh, "nation%c%s\n", entryToken, u.nat.c_str());
+	if (u.core)
+		fprintf(fh, "core%c1\n", entryToken);
+	fprintf(fh, "x%c%d\n", entryToken, u.x);
+	fprintf(fh, "y%c%d\n", entryToken, u.y);
+	fprintf(fh, "str%c%d\n", entryToken, u.str);
+	fprintf(fh, "entr%c%d\n", entryToken, u.entr);
+	fprintf(fh, "exp%c%d\n", entryToken, u.exp);
+	fprintf(fh, "trsp%c%s\n", entryToken, u.trsp.c_str());
+	fprintf(fh, ">\n");
 }
 
 void Data::saveScenario(std::string fname, PData *mpd)
@@ -1076,7 +1123,27 @@ void Data::saveScenario(std::string fname, PData *mpd)
 		} else if (pd->entries) {
 			/* save recursively */
 			fprintf(dest_file, "<%s\n",pd->name);
-			saveScenario(fname,pd);
+			if (STRCMP(pd->name,"flags")) {
+				for (int x = 0; x < mapw; x++)
+					for (int y = 0; y < mapw; y++)
+						if (map[x][y].fid != -1 ) {
+							fprintf(dest_file, "<flag\n");
+							fprintf(dest_file, "x%c%d\n", entryToken, x);
+							fprintf(dest_file, "y%c%d\n", entryToken, y);
+							fprintf(dest_file, "nation%c%s\n", entryToken, countries[map[x][y].fid].id.c_str());
+							fprintf(dest_file, "obj%c%d\n", entryToken, map[x][y].obj);
+							fprintf(dest_file, ">\n");
+						}
+			} else if (STRCMP(pd->name,"units")) {
+				for (int x = 0; x < mapw; x++)
+					for (int y = 0; y < mapw; y++) {
+						if (map[x][y].gunit.id != "")
+							saveUnit(map[x][y].gunit, dest_file);
+						if (map[x][y].aunit.id != "")
+							saveUnit(map[x][y].aunit, dest_file);
+					}
+			} else
+				saveScenario(fname,pd);
 			fprintf(dest_file, ">\n");
 		}
 	}

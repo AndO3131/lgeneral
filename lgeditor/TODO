@@ -1,1 +1,3 @@
 show set units in tile info
+keep reinfs by addition reinf list on loading
+replace map

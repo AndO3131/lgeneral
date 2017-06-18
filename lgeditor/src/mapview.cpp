@@ -87,14 +87,14 @@ void MapView::render()
 				}
 			}
 			/* add units */
-			if (t->gid != -1) {
-				UnitInfo &ui = data->unitlib[t->gid];
+			if (t->gunit.id != "") {
+				UnitInfo &ui = data->unitlib[t->gunit.libidx];
 				int ux = (tw - ui.icon->getWidth()) / 2;
 				int uy = (th - ui.icon->getHeight()) / 2 + th/4;
 				ui.icon->copy(dx + ux, dy + uy);
 			}
-			if (t->aid != -1) {
-				UnitInfo &ui = data->unitlib[t->aid];
+			if (t->aunit.id != "") {
+				UnitInfo &ui = data->unitlib[t->aunit.libidx];
 				int ux = (tw - ui.icon->getWidth()) / 2;
 				int uy = (th - ui.icon->getHeight()) / 2 - th/4;
 				ui.icon->copy(dx + ux, dy + uy);
@@ -179,16 +179,27 @@ void MapView::setTile(bool clear, bool onlyname)
 		}
 	} else if (cat == ID_UNITITEMS) {
 		if (clear) {
-			tile.gid = -1;
-			tile.aid = -1;
-		}else {
+			tile.gunit.id = "";
+			tile.aunit.id = "";
+		} else {
 			int uid = data->getUnitByIndex(sub,item);
+			Unit *u;
 			/* FIXME class 8,9,10 are flying... correct solution
 			 * would be to check for class flying flag */
 			if (sub >= 8 && sub <= 10)
-				tile.aid = uid;
+				u = &tile.aunit;
 			else
-				tile.gid = uid;
+				u = &tile.gunit;
+			u->libidx = uid;
+			u->id = data->unitlib[uid].id;
+			u->nat = data->countries[data->unitlib[uid].nid].id;
+			u->str = 10;
+			u->core = 0;
+			u->entr = 0;
+			u->exp = 0;
+			u->x = sx;
+			u->y = sy;
+			u->trsp = "none";
 		}
 	}
 }
