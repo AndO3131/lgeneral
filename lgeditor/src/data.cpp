@@ -1133,7 +1133,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 	while ((pd = (PData*)list_next(mpd->entries))) {
 		if (pd->values) {
 			if (STRCMP(pd->name,"map") && root)
-				continue; /* ignore we always save infile */
+				continue;
 			fprintf(dest_file, "%s%c",pd->name,entryToken);
 			list_reset(pd->values);
 			i = 0;
@@ -1145,36 +1145,43 @@ void Data::saveScenario(std::string fname, PData *mpd)
 			fprintf(dest_file,"\n");
 		} else if (pd->entries) {
 			/* save recursively */
+			if (root && (STRCMP(pd->name,"flags") ||
+						STRCMP(pd->name,"units")))
+				continue;
 			fprintf(dest_file, "<%s\n",pd->name);
-			if (STRCMP(pd->name,"flags")) {
-				for (int x = 0; x < mapw; x++)
-					for (int y = 0; y < maph; y++)
-						if (map[x][y].fid != -1 ) {
-							fprintf(dest_file, "<flag\n");
-							fprintf(dest_file, "x%c%d\n", entryToken, x);
-							fprintf(dest_file, "y%c%d\n", entryToken, y);
-							fprintf(dest_file, "nation%c%s\n", entryToken, countries[map[x][y].fid].id.c_str());
-							fprintf(dest_file, "obj%c%d\n", entryToken, map[x][y].obj);
-							fprintf(dest_file, ">\n");
-						}
-			} else if (STRCMP(pd->name,"units")) {
-				for (int x = 0; x < mapw; x++)
-					for (int y = 0; y < maph; y++) {
-						if (map[x][y].gunit.id != "")
-							saveUnit(map[x][y].gunit, dest_file);
-						if (map[x][y].aunit.id != "")
-							saveUnit(map[x][y].aunit, dest_file);
-					}
-				/* reinfs */
-				for (unsigned int i = 0; i < reinfs.size(); i++)
-					saveUnit(reinfs[i],dest_file);
-			} else
-				saveScenario(fname,pd);
+			saveScenario(fname,pd);
 			fprintf(dest_file, ">\n");
 		}
 	}
 
 	if (root) {
+		/* add flags */
+		fprintf(dest_file, "<flags\n");
+		for (int x = 0; x < mapw; x++)
+			for (int y = 0; y < maph; y++)
+				if (map[x][y].fid != -1 ) {
+					fprintf(dest_file, "<flag\n");
+					fprintf(dest_file, "x%c%d\n", entryToken, x);
+					fprintf(dest_file, "y%c%d\n", entryToken, y);
+					fprintf(dest_file, "nation%c%s\n", entryToken, countries[map[x][y].fid].id.c_str());
+					fprintf(dest_file, "obj%c%d\n", entryToken, map[x][y].obj);
+					fprintf(dest_file, ">\n");
+				}
+		fprintf(dest_file,"\n");
+		/* add units */
+		fprintf(dest_file, "<units\n");
+		for (int x = 0; x < mapw; x++)
+			for (int y = 0; y < maph; y++) {
+				if (map[x][y].gunit.id != "")
+					saveUnit(map[x][y].gunit, dest_file);
+				if (map[x][y].aunit.id != "")
+					saveUnit(map[x][y].aunit, dest_file);
+			}
+		/* reinfs */
+		for (unsigned int i = 0; i < reinfs.size(); i++)
+			saveUnit(reinfs[i],dest_file);
+		fprintf(dest_file,"\n");
+		/* add map */
 		saveMapInfile(dest_file);
 		fclose( dest_file );
 	}
