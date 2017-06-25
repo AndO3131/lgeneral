@@ -264,9 +264,13 @@ void MapView::handleEvent(const SDL_Event *ev)
 		render();
 
 		if (sx != -1 && sy != -1) {
+			MapTile &t =data->map[sx][sy];
 			std::ostringstream txt;
-			txt << data->map[sx][sy].name
-				<< " (" << sx << ", " << sy << ")";
+			txt << t.name << " (" << sx << ", " << sy << ")";
+			if (t.gunit.id != "")
+				txt << "  G: " << data->unitlib[t.gunit.libidx].name;
+			if (t.aunit.id != "")
+				txt << "  A: " << data->unitlib[t.aunit.libidx].name;
 			tooltipLabel->setText(txt.str().c_str());
 		}
 	}
