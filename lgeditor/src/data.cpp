@@ -1007,17 +1007,19 @@ void Data::loadScenario(std::string fname)
 	if (parser_get_entries(scen,"units",&list)) {
 		list_reset(list);
 		while ((entry = (PData*)list_next(list))) {
-			int x,y,core,entr,strength,exp;
-			std::string id, nat, trsp;
+			int x = -1,y = -1,core = 0;
+			int entr = 0, strength = 10, exp = 0;
+			std::string id = "", nat = "", trsp = "";
+			int delay = 0;
 			char *str;
 
-			if (!parser_get_int(entry,"x",&x))
-				continue; /* reinf */
+			parser_get_int(entry,"x",&x);
 			parser_get_int(entry,"y",&y);
 			parser_get_int(entry,"str",&strength);
 			parser_get_int(entry,"entr",&entr);
 			parser_get_int(entry,"exp",&exp);
 			parser_get_int(entry,"core",&core);
+			parser_get_int(entry,"delay",&delay);
 			if (parser_get_string(entry,"id",&str)) {
 				id = str;
 				free(str);
@@ -1031,10 +1033,18 @@ void Data::loadScenario(std::string fname)
 				free(str);
 			}
 
+			if ((x == -1 || y == -1) && delay == 0) {
+				printf("ignoring unit %s: no position\n",id.c_str());
+				continue;
+			}
+
 			for (unsigned int i = 0; i < unitlib.size();i++)
 				if (unitlib[i].id == id) {
+					Unit ru;
 					Unit *u;
-					if (unitlib[i].cid >= 8 &&
+					if (delay > 0)
+						u = &ru;
+					else if (unitlib[i].cid >= 8 &&
 							unitlib[i].cid <= 10)
 						u = &map[x][y].aunit;
 					else
@@ -1045,9 +1055,13 @@ void Data::loadScenario(std::string fname)
 					u->y = y;
 					u->core = core;
 					u->str = strength;
+					u->entr = entr;
 					u->exp = exp;
 					u->nat = nat;
 					u->trsp = trsp;
+					u->delay = delay;
+					if (delay > 0)
+						reinfs.push_back(ru);
 					break;
 				}
 		}
@@ -1058,19 +1072,21 @@ void Data::saveUnit(Unit &u, FILE *fh)
 {
 	const char entryToken = 0xbb;
 
-	printf("saving %s\n",u.id.c_str());
-
 	fprintf(fh, "<unit\n");
 	fprintf(fh, "id%c%s\n", entryToken, u.id.c_str());
 	fprintf(fh, "nation%c%s\n", entryToken, u.nat.c_str());
 	if (u.core)
 		fprintf(fh, "core%c1\n", entryToken);
-	fprintf(fh, "x%c%d\n", entryToken, u.x);
-	fprintf(fh, "y%c%d\n", entryToken, u.y);
+	if (u.x != -1)
+		fprintf(fh, "x%c%d\n", entryToken, u.x);
+	if (u.y != -1)
+		fprintf(fh, "y%c%d\n", entryToken, u.y);
 	fprintf(fh, "str%c%d\n", entryToken, u.str);
 	fprintf(fh, "entr%c%d\n", entryToken, u.entr);
 	fprintf(fh, "exp%c%d\n", entryToken, u.exp);
 	fprintf(fh, "trsp%c%s\n", entryToken, u.trsp.c_str());
+	if (u.delay > 0)
+		fprintf(fh, "delay%c%d\n", entryToken, u.delay);
 	fprintf(fh, ">\n");
 }
 
@@ -1142,6 +1158,9 @@ void Data::saveScenario(std::string fname, PData *mpd)
 						if (map[x][y].aunit.id != "")
 							saveUnit(map[x][y].aunit, dest_file);
 					}
+				/* reinfs */
+				for (unsigned int i = 0; i < reinfs.size(); i++)
+					saveUnit(reinfs[i],dest_file);
 			} else
 				saveScenario(fname,pd);
 			fprintf(dest_file, ">\n");

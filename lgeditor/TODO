@@ -1,3 +1,4 @@
 show set units in tile info
-keep reinfs by addition reinf list on loading
 replace map
+add console based help
+adding trsp?

@@ -50,6 +50,7 @@ typedef struct {
 	int x, y;
 	int str, entr, exp;
 	std::string trsp;
+	int delay;
 } Unit;
 typedef struct {
 	int tid[2]; /* terrain type and pic id */
@@ -77,6 +78,7 @@ public:
 	std::vector<NationInfo> countries;
 	std::vector<UnitClassInfo> uclasses;
 	std::vector<UnitInfo> unitlib;
+	std::vector<Unit> reinfs;
 
 	int mapw, maph;
 	MapTile map[MAXMAPW][MAXMAPH];
