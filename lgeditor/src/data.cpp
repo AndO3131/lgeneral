@@ -758,6 +758,7 @@ Data::Data(int w, int h)
 		TerrainInfo ti;
 		ti.id = terrain_types[i].id;
 		ti.name = terrain_types[i].name;
+		ti.minEntr = terrain_types[i].min_entr;
 		ti.tiles = new GridImage(terrain_types[i].images[0],hex_w,hex_h);
 		terrain.push_back(ti);
 	}

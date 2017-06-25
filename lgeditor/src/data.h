@@ -20,6 +20,7 @@
 typedef struct {
 	std::string id;
 	std::string name;
+	int minEntr;
 	GridImage *tiles;
 } TerrainInfo;
 typedef struct {

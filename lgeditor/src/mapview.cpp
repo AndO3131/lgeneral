@@ -195,7 +195,7 @@ void MapView::setTile(bool clear, bool onlyname)
 			u->nat = data->countries[data->unitlib[uid].nid].id;
 			u->str = 10;
 			u->core = 0;
-			u->entr = 0;
+			u->entr = data->terrain[data->map[sx][sy].tid[0]].minEntr;
 			u->exp = 0;
 			u->x = sx;
 			u->y = sy;
