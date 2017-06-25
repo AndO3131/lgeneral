@@ -90,6 +90,7 @@ public:
 	void resetMap(int w, int h);
 	void loadMap(std::string fname);
 	void saveMap(std::string fname);
+	void saveMapInfile(FILE *fh);
 	void loadScenario(std::string fname);
 	void saveScenario(std::string fname, PData *mpd);
 	void saveUnit(Unit &u, FILE *fh);

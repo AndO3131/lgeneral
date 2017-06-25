@@ -907,22 +907,10 @@ parser_failure:
 	return;
 }
 
-void Data::saveMap(std::string fn)
+void Data::saveMapInfile(FILE *dest_file)
 {
-	const char *path = fn.c_str();
-	FILE *dest_file;
 	int x, y;
 
-	printf("Saving map as %s\n",path);
-
-	/* open dest file */
-	if ( ( dest_file = fopen( path, "wb" ) ) == NULL ) {
-		fprintf( stderr, "%s: access denied\n", path );
-		return;
-	}
-
-	/* magic for new file */
-	fprintf( dest_file, "@\n" );
 	/* terrain types */
 	fprintf( dest_file, "terrain_db%c%s.tdb\n", 0xbb, "pg" );
 	/* domain */
@@ -952,6 +940,25 @@ void Data::saveMap(std::string fn)
 		}
 	}
 	fprintf( dest_file, "\n" );
+}
+
+void Data::saveMap(std::string fn)
+{
+	const char *path = fn.c_str();
+	FILE *dest_file;
+
+	printf("Saving map as %s\n",path);
+
+	/* open dest file */
+	if ( ( dest_file = fopen( path, "wb" ) ) == NULL ) {
+		fprintf( stderr, "%s: access denied\n", path );
+		return;
+	}
+
+	/* magic for new file */
+	fprintf( dest_file, "@\n" );
+
+	saveMapInfile(dest_file);
 
 	fclose( dest_file );
 }
@@ -1096,7 +1103,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 	 * changed by the editor:
 	 * map (always in file now)
 	 * flags
-	 * units (exp=0,entr=min,str=10 fixed for now)
+	 * units (exp=0,entr=min,str=10 fixed for new units for now)
 	 */
 	const char *path = fname.c_str();
 	const char entryToken = 0xbb;
@@ -1127,6 +1134,8 @@ void Data::saveScenario(std::string fname, PData *mpd)
 	list_reset(mpd->entries);
 	while ((pd = (PData*)list_next(mpd->entries))) {
 		if (pd->values) {
+			if (STRCMP(pd->name,"map") && root)
+				continue; /* ignore we always save infile */
 			fprintf(dest_file, "%s%c",pd->name,entryToken);
 			list_reset(pd->values);
 			i = 0;
@@ -1167,8 +1176,10 @@ void Data::saveScenario(std::string fname, PData *mpd)
 		}
 	}
 
-	if (root)
+	if (root) {
+		saveMapInfile(dest_file);
 		fclose( dest_file );
+	}
 }
 
 int Data::countUnitsInClass(int cid)
