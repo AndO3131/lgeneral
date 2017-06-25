@@ -1008,9 +1008,6 @@ void Data::loadScenario(std::string fname)
 	}
 
 	/* load units */
-	/* FIXME units need to be loaded properly otherwise
-	 * transporters and reinforcements get lost.
-	 */
 	if (parser_get_entries(scen,"units",&list)) {
 		list_reset(list);
 		while ((entry = (PData*)list_next(list))) {
@@ -1150,7 +1147,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 			fprintf(dest_file, "<%s\n",pd->name);
 			if (STRCMP(pd->name,"flags")) {
 				for (int x = 0; x < mapw; x++)
-					for (int y = 0; y < mapw; y++)
+					for (int y = 0; y < maph; y++)
 						if (map[x][y].fid != -1 ) {
 							fprintf(dest_file, "<flag\n");
 							fprintf(dest_file, "x%c%d\n", entryToken, x);
@@ -1161,7 +1158,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 						}
 			} else if (STRCMP(pd->name,"units")) {
 				for (int x = 0; x < mapw; x++)
-					for (int y = 0; y < mapw; y++) {
+					for (int y = 0; y < maph; y++) {
 						if (map[x][y].gunit.id != "")
 							saveUnit(map[x][y].gunit, dest_file);
 						if (map[x][y].aunit.id != "")

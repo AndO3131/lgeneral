@@ -67,7 +67,7 @@ int main(int argc, char **argv)
 	new MainWindow("Window", 800, 600);
 	data = new Data(w, h);
 	gui = new GUI();
-	/* DEBUG: */fname = "./Warsaw";
+	/* DEBUG: */fname = "./Barbarossa";
 	gui->nedit->setText(fname);
 	data->loadScenario(fname); /* might fail */
 
