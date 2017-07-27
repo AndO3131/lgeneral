@@ -1,2 +1,6 @@
+0.2:
+- units and flags can be changed as well (2017/07/27 MS)
+- default scenario info added that can be changed by text editor (2017/07/27 MS)
+
 0.1:
 - initial public release
