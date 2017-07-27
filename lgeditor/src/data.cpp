@@ -1257,6 +1257,14 @@ void Data::saveScenario(std::string fname, PData *mpd)
 		if (pd->values) {
 			if (STRCMP(pd->name,"map") && root)
 				continue;
+			if (STRCMP(pd->name,"terrain_db") && root)
+				continue;
+			if (STRCMP(pd->name,"domain") && root)
+				continue;
+			if (STRCMP(pd->name,"width") && root)
+				continue;
+			if (STRCMP(pd->name,"height") && root)
+				continue;
 			fprintf(dest_file, "%s%c",pd->name,entryToken);
 			list_reset(pd->values);
 			i = 0;
@@ -1270,6 +1278,12 @@ void Data::saveScenario(std::string fname, PData *mpd)
 			/* save recursively */
 			if (root && (STRCMP(pd->name,"flags") ||
 						STRCMP(pd->name,"units")))
+				continue;
+			/* for some reason tiles and names is not on
+			 * top level ... */
+			if (STRCMP(pd->name,"tiles"))
+				continue;
+			if (STRCMP(pd->name,"names"))
 				continue;
 			fprintf(dest_file, "<%s\n",pd->name);
 			saveScenario(fname,pd);
