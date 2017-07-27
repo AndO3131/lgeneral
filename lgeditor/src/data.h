@@ -84,6 +84,7 @@ public:
 	int mapw, maph;
 	MapTile map[MAXMAPW][MAXMAPH];
 	PData *scen; /* scenario as unprocessed parser data */
+	bool addDefaultScenData;
 
 	Data(int w, int h);
 	~Data();
@@ -95,6 +96,7 @@ public:
 	void loadScenario(std::string fname);
 	void saveScenario(std::string fname, PData *mpd);
 	void saveUnit(Unit &u, FILE *fh);
+	void writeDefaultScenData(FILE *fh);
 
 	int countUnitsInClass(int cid);
 	int getUnitByIndex(int cid, int uid);

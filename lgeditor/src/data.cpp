@@ -18,6 +18,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <stdio.h>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <list>
@@ -750,7 +751,7 @@ failure:
 
 /** Data container */
 
-Data::Data(int w, int h)
+Data::Data(int w, int h) : addDefaultScenData(false)
 {
 	/* general data */
 	terrain_load((char*)"pg.tdb");
@@ -816,6 +817,7 @@ Data::Data(int w, int h)
 
 	/* generate empty standard map width size */
 	resetMap(w,h);
+	addDefaultScenData = true;
 }
 Data::~Data()
 {
@@ -970,6 +972,8 @@ void Data::loadScenario(std::string fname)
 	MyList *list;
 	PData *entry;
 
+	printf("loading %s\n", fname.c_str());
+
 	scen = parser_read_file("Scenario", fname.c_str());
 	if (scen == NULL) {
 		printf("ERROR: Could not load Scenario %s\n",fname.c_str());
@@ -1071,6 +1075,15 @@ void Data::loadScenario(std::string fname)
 				}
 		}
 	}
+
+	/* check for scenario description, if not found: it's only a map
+	 * so add default scenario info on saving */
+	if ( !parser_get_value( scen, "desc", &str, 0 ) ) {
+		addDefaultScenData = true;
+		printf("only map loaded: will add default scenario data on saving\n");
+	} else
+		addDefaultScenData = false;
+
 }
 
 void Data::saveUnit(Unit &u, FILE *fh)
@@ -1093,6 +1106,113 @@ void Data::saveUnit(Unit &u, FILE *fh)
 	if (u.delay > 0)
 		fprintf(fh, "delay%c%d\n", entryToken, u.delay);
 	fprintf(fh, ">\n");
+}
+
+void Data::writeDefaultScenData(FILE *fh)
+{
+	const char entryToken = 0xbb;
+	const char itemToken = 0xb0;
+	std::string sd =
+			"name=MyScenario\n"
+			"desc=No description\n"
+			"authors=Unknown\n"
+			"date=11.09.1939\n"
+			"turns=20\n"
+			"turns_per_day=0\n"
+			"days_per_turn=1\n"
+			"domain=pg\n"
+			"nation_db=pg.ndb\n"
+			"<unit_db\n"
+			"main=pg.udb\n"
+			">\n"
+			"weather=fair#fair#fair#fair#fair#fair#fair#fair#fair#fair#fair#fair#rain#clouds#clouds#clouds#rain#rain#fair#fair\n"
+			"<players\n"
+			"<axis\n"
+			"name=Axis\n"
+			"nations=ger#aus#it#hun#bul#rum#fin#esp\n"
+			"allied_players=\n"
+			"unit_limit=100\n"
+			"core_unit_limit=50\n"
+			"orientation=right\n"
+			"control=human\n"
+			"strategy=1\n"
+			"prestige=600#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0#0\n"
+			"ai_module=default\n"
+			"<transporters\n"
+			"<air\n"
+			"unit=28\n"
+			"count=50\n"
+			">\n"
+			"<sea\n"
+			"unit=298\n"
+			"count=50\n"
+			">\n"
+			">\n"
+			">\n"
+			"<allies\n"
+			"name=Allies\n"
+			"nations=bel#lux#den#fra#gre#usa#tur#net#nor#pol#por#so#swe#swi#eng#yug\n"
+			"allied_players=\n"
+			"unit_limit=100\n"
+			"core_unit_limit=0\n"
+			"orientation=left\n"
+			"control=cpu\n"
+			"strategy=-1\n"
+			"prestige=240#20#20#20#20#20#20#20#20#20#20#20#20#20#20#20#20#20#20#20\n"
+			"ai_module=default\n"
+			"<transporters\n"
+			"<air\n"
+			"unit=353\n"
+			"count=50\n"
+			">\n"
+			"<sea\n"
+			"unit=290\n"
+			"count=50\n"
+			">\n"
+			">\n"
+			">\n"
+			">\n"
+			"<result\n"
+			"check=every_turn\n"
+			"<cond\n"
+			"<and\n"
+			"<control_all_hexes\n"
+			"player=axis\n"
+			">\n"
+			"<turns_left\n"
+			"count=7\n"
+			">\n"
+			">\n"
+			"result=major\n"
+			"message=Axis Major Victory\n"
+			">\n"
+			"<cond\n"
+			"<and\n"
+			"<control_all_hexes\n"
+			"player=axis\n"
+			">\n"
+			">\n"
+			"result=minor\n"
+			"message=Axis Minor Victory\n"
+			">\n"
+			"<else\n"
+			"result=defeat\n"
+			"message=Axis Defeat\n"
+			">\n"
+			">\n"
+			"<deployfields\n"
+			"<player\n"
+			"id=axis\n"
+			"coordinates=default\n"
+			">\n"
+			"<player\n"
+			"id=allies\n"
+			"coordinates=default\n"
+			">\n"
+			">\n";
+	std::replace( sd.begin(), sd.end(), '=', entryToken);
+	std::replace( sd.begin(), sd.end(), '#', itemToken);
+	fprintf(fh,"%s",sd.c_str());
 }
 
 void Data::saveScenario(std::string fname, PData *mpd)
@@ -1126,6 +1246,9 @@ void Data::saveScenario(std::string fname, PData *mpd)
 
 		mpd = scen;
 		root = 1;
+
+		if (addDefaultScenData)
+			writeDefaultScenData(dest_file);
 	}
 
 	/* save recursively */
@@ -1167,7 +1290,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 					fprintf(dest_file, "obj%c%d\n", entryToken, map[x][y].obj);
 					fprintf(dest_file, ">\n");
 				}
-		fprintf(dest_file,"\n");
+		fprintf(dest_file,">\n");
 		/* add units */
 		fprintf(dest_file, "<units\n");
 		for (int x = 0; x < mapw; x++)
@@ -1180,7 +1303,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 		/* reinfs */
 		for (unsigned int i = 0; i < reinfs.size(); i++)
 			saveUnit(reinfs[i],dest_file);
-		fprintf(dest_file,"\n");
+		fprintf(dest_file,">\n");
 		/* add map */
 		saveMapInfile(dest_file);
 		fclose( dest_file );
