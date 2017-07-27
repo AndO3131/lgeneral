@@ -1080,7 +1080,9 @@ void Data::loadScenario(std::string fname)
 	 * so add default scenario info on saving */
 	if ( !parser_get_value( scen, "desc", &str, 0 ) ) {
 		addDefaultScenData = true;
-		printf("only map loaded: will add default scenario data on saving\n");
+		printf("WARNING: Only a map was loaded. Standard scenario info is added (20 turns).\n"
+			"Use any text editor to make changes apart from units, flags and terrain.\n"
+			"Everything changed besides these elements is kept untouched by the editor.\n");
 	} else
 		addDefaultScenData = false;
 
