@@ -2187,9 +2187,18 @@ static void engine_handle_button( int id )
             config.show_cpu_turn = !config.show_cpu_turn;
             break;
         case ID_C_VMODE:
-            engine_hide_game_menu();
+        	/* no video mode menu: change fullscreen, is all */
+        	if (config.fullscreen) {
+        		config.fullscreen = 0;
+                	action_queue_set_vmode(800, 600, 0);
+        	} else {
+        		config.fullscreen = 1;
+        		action_queue_set_vmode(1366, 768, 1);
+        	}
+        	group_hide(gui->opt_menu,1);
+            /*engine_hide_game_menu();
             gui_vmode_dlg_show();
-            status = STATUS_VMODE_DLG;
+            status = STATUS_VMODE_DLG;*/
             break;
         /* main menu -- is fixed now
         case ID_MENU:

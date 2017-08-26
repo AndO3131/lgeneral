@@ -397,7 +397,7 @@ int gui_load( const char *dir )
     group_add_button( gui->opt_menu, ID_C_SOUND_INC, sx, sy, 0, tr("Sound Volume Up") ); sy += dy;
     group_add_button( gui->opt_menu, ID_C_SOUND_DEC, sx, sy, 0, tr("Sound Volume Down") ); sy += dy;
     //group_add_button( gui->opt_menu, ID_C_MUSIC, sx, sy, 1, tr("Music") ); sy += dy;
-    group_add_button( gui->opt_menu, ID_C_VMODE, sx, sy, 0, tr("Video Mode [v]") );
+    group_add_button( gui->opt_menu, ID_C_VMODE, sx, sy, 0, tr("Fullscreen/Window [v]") );
     group_hide( gui->opt_menu, 1 );
     /* video mode dialog */
     sprintf( path, "../themes/%s/scroll_buttons.bmp", dir );
