@@ -105,6 +105,7 @@ int deploy_show_count = 7; /* number of displayed units in list */
 int unit_list_offset = 0; /* offset in unit_list */
 int unit_list_max_offset = 0;
 int unit_list_graphical_offset=150; /* y-offset for rendering in dialog */ 
+int gui_panel_w = 260;	/* size of fixed GUI panel */;
 
 /*
 ====================================================================
@@ -249,6 +250,9 @@ int gui_load( const char *dir )
     sprintf( path, "../themes/%s/cursors.bmp", dir );
     if ( ( gui->cursors = image_create( load_surf( path, SDL_SWSURFACE ), 22, 22, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
+    /* gui panel */
+    if ( ( gui->panel = frame_create( gui_create_frame( 260, sdl.screen->h ), 160, sdl.screen, 0, 0 ) ) == 0 )
+        goto failure;
     /* info label */
     if ( ( gui->label = label_create( gui_create_frame( 240, 30 ), 160, gui->font_std, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
@@ -286,18 +290,17 @@ int gui_load( const char *dir )
     group_hide( gui->confirm, 1 );
     /* unit buttons */
     sprintf( path2, "../themes/%s/unit_buttons.bmp", dir );
-    if ( ( gui->unit_buttons = group_create( gui_create_frame( 30, 230 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->unit_buttons = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                              24, 24, 7, ID_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 3; sy = 3;
-    group_add_button( gui->unit_buttons, ID_UNDO, sx, sy, 0, tr("Undo Turn [u]") ); sy += 40; 
-    group_add_button( gui->unit_buttons, ID_SUPPLY, sx, sy, 0, tr("Supply Unit [s]") ); sy += 30; 
-    group_add_button( gui->unit_buttons, ID_EMBARK_AIR, sx, sy, 0, tr("Air Embark") ); sy += 30; 
-    group_add_button( gui->unit_buttons, ID_MERGE, sx, sy, 0, tr("Merge Unit [j]") ); sy += 30; 
-    group_add_button( gui->unit_buttons, ID_SPLIT, sx, sy, 0, tr("Split Unit [x+1..9]") ); sy += 30; 
-    group_add_button( gui->unit_buttons, ID_RENAME, sx, sy, 0, tr("Rename Unit") ); sy += 40;
+    sx = 6; sy = 6;
+    group_add_button( gui->unit_buttons, ID_UNDO, sx, sy, 0, tr("Undo Turn [u]") ); sx += 60;
+    group_add_button( gui->unit_buttons, ID_SUPPLY, sx, sy, 0, tr("Supply Unit [s]") ); sx += 60;
+    group_add_button( gui->unit_buttons, ID_EMBARK_AIR, sx, sy, 0, tr("Air Embark") ); sx += 60;
+    group_add_button( gui->unit_buttons, ID_RENAME, sx, sy, 0, tr("Rename Unit") ); sx = 6; sy += 60;
+    group_add_button( gui->unit_buttons, ID_MERGE, sx, sy, 0, tr("Merge Unit [j]") ); sx += 60;
+    group_add_button( gui->unit_buttons, ID_SPLIT, sx, sy, 0, tr("Split Unit [x+1..9]") ); sx += 120;
     group_add_button( gui->unit_buttons, ID_DISBAND, sx, sy, 0, tr("Disband Unit") ); 
-    group_hide( gui->unit_buttons, 1 );
     /* split menu */
     sprintf( path2, "../themes/%s/strength_buttons.bmp", dir );
     if ( ( gui->split_menu = group_create( gui_create_frame( 26, 186 ), 160, load_surf( path2, SDL_SWSURFACE ),
@@ -328,34 +331,31 @@ int gui_load( const char *dir )
     edit_hide( gui->edit, 1 );
     /* base menu */
     sprintf( path2, "../themes/%s/menu0_buttons.bmp", dir );
-    if ( ( gui->base_menu = group_create( gui_create_frame( 30, 280 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->base_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                           24, 24, 9, ID_MENU, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 3; sy = 3;
-    group_add_button( gui->base_menu, ID_AIR_MODE, sx, sy, 0, tr("Switch Air/Ground [t]") ); sy += 30; 
-    group_add_button( gui->base_menu, ID_STRAT_MAP, sx, sy, 0, tr("Strategic Map [o]") ); sy += 30; 
-    group_add_button( gui->base_menu, ID_PURCHASE, sx, sy, 0, tr("Request Reinforcements") ); sy += 30;
-    group_add_button( gui->base_menu, ID_DEPLOY, sx, sy, 0, tr("Deploy Reinforcements [d]") ); sy += 30; 
-    group_add_button( gui->base_menu, ID_UNIT_LIST, sx, sy, 0, tr("Unit List") ); sy += 30; 
-    group_add_button( gui->base_menu, ID_SCEN_INFO, sx, sy, 0, tr("Scenario Info [i]") ); sy += 30; 
-    group_add_button( gui->base_menu, ID_CONDITIONS, sx, sy, 0, tr("Victory Conditions") ); sy += 30; 
+    sx = 6; sy = 6;
+    group_add_button( gui->base_menu, ID_AIR_MODE, sx, sy, 0, tr("Switch Air/Ground [t]") ); sx += 60;
+    group_add_button( gui->base_menu, ID_STRAT_MAP, sx, sy, 0, tr("Strategic Map [o]") ); sx += 60;
+    group_add_button( gui->base_menu, ID_PURCHASE, sx, sy, 0, tr("Request Reinforcements") ); sx += 60;
+    group_add_button( gui->base_menu, ID_DEPLOY, sx, sy, 0, tr("Deploy Reinforcements [d]") ); sx = 6; sy += 60;
+    group_add_button( gui->base_menu, ID_UNIT_LIST, sx, sy, 0, tr("Unit List") ); sx += 60;
+    group_add_button( gui->base_menu, ID_SCEN_INFO, sx, sy, 0, tr("Scenario Info [i]") ); sx += 60;
+    group_add_button( gui->base_menu, ID_CONDITIONS, sx, sy, 0, tr("Victory Conditions") ); sx += 60;
     group_add_button( gui->base_menu, ID_END_TURN, sx, sy, 0, tr("End Turn [e]") ); sy += 40; 
-    group_add_button( gui->base_menu, ID_MENU, sx, sy, 0, tr("Main Menu") );
-    group_hide( gui->base_menu, 1 );
     /* main_menu */
     sprintf( path2, "../themes/%s/menu1_buttons.bmp", dir );
-    if ( ( gui->main_menu = group_create( gui_create_frame( 30, 210 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->main_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                           24, 24, 7, ID_SAVE, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 3; sy = 3;
-    group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sy += 30;
-    group_add_button( gui->main_menu, ID_LOAD, sx, sy, 0, tr("Load Game") ); sy += 30;
-    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sy += 30;
-    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sy += 30;
-    group_add_button( gui->main_menu, ID_SCEN, sx, sy, 0, tr("Load Scenario") ); sy += 30;
-    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sy += 30;
+    sx = 6; sy = 6;
+    group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sx += 60;
+    group_add_button( gui->main_menu, ID_LOAD, sx, sy, 0, tr("Load Game") ); sx += 60;
+    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sx += 60;
+    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sx = 6; sy += 60;
+    group_add_button( gui->main_menu, ID_SCEN, sx, sy, 0, tr("Load Scenario") ); sx += 60;
+    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sx += 120;
     group_add_button( gui->main_menu, ID_QUIT, sx, sy, 0, tr("Quit Game") );
-    group_hide( gui->main_menu, 1 );
     /* load menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
     if ( ( gui->load_menu = group_create( gui_create_frame( 30, 246+24 ), 160, load_surf( path2, SDL_SWSURFACE ),
@@ -510,6 +510,7 @@ void gui_delete()
         frame_delete( &gui->finfo );
         frame_delete( &gui->unit_list );
         frame_delete( &gui->sinfo );
+        frame_delete( &gui->panel );
         group_delete( &gui->confirm );
         group_delete( &gui->unit_buttons );
         group_delete( &gui->split_menu );
@@ -543,52 +544,64 @@ measurements.
 void gui_adjust()
 {
     int label_top = 10;
-    int label_x = (sdl.screen->w - gui->label->frame->img->img->w ) >> 1;
+    int label_x = sdl.screen->w - gui_panel_w + 10;//(sdl.screen->w - gui->label->frame->img->img->w ) >> 1;
+    /* panel */
+    frame_move(gui->panel, sdl.screen->w - gui_panel_w, 0);
     /* info labels */
     label_move( gui->label, label_x, label_top );
     label_top += gui->label->frame->img->img->h + 5;
     label_move( gui->label2, label_x, label_top );
-    /* unit infos */
-    frame_move( gui->qinfo1, 10, sdl.screen->h - 10 - gui->qinfo1->img->img->h );
-    frame_move( gui->qinfo2, 10, sdl.screen->h - 20 - gui->qinfo1->img->img->h * 2 );
-    /* full info */
-    frame_move( gui->finfo, ( sdl.screen->w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
-    frame_move( gui->unit_list, ( sdl.screen->w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
-    /* basic menu */
-    group_move( gui->base_menu, sdl.screen->w - 10 - gui->base_menu->frame->img->img->w, 
-                                sdl.screen->h - 10 - gui->base_menu->frame->img->img->h );
-    /* scenario info */
-    frame_move( gui->sinfo, ( sdl.screen->w - gui->sinfo->img->img->w ) >> 1, ( sdl.screen->h - gui->sinfo->img->img->h ) >> 1 );
-    /* confirm window */
-    group_move( gui->confirm, ( sdl.screen->w - gui->confirm->frame->img->img->w ) >> 1, ( sdl.screen->h - gui->confirm->frame->img->img->h ) >> 1 );
-    /* deploy window */
-    group_move( gui->deploy_window, ( sdl.screen->w - gui->deploy_window->frame->img->img->w ) - 10, 
-                ( sdl.screen->h - gui->deploy_window->frame->img->img->h ) / 2 );
     /* edit */
-    edit_move( gui->edit, (sdl.screen->w - gui->edit->label->frame->img->img->w ) >> 1, 50 );
+    edit_move( gui->edit, label_x, label_top );
+    /* unit menu */
+    label_top += gui->label->frame->img->img->h + 5;
+    group_move(gui->unit_buttons, label_x, label_top);
+    label_top += gui->unit_buttons->frame->img->img->h + 5;
+    /* basic menu */
+    group_move(gui->base_menu, label_x, label_top );
+    label_top += gui->base_menu->frame->img->img->h + 5;
+    /* main menu */
+    group_move(gui->main_menu, label_x, label_top );
+    /* unit infos */
+    frame_move( gui->qinfo1, label_x, sdl.screen->h - 10 - gui->qinfo1->img->img->h );
+    frame_move( gui->qinfo2, label_x, sdl.screen->h - 20 - gui->qinfo1->img->img->h * 2 );
+    /* full info */
+    frame_move( gui->finfo, ( sdl.screen->w - gui_panel_w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
+    frame_move( gui->unit_list, ( sdl.screen->w - gui_panel_w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
+    /* scenario info */
+    frame_move( gui->sinfo, ( sdl.screen->w - gui_panel_w - gui->sinfo->img->img->w ) >> 1, ( sdl.screen->h - gui->sinfo->img->img->h ) >> 1 );
+    /* confirm window */
+    group_move( gui->confirm, ( sdl.screen->w - gui_panel_w - gui->confirm->frame->img->img->w ) >> 1, ( sdl.screen->h - gui->confirm->frame->img->img->h ) >> 1 );
+    /* deploy window */
+    group_move( gui->deploy_window, ( sdl.screen->w - gui_panel_w - gui->deploy_window->frame->img->img->w ),
+                ( sdl.screen->h - gui->deploy_window->frame->img->img->h ) / 2 );
     /* select dialogs */
     select_dlg_move( gui->vmode_dlg, 
-                    (sdl.screen->w - select_dlg_get_width(gui->vmode_dlg)) /2,
+                    (sdl.screen->w - gui_panel_w - select_dlg_get_width(gui->vmode_dlg)) /2,
                     (sdl.screen->h - select_dlg_get_height(gui->vmode_dlg)) /2);
     /* scenario dialogue */
-    fdlg_move( gui->scen_dlg, ( sdl.screen->w - ( gui->scen_dlg->group->frame->img->img->w  + 
+    fdlg_move( gui->scen_dlg, ( sdl.screen->w - gui_panel_w -
+		    	    	    	    	    ( gui->scen_dlg->group->frame->img->img->w  +
                                                   gui->scen_dlg->lbox->group->frame->img->img->w ) ) / 2,
                ( sdl.screen->h - gui->scen_dlg->group->frame->img->img->h ) / 2 );
     /* campaign dialogue */
-    fdlg_move( gui->camp_dlg, ( sdl.screen->w - ( gui->camp_dlg->group->frame->img->img->w  + 
+    fdlg_move( gui->camp_dlg, ( sdl.screen->w - gui_panel_w -
+		    	    	    	    	    ( gui->camp_dlg->group->frame->img->img->w  +
                                                   gui->camp_dlg->lbox->group->frame->img->img->w ) ) / 2,
                ( sdl.screen->h - gui->camp_dlg->group->frame->img->img->h ) / 2 );
     /* scenario setup */
-    sdlg_move( gui->setup, ( sdl.screen->w - ( gui->setup->list->group->frame->img->img->w + gui->setup->ctrl->frame->img->img->w ) ) / 2,
+    sdlg_move( gui->setup, ( sdl.screen->w - gui_panel_w -
+		    	    	    	    	    ( gui->setup->list->group->frame->img->img->w + gui->setup->ctrl->frame->img->img->w ) ) / 2,
                            ( sdl.screen->h - ( gui->setup->list->group->frame->img->img->h ) ) / 2 );
     /* module dialogue */
-    fdlg_move( gui->module_dlg, ( sdl.screen->w - ( gui->module_dlg->group->frame->img->img->w  + 
+    fdlg_move( gui->module_dlg, ( sdl.screen->w - gui_panel_w -
+		    	    	    	    	    ( gui->module_dlg->group->frame->img->img->w  +
                                                   gui->module_dlg->lbox->group->frame->img->img->w ) ) / 2,
                ( sdl.screen->h - gui->module_dlg->group->frame->img->img->h ) / 2 );
 	       
     /* purchase dialogue */
     purchase_dlg_move(gui->purchase_dlg, 
-		(sdl.screen->w - purchase_dlg_get_width(gui->purchase_dlg)) /2,
+		(sdl.screen->w - gui_panel_w - purchase_dlg_get_width(gui->purchase_dlg)) /2,
 		(sdl.screen->h - purchase_dlg_get_height(gui->purchase_dlg)) /2);
 }
 
@@ -606,6 +619,7 @@ Hide/draw from/to screen
 */
 void gui_get_bkgnds()
 {
+	frame_get_bkgnd( gui->panel );
     label_get_bkgnd( gui->label );
     label_get_bkgnd( gui->label2 );
     frame_get_bkgnd( gui->qinfo1 );
@@ -633,10 +647,11 @@ void gui_get_bkgnds()
 }
 void gui_draw_bkgnds()
 {
-    label_draw_bkgnd( gui->label ); 
-    label_draw_bkgnd( gui->label2 ); 
-    frame_draw_bkgnd( gui->qinfo1 ); 
-    frame_draw_bkgnd( gui->qinfo2 ); 
+	frame_draw_bkgnd( gui->panel ); // includes some windows
+    //label_draw_bkgnd( gui->label );
+    //label_draw_bkgnd( gui->label2 );
+    //frame_draw_bkgnd( gui->qinfo1 );
+    //frame_draw_bkgnd( gui->qinfo2 );
     frame_draw_bkgnd( gui->finfo ); 
     frame_draw_bkgnd( gui->unit_list ); 
     frame_draw_bkgnd( gui->sinfo );
@@ -645,9 +660,9 @@ void gui_draw_bkgnds()
     group_draw_bkgnd( gui->load_menu );
     group_draw_bkgnd( gui->save_menu );
     group_draw_bkgnd( gui->opt_menu );
-    group_draw_bkgnd( gui->unit_buttons);
-    group_draw_bkgnd( gui->split_menu );
-    edit_draw_bkgnd( gui->edit );
+    //group_draw_bkgnd( gui->unit_buttons);
+    //group_draw_bkgnd( gui->split_menu );
+    //edit_draw_bkgnd( gui->edit );
     group_draw_bkgnd( gui->confirm );
     group_draw_bkgnd( gui->deploy_window );
     select_dlg_draw_bkgnd( gui->vmode_dlg );
@@ -660,6 +675,7 @@ void gui_draw_bkgnds()
 }
 void gui_draw()
 {
+	frame_draw(gui->panel);
     label_draw( gui->label ); 
     label_draw( gui->label2 ); 
     frame_draw( gui->qinfo1 ); 
@@ -1841,14 +1857,14 @@ static int mirror_hori( int plane_x, int x, int w )
 }
 void gui_mirror_asymm_windows()
 {
-    int plane_x=sdl.screen->w/2;
+    int plane_x=(sdl.screen->w  - gui_panel_w)/2;
     int x,y,w,h;
     gui->mirror_asymm = !gui->mirror_asymm;
-    /* quick info's */
+    /* quick info's
     frame_get_geometry(gui->qinfo1,&x,&y,&w,&h);
     frame_move(gui->qinfo1,mirror_hori(plane_x,x,w),y);
     frame_get_geometry(gui->qinfo2,&x,&y,&w,&h);
-    frame_move(gui->qinfo2,mirror_hori(plane_x,x,w),y);
+    frame_move(gui->qinfo2,mirror_hori(plane_x,x,w),y); */
     /* deploy window */
     group_get_geometry(gui->deploy_window,&x,&y,&w,&h);
     group_move(gui->deploy_window,mirror_hori(plane_x,x,w),y);
@@ -2131,4 +2147,28 @@ Unit *gui_unit_list_unit_clicked( List * units ,int cx,int cy)
                 }
         }
     return NULL;
+}
+
+/** Show/hide GUI. Buttons are not checked. */
+void gui_panel_hide()
+{
+	frame_hide(gui->panel,1);
+	group_hide(gui->unit_buttons,1);
+	group_hide(gui->split_menu,1);
+	group_hide(gui->base_menu,1);
+	group_hide(gui->main_menu,1);
+	group_hide(gui->load_menu,1);
+	group_hide(gui->save_menu,1);
+	group_hide(gui->opt_menu,1);
+}
+void gui_panel_show()
+{
+	frame_hide(gui->panel,0);
+	group_hide(gui->unit_buttons,0);
+	group_hide(gui->split_menu,1);
+	group_hide(gui->base_menu,0);
+	group_hide(gui->main_menu,0);
+	group_hide(gui->load_menu,1);
+	group_hide(gui->save_menu,1);
+	group_hide(gui->opt_menu,1);
 }
