@@ -466,7 +466,7 @@ static int parser_read_file_compact( ParserState *st, PData *section )
 	char entryToken1 = 0xbb;
 	char itemToken1 = 0xb0;
 	char entryToken2 = '=';
-	char itemToken2 = '/';
+	char itemToken2 = '&';
 	int useNewTokens = 0;
 
     /* section is the parent pdata that needs some 

@@ -928,7 +928,7 @@ void Data::saveMapInfile(FILE *dest_file)
 			txt << terrain[map[x][y].tid[0]].id << map[x][y].tid[1];
 			fprintf( dest_file, "%s", txt.str().c_str() );
 			if ( y < maph - 1 || x < mapw - 1 )
-				fprintf( dest_file, "%c", '/' );
+				fprintf( dest_file, "%c", '&' );
 		}
 	}
 	fprintf( dest_file, "\n" );
@@ -939,7 +939,7 @@ void Data::saveMapInfile(FILE *dest_file)
 			n = map[x][y].name;
 			fprintf( dest_file, "%s", n.c_str() );
 			if ( y < maph - 1 || x < mapw - 1 )
-				fprintf( dest_file, "%c", '/' );
+				fprintf( dest_file, "%c", '&' );
 		}
 	}
 	fprintf( dest_file, "\n" );
@@ -1113,7 +1113,7 @@ void Data::saveUnit(Unit &u, FILE *fh)
 void Data::writeDefaultScenData(FILE *fh)
 {
 	const char entryToken = '=';
-	const char itemToken = '/';
+	const char itemToken = '&';
 	std::string sd =
 			"name=MyScenario\n"
 			"desc=No description\n"
@@ -1227,7 +1227,7 @@ void Data::saveScenario(std::string fname, PData *mpd)
 	 */
 	const char *path = fname.c_str();
 	const char entryToken = '=';
-	const char itemToken = '/';
+	const char itemToken = '&';
 	static FILE *dest_file;
 	char *str;
 	int i;
