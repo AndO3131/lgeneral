@@ -295,7 +295,7 @@ int scen_add_flags( FILE *dest_file, FILE *scen_file, int id )
                     if ( vic_hexes[i * 2] == x && vic_hexes[i * 2 + 1] == y ) {
                         obj = 1; break;
                     }
-                fprintf( dest_file, "<flag\nx»%i\ny»%i\nnation»%s\nobj»%i\n>\n", x, y, nations[(ibuf - 1) * 3], obj );
+                fprintf( dest_file, "<flag\nx=%i\ny=%i\nnation=%s\nobj=%i\n>\n", x, y, nations[(ibuf - 1) * 3], obj );
             }
         }
     }
@@ -357,12 +357,12 @@ void scen_create_random_weather( FILE *dest_file, FILE *scen_file, int month, in
     }
    
     /* write weather */
-    fprintf( dest_file, "weather»" );
+    fprintf( dest_file, "weather=" );
     i = 0;
     while ( i < turns ) {
         fprintf( dest_file, "%s", weather[i]==0?"fair":weather[i]==1?"clouds":weather[i]==2?"rain":"snow" );
         if ( i < turns - 1 )
-            fprintf( dest_file, "°" );
+            fprintf( dest_file, "&" );
         i++;
     }
     fprintf( dest_file, "\n" );
@@ -423,7 +423,7 @@ void scen_create_pg_weather( FILE *dest_file, int scen_id, FILE *scen_file, int 
         fprintf(stderr,"ERROR: scen %d: mismatch in length of weather (%d) and turn number (%d)\n",
                 scen_id,strlen(weathers[scen_id]),turns);
     /* write weather */
-    fprintf( dest_file, "weather»" );
+    fprintf( dest_file, "weather=" );
     i = 0;
     while ( i < turns ) {
         if (weathers[0]==0)
@@ -438,7 +438,7 @@ void scen_create_pg_weather( FILE *dest_file, int scen_id, FILE *scen_file, int 
         }
         fprintf( dest_file, "%s", w );
         if ( i < turns - 1 )
-            fprintf( dest_file, "°" );
+            fprintf( dest_file, "=" );
         i++;
     }
     fprintf( dest_file, "\n" );
@@ -483,19 +483,19 @@ void scen_create_unit( int scen_id, FILE *dest_file, FILE *scen_file, int is_cor
             unit_entry_used[org_trsp_id - 1] = 1;
     /* write unit */
     fprintf( dest_file, "<unit\n" );
-    fprintf( dest_file, "id»%i\nnation»%s\n", 
+    fprintf( dest_file, "id=%i\nnation=%s\n",
     					 id - 1, nations[nation * 3]);
 	if (is_core_unit)
-		fprintf( dest_file, "core»1\n");
-    fprintf( dest_file, "x»%i\ny»%i\n", x, y );
-    fprintf( dest_file, "str»%i\nentr»%i\nexp»%i\n", str, entr, exp );
+		fprintf( dest_file, "core=1\n");
+    fprintf( dest_file, "x=%i\ny=%i\n", x, y );
+    fprintf( dest_file, "str=%i\nentr=%i\nexp=%i\n", str, entr, exp );
     if ( trsp_id == 0 && org_trsp_id == 0 )
-        fprintf( dest_file, "trsp»none\n" );
+        fprintf( dest_file, "trsp=none\n" );
     else {
         if ( trsp_id ) 
-            fprintf( dest_file, "trsp»%i\n", trsp_id - 1 );
+            fprintf( dest_file, "trsp=%i\n", trsp_id - 1 );
         else
-            fprintf( dest_file, "trsp»%i\n", org_trsp_id - 1 );
+            fprintf( dest_file, "trsp=%i\n", org_trsp_id - 1 );
     }
     fprintf( dest_file, ">\n" );
 }
@@ -551,8 +551,8 @@ int major_limits[] = {
 };
 #define COND_BEGIN fprintf( file, "<cond\n" )
 #define COND_END   fprintf( file, ">\n" )
-#define COND_RESULT( str ) fprintf( file, "result»%s\n", str )
-#define COND_MESSAGE( str ) fprintf( file, "message»%s\n", str )
+#define COND_RESULT( str ) fprintf( file, "result=%s\n", str )
+#define COND_MESSAGE( str ) fprintf( file, "message=%s\n", str )
 void scen_add_vic_conds( FILE *file, int id )
 {
     /* for panzer general the check is usually run every turn.
@@ -565,18 +565,18 @@ void scen_add_vic_conds( FILE *file, int id )
      *    the end 
      */
     if ( id == 15 || id == 16 || id == 17 )
-        fprintf( file, "<result\ncheck»last_turn\n" );
+        fprintf( file, "<result\ncheck=last_turn\n" );
     else
-        fprintf( file, "<result\ncheck»every_turn\n" );
+        fprintf( file, "<result\ncheck=every_turn\n" );
     /* add conditions */
     if ( major_limits[id] != -1 ) {
         COND_BEGIN;
-        fprintf( file, "<and\n<control_all_hexes\nplayer»axis\n>\n<turns_left\ncount»%i\n>\n>\n", major_limits[id] );
+        fprintf( file, "<and\n<control_all_hexes\nplayer=axis\n>\n<turns_left\ncount=%i\n>\n>\n", major_limits[id] );
         COND_RESULT( "major" ); 
         COND_MESSAGE( "Axis Major Victory" );
         COND_END;
         COND_BEGIN;
-        fprintf( file, "<and\n<control_all_hexes\nplayer»axis\n>\n>\n" );
+        fprintf( file, "<and\n<control_all_hexes\nplayer=axis\n>\n>\n" );
         COND_RESULT( "minor" ); 
         COND_MESSAGE( "Axis Minor Victory" );
         COND_END;
@@ -590,20 +590,20 @@ void scen_add_vic_conds( FILE *file, int id )
         /* ardennes is a special axis offensive */
         COND_BEGIN;
         fprintf( file, "<and\n"\
-                       "<control_hex\nplayer»axis\nx»16\ny»16\n>\n"\
-                       "<control_hex\nplayer»axis\nx»26\ny»4\n>\n"\
-                       "<control_hex\nplayer»axis\nx»27\ny»21\n>\n"\
-                       "<control_hex\nplayer»axis\nx»39\ny»21\n>\n"\
-                       "<control_hex\nplayer»axis\nx»48\ny»8\n>\n"\
-                       "<control_hex\nplayer»axis\nx»54\ny»14\n>\n"\
-                       "<control_hex\nplayer»axis\nx»59\ny»18\n>\n"\
+                       "<control_hex\nplayer=axis\nx=16\ny=16\n>\n"\
+                       "<control_hex\nplayer=axis\nx=26\ny=4\n>\n"\
+                       "<control_hex\nplayer=axis\nx=27\ny=21\n>\n"\
+                       "<control_hex\nplayer=axis\nx=39\ny=21\n>\n"\
+                       "<control_hex\nplayer=axis\nx=48\ny=8\n>\n"\
+                       "<control_hex\nplayer=axis\nx=54\ny=14\n>\n"\
+                       "<control_hex\nplayer=axis\nx=59\ny=18\n>\n"\
                        ">\n" );
         COND_RESULT( "minor" );
         COND_MESSAGE( "Axis Minor Victory" ); 
         COND_END;
         /* major victory */
         COND_BEGIN;
-        fprintf( file, "<or\n<control_all_hexes\nplayer»axis\n>\n>\n" );
+        fprintf( file, "<or\n<control_all_hexes\nplayer=axis\n>\n>\n" );
         COND_RESULT( "major" );
         COND_MESSAGE( "Axis Major Victory" );
         COND_END;
@@ -618,40 +618,40 @@ void scen_add_vic_conds( FILE *file, int id )
         COND_BEGIN;
         switch ( id ) {
             case 12: /* TORCH */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»27\ny»5\n>\n<control_hex_num\nplayer»allies\ncount»6\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=27\ny=5\n>\n<control_hex_num\nplayer=allies\ncount=6\n>\n>\n" );
                 break;
             case 13: /* HUSKY */
-                fprintf( file, "<or\n<control_hex_num\nplayer»allies\ncount»14\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex_num\nplayer=allies\ncount=14\n>\n>\n" );
                 break;
             case 14: /* ANZIO */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»13\ny»17\n>\n<control_hex_num\nplayer»allies\ncount»5\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=13\ny=17\n>\n<control_hex_num\nplayer=allies\ncount=5\n>\n>\n" );
                 break;
             case 15: /* D-DAY */
-                fprintf( file, "<or\n<control_hex_num\nplayer»allies\ncount»4\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex_num\nplayer=allies\ncount=4\n>\n>\n" );
                 break;
             case 16: /* ANVIL */
-                fprintf( file, "<or\n<control_hex_num\nplayer»allies\ncount»5\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex_num\nplayer=allies\ncount=5\n>\n>\n" );
                 break;
             case 18: /* COBRA */
-                fprintf( file, "<or\n<control_hex_num\nplayer»allies\ncount»5\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex_num\nplayer=allies\ncount=5\n>\n>\n" );
                 break;
             case 19: /* MARKET-GARDEN */
-                fprintf( file, "<and\n<control_hex\nplayer»allies\nx»37\ny»10\n>\n>\n" );
+                fprintf( file, "<and\n<control_hex\nplayer=allies\nx=37\ny=10\n>\n>\n" );
                 break;
             case 20: /* BERLIN WEST */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»36\ny»14\n>\n<control_hex_num\nplayer»allies\ncount»5\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=36\ny=14\n>\n<control_hex_num\nplayer=allies\ncount=5\n>\n>\n" );
                 break;
             case 30: /* KURSK */
-                fprintf( file, "<or\n<control_all_hexes\nplayer»allies\n>\n>\n" );
+                fprintf( file, "<or\n<control_all_hexes\nplayer=allies\n>\n>\n" );
                 break;
             case 32: /* BYELORUSSIA */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»3\ny»12\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=3\ny=12\n>\n>\n" );
                 break;
             case 34: /* BERLIN EAST */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»36\ny»14\n>\n<control_hex_num\nplayer»allies\ncount»8\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=36\ny=14\n>\n<control_hex_num\nplayer=allies\ncount=8\n>\n>\n" );
                 break;
             case 35: /* BERLIN */
-                fprintf( file, "<or\n<control_hex\nplayer»allies\nx»36\ny»14\n>\n>\n" );
+                fprintf( file, "<or\n<control_hex\nplayer=allies\nx=36\ny=14\n>\n>\n" );
                 break;
         }
         COND_RESULT( "defeat" );
@@ -663,26 +663,26 @@ void scen_add_vic_conds( FILE *file, int id )
         {
             /* D-DAY */
             fprintf( file, "<and\n"\
-                           "<control_hex\nplayer»axis\nx»11\ny»7\n>\n"\
-                           "<control_hex\nplayer»axis\nx»22\ny»28\n>\n"\
-                           "<control_hex\nplayer»axis\nx»43\ny»27\n>\n"\
+                           "<control_hex\nplayer=axis\nx=11\ny=7\n>\n"\
+                           "<control_hex\nplayer=axis\nx=22\ny=28\n>\n"\
+                           "<control_hex\nplayer=axis\nx=43\ny=27\n>\n"\
                            ">\n" );
         }
         else if ( id == 16 )
         {
             /* ANVIL */
             fprintf( file, "<and\n"\
-                           "<control_hex\nplayer»axis\nx»7\ny»3\n>\n"\
-                           "<control_hex\nplayer»axis\nx»15\ny»4\n>\n"\
-                           "<control_hex\nplayer»axis\nx»5\ny»22\n>\n"\
-                           "<control_hex\nplayer»axis\nx»12\ny»27\n>\n"\
-                           "<control_hex\nplayer»axis\nx»31\ny»21\n>\n"\
+                           "<control_hex\nplayer=axis\nx=7\ny=3\n>\n"\
+                           "<control_hex\nplayer=axis\nx=15\ny=4\n>\n"\
+                           "<control_hex\nplayer=axis\nx=5\ny=22\n>\n"\
+                           "<control_hex\nplayer=axis\nx=12\ny=27\n>\n"\
+                           "<control_hex\nplayer=axis\nx=31\ny=21\n>\n"\
                            ">\n" );
         }
         else
         {
             /* capture all */
-            fprintf( file, "<or\n<control_all_hexes\nplayer»axis\n>\n>\n" );
+            fprintf( file, "<or\n<control_all_hexes\nplayer=axis\n>\n>\n" );
         }
         COND_RESULT( "major" );
         COND_MESSAGE( "Axis Major Victory" );
@@ -806,10 +806,10 @@ int write_prestige_info( FILE *file, int turns, int *ppt )
 {
 	int i;
 	
-	fprintf( file, "prestige»" );
+	fprintf( file, "prestige=" );
 	for (i = 0; i < turns; i++)
 		fprintf( file, "%d%c", ppt[i],
-			(i < turns - 1) ? '°' : '\n');
+			(i < turns - 1) ? '&' : '\n');
 	return 0;
 }
 
@@ -1003,41 +1003,41 @@ int scenarios_convert( int scen_id )
         fprintf( dest_file, "@\n" );
         
         /* scenario name and description */
-        fprintf( dest_file, "name»%s\n", scen_title );
-        fprintf( dest_file, "desc»%s\n", scen_desc );
-        fprintf( dest_file, "authors»%s\n", scen_author );
+        fprintf( dest_file, "name=%s\n", scen_title );
+        fprintf( dest_file, "desc=%s\n", scen_desc );
+        fprintf( dest_file, "authors=%s\n", scen_author );
         
         /* date */
         fseek( scen_file, 22, SEEK_SET );
         day = 0; _fread( &day, 1, 1, scen_file );
         month = 0; _fread( &month, 1, 1, scen_file );
         year = 0; _fread( &year, 1, 1, scen_file );
-        fprintf( dest_file, "date»%02i.%02i.19%i\n", day, month, year );
+        fprintf( dest_file, "date=%02i.%02i.19%i\n", day, month, year );
         
         /* turn limit */
         fseek( scen_file, 21, SEEK_SET );
         turns = 0; _fread( &turns, 1, 1, scen_file );
-        fprintf( dest_file, "turns»%i\n", turns );
+        fprintf( dest_file, "turns=%i\n", turns );
         fseek( scen_file, 25, SEEK_SET );
         turns_per_day = 0; _fread( &turns_per_day, 1, 1, scen_file );
-        fprintf( dest_file, "turns_per_day»%i\n", turns_per_day );
+        fprintf( dest_file, "turns_per_day=%i\n", turns_per_day );
         days_per_turn = 0; _fread( &days_per_turn, 1, 1, scen_file );
         if ( turns_per_day == 0 && days_per_turn == 0 )
             days_per_turn = 1;
-        fprintf( dest_file, "days_per_turn»%i\n", days_per_turn );
+        fprintf( dest_file, "days_per_turn=%i\n", days_per_turn );
         
         /* domain */
-        fprintf( dest_file, "domain»pg\n" );
+        fprintf( dest_file, "domain=pg\n" );
         /* nations */
         if ( scen_id == -1 )
-            fprintf( dest_file, "nation_db»%s.ndb\n", target_name );
+            fprintf( dest_file, "nation_db=%s.ndb\n", target_name );
         else
-            fprintf( dest_file, "nation_db»pg.ndb\n" );
+            fprintf( dest_file, "nation_db=pg.ndb\n" );
         /* units */
         if ( scen_id == -1 )
-            fprintf( dest_file, "<unit_db\nmain»%s.udb\n>\n", target_name );
+            fprintf( dest_file, "<unit_db\nmain=%s.udb\n>\n", target_name );
         else if (!units_find_panzequp())
-            fprintf( dest_file, "<unit_db\nmain»pg.udb\n>\n");
+            fprintf( dest_file, "<unit_db\nmain=pg.udb\n>\n");
         /* if there modified units they are added to the 
            scenario file. lgeneral loads from the scenario file
            if no unit_db was specified. */
@@ -1046,7 +1046,7 @@ int scenarios_convert( int scen_id )
            will be checked when no map was specified.
            */
         if ( scen_id == -1 )
-            fprintf( dest_file, "map»%s/map%02d\n", target_name, i );
+            fprintf( dest_file, "map=%s/map%02d\n", target_name, i );
         /* weather */
         if (scen_id == -1 && strcmp(target_name,"pg") == 0)
             scen_create_pg_weather( dest_file, i-1, scen_file, turns );
@@ -1083,22 +1083,22 @@ int scenarios_convert( int scen_id )
             axis_strat = -1;
         /* definition */
         if (axis_name)
-            fprintf( dest_file, "<axis\nname»%s\n", axis_name );
+            fprintf( dest_file, "<axis\nname=%s\n", axis_name );
         else 
-            fprintf( dest_file, "<axis\nname»Axis\n" );
+            fprintf( dest_file, "<axis\nname=Axis\n" );
         if (axis_nations) {
             char *ptr, auxstr[256]; /* commata need conversion */
             snprintf(auxstr,256,"%s",axis_nations);
             for (ptr = auxstr; *ptr != 0; ptr++)
                 if (ptr[0] == ',')
-                    ptr[0] = '°';
-            fprintf( dest_file, "nations»%s\n", auxstr );
+                    ptr[0] = '=';
+            fprintf( dest_file, "nations=%s\n", auxstr );
         } else
-            fprintf( dest_file, "nations»ger°aus°it°hun°bul°rum°fin°esp\n" );
-        fprintf( dest_file, "allied_players»\n" );
-        fprintf( dest_file, "unit_limit»%d\n", axis_ulimit );
-        fprintf( dest_file, "core_unit_limit»%d\n", axis_core_ulimit );
-        fprintf( dest_file, "orientation»%s\ncontrol»human\nstrategy»%i\n", dummy, axis_strat );
+            fprintf( dest_file, "nations=ger&aus&it&hun&bul&rum&fin&esp\n" );
+        fprintf( dest_file, "allied_players=\n" );
+        fprintf( dest_file, "unit_limit=%d\n", axis_ulimit );
+        fprintf( dest_file, "core_unit_limit=%d\n", axis_core_ulimit );
+        fprintf( dest_file, "orientation=%s\ncontrol=human\nstrategy=%i\n", dummy, axis_strat );
 	{
 		int ppt[turns]; /* prestige per turn with dynamic size */
 		convert_prestige_info((scen_id==-1)?(i-1):-1, 0, &pi_axis, 
@@ -1106,9 +1106,9 @@ int scenarios_convert( int scen_id )
 		write_prestige_info( dest_file, turns, ppt );
 	}
         if ( scen_id == -1 && strcmp(target_name,"pg") == 0 )
-            fprintf( dest_file, "ai_module»%s\n", ai_modules[i*2] );
+            fprintf( dest_file, "ai_module=%s\n", ai_modules[i*2] );
         else
-            fprintf( dest_file, "ai_module»default\n" );
+            fprintf( dest_file, "ai_module=default\n" );
         /* transporter */
         fprintf( dest_file, "<transporters\n" );
         /* air */
@@ -1116,13 +1116,13 @@ int scenarios_convert( int scen_id )
         ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
         ibuf = SDL_SwapLE16(ibuf);
         if ( ibuf )
-            fprintf( dest_file, "<air\nunit»%i\ncount»50\n>\n", ibuf - 1 );
+            fprintf( dest_file, "<air\nunit=%i\ncount=50\n>\n", ibuf - 1 );
         /* sea */
         fseek( scen_file, unit_offset - 4, SEEK_SET );
         ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
         ibuf = SDL_SwapLE16(ibuf);
         if ( ibuf )
-            fprintf( dest_file, "<sea\nunit»%i\ncount»50\n>\n", ibuf - 1 );
+            fprintf( dest_file, "<sea\nunit=%i\ncount=50\n>\n", ibuf - 1 );
         fprintf( dest_file, ">\n" );
         fprintf( dest_file, ">\n" );
         /* allies */
@@ -1135,22 +1135,22 @@ int scenarios_convert( int scen_id )
         else
             allied_strat = 1;
         if (allies_name)
-            fprintf( dest_file, "<allies\nname»%s\n", allies_name );
+            fprintf( dest_file, "<allies\nname=%s\n", allies_name );
         else 
-            fprintf( dest_file, "<allies\nname»Allies\n" );
+            fprintf( dest_file, "<allies\nname=Allies\n" );
         if (allies_nations) {
             char *ptr, auxstr[256]; /* commata need conversion */
             snprintf(auxstr,256,"%s",allies_nations);
             for (ptr = auxstr; *ptr != 0; ptr++)
                 if (ptr[0] == ',')
-                    ptr[0] = '°';
-            fprintf( dest_file, "nations»%s\n", auxstr );
+                    ptr[0] = '=';
+            fprintf( dest_file, "nations=%s\n", auxstr );
         } else
-            fprintf( dest_file, "nations»bel°lux°den°fra°gre°usa°tur°net°nor°pol°por°so°swe°swi°eng°yug\n" );
-        fprintf( dest_file, "allied_players»\n" );
-        fprintf( dest_file, "unit_limit»%d\n", allies_ulimit );
-		fprintf( dest_file, "core_unit_limit»0\n" );
-        fprintf( dest_file, "orientation»%s\ncontrol»cpu\nstrategy»%i\n", dummy, allied_strat );
+            fprintf( dest_file, "nations=bel&lux&den&fra&gre&usa&tur&net&nor&pol&por&so&swe&swi&eng&yug\n" );
+        fprintf( dest_file, "allied_players=\n" );
+        fprintf( dest_file, "unit_limit=%d\n", allies_ulimit );
+		fprintf( dest_file, "core_unit_limit=0\n" );
+        fprintf( dest_file, "orientation=%s\ncontrol=cpu\nstrategy=%i\n", dummy, allied_strat );
 	{
 		int ppt[turns]; /* prestige per turn with dynamic size */
 		convert_prestige_info((scen_id==-1)?(i-1):-1, 1, &pi_allies, 
@@ -1158,9 +1158,9 @@ int scenarios_convert( int scen_id )
 		write_prestige_info( dest_file, turns, ppt );
 	}
         if ( scen_id == -1 && strcmp(target_name,"pg") == 0 )
-            fprintf( dest_file, "ai_module»%s\n", ai_modules[i*2 + 1] );
+            fprintf( dest_file, "ai_module=%s\n", ai_modules[i*2 + 1] );
         else
-            fprintf( dest_file, "ai_module»default\n" );
+            fprintf( dest_file, "ai_module=default\n" );
         /* transporter */
         fprintf( dest_file, "<transporters\n" );
         /* air */
@@ -1168,13 +1168,13 @@ int scenarios_convert( int scen_id )
         ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
         ibuf = SDL_SwapLE16(ibuf);
         if ( ibuf )
-            fprintf( dest_file, "<air\nunit»%i\ncount»50\n>\n", ibuf - 1 );
+            fprintf( dest_file, "<air\nunit=%i\ncount=50\n>\n", ibuf - 1 );
         /* sea */
         fseek( scen_file, unit_offset - 2, SEEK_SET );
         ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
         ibuf = SDL_SwapLE16(ibuf);
         if ( ibuf )
-            fprintf( dest_file, "<sea\nunit»%i\ncount»50\n>\n", ibuf - 1 );
+            fprintf( dest_file, "<sea\nunit=%i\ncount=50\n>\n", ibuf - 1 );
         fprintf( dest_file, ">\n" );
         fprintf( dest_file, ">\n" );
         fprintf( dest_file, ">\n" );
@@ -1184,17 +1184,17 @@ int scenarios_convert( int scen_id )
         else {
             /* and the default is that the attacker must capture
                all targets */
-            fprintf( dest_file, "<result\ncheck»every_turn\n" );
+            fprintf( dest_file, "<result\ncheck=every_turn\n" );
             fprintf( dest_file, "<cond\n" );
-            fprintf( dest_file, "<and\n<control_all_hexes\nplayer»%s\n>\n>\n",
+            fprintf( dest_file, "<and\n<control_all_hexes\nplayer=%s\n>\n>\n",
                      (axis_strat > 0) ? "axis" : "allies" );
-            fprintf( dest_file, "result»victory\n" );
-            fprintf( dest_file, "message»%s\n", 
+            fprintf( dest_file, "result=victory\n" );
+            fprintf( dest_file, "message=%s\n",
                      (axis_strat > 0) ? "Axis Victory" : "Allied Victory" );
             fprintf( dest_file, ">\n" );
             fprintf( dest_file, "<else\n" );
-            fprintf( dest_file, "result»defeat\n" );
-            fprintf( dest_file, "message»%s\n", 
+            fprintf( dest_file, "result=defeat\n" );
+            fprintf( dest_file, "message=%s\n",
                      (axis_strat > 0) ? "Axis Defeat" : "Allied Defeat" );
             fprintf( dest_file, ">\n" );
             fprintf( dest_file, ">\n" );
@@ -1203,7 +1203,7 @@ int scenarios_convert( int scen_id )
         fseek( scen_file, 117, SEEK_SET );
         ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
         deploy_fields_count = SDL_SwapLE16(ibuf);
-        fprintf( dest_file, "<deployfields\n<player\nid»axis\ncoordinates»default°" );
+        fprintf( dest_file, "<deployfields\n<player\nid=axis\ncoordinates=default&" );
         /* last coordinate is always (-1, -1) */
         for (j = 0; j < deploy_fields_count - 1; j++) {
             int x, y;
@@ -1211,14 +1211,14 @@ int scenarios_convert( int scen_id )
             x = SDL_SwapLE16(ibuf);
             ibuf = 0; _fread( &ibuf, 2, 1, scen_file );
             y = SDL_SwapLE16(ibuf);
-            fprintf( dest_file, "%s%d,%d", j ? "°" : "", x, y );
+            fprintf( dest_file, "%s%d,%d", j ? "&" : "", x, y );
         }
         fprintf( dest_file, "\n>\n" );
         if (scen_id == -1 && strcmp(target_name,"pg") == 0 && i == 19)
             /* MarketGarden's Allies may not deploy freely */
-            fprintf( dest_file, "<player\nid»allies\ncoordinates»none\n>\n" );
+            fprintf( dest_file, "<player\nid=allies\ncoordinates=none\n>\n" );
         else
-            fprintf( dest_file, "<player\nid»allies\ncoordinates»default\n>\n" );
+            fprintf( dest_file, "<player\nid=allies\ncoordinates=default\n>\n" );
         fprintf( dest_file, ">\n" );
         /* units */
         /* mark all id's that will be used from PANZEQUP.EQP
@@ -1251,20 +1251,20 @@ int scenarios_convert( int scen_id )
                         fprintf( dest_file, "<unit\n" );
                         if ( !parser_get_value( unit, "nation", &str, 0 ) )
                             goto failure;
-                        fprintf( dest_file, "nation»%s\n", str );
+                        fprintf( dest_file, "nation=%s\n", str );
                         if ( !parser_get_int( unit, "id", &ibuf ) )
                             goto failure;
-                        fprintf( dest_file, "id»%i\n", ibuf );
+                        fprintf( dest_file, "id=%i\n", ibuf );
                         ibuf = def_str;  parser_get_int( unit, "str", &ibuf );
-                        fprintf( dest_file, "str»%i\n", ibuf );
+                        fprintf( dest_file, "str=%i\n", ibuf );
                         ibuf = def_exp;  parser_get_int( unit, "exp", &ibuf );
-                        fprintf( dest_file, "exp»%i\n", ibuf );
-                        fprintf( dest_file, "entr»0\n" );
+                        fprintf( dest_file, "exp=%i\n", ibuf );
+                        fprintf( dest_file, "entr=0\n" );
                         if ( parser_get_value( unit, "trsp", &str, 0 ) )
-                            fprintf( dest_file, "trsp»%s\n", str );
+                            fprintf( dest_file, "trsp=%s\n", str );
                         if ( !parser_get_int( unit, "delay", &ibuf ) )
                             goto failure;
-                        fprintf( dest_file, "delay»%i\n", ibuf );
+                        fprintf( dest_file, "delay=%i\n", ibuf );
                         fprintf( dest_file, ">\n" );
                     }
             }

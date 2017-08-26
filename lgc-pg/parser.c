@@ -445,6 +445,12 @@ static int parser_read_file_full( FILE *file, PData *top )
 }
 static int parser_read_file_compact( PData *section )
 {
+	char entryToken1 = 0xbb;
+	char itemToken1 = 0xb0;
+	char entryToken2 = '=';
+	char itemToken2 = '&';
+	int useNewTokens = 0;
+
     /* section is the parent pdata that needs some 
        entries */
     PData *pd = 0;
@@ -467,14 +473,19 @@ static int parser_read_file_compact( PData *section )
                 /* read values as subsection */
                 pd = calloc( 1, sizeof( PData ) );
                 /* check name */
-                if ( ( cur = strchr( line, '»' ) ) == 0 ) {
-                    sprintf( parser_sub_error, "parse error: use '»' for assignment or '<' for section" );
-                    return 0;
+                if ( ( cur = strchr( line, entryToken1 ) ) == 0 ) {
+                	if ( ( cur = strchr( line, entryToken2 ) ) == 0 ) {
+                		sprintf( parser_sub_error,
+                				"parse error: use '%c' or '%c' for assignment or '<' for section",
+                				entryToken1, entryToken2 );
+                		return 0;
+                	} else
+                		useNewTokens = 1;
                 }
                 cur[0] = 0; cur++;
                 pd->name = strdup( line );
                 /* get values */
-                pd->values = parser_explode_string( cur, '°' );
+                pd->values = parser_explode_string( cur, useNewTokens?itemToken2:itemToken1 );
                 /* add to section */
                 list_add( section->entries, pd );
                 break;

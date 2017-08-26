@@ -47,16 +47,16 @@ struct {
 } weatherTypes[NUM_WEATHER_TYPES] = {
     { "fair",   "Fair(Dry)",     0, "none", "" }, /* f */
     { "clouds", "Overcast(Dry)", 0, "none", "" }, /* o */
-    { "r",      "Raining(Dry)",  0, "no_air_attack°bad_sight", "" },
-    { "s",      "Snowing(Dry)",  0, "no_air_attack°bad_sight", "" },
+    { "r",      "Raining(Dry)",  0, "no_air_attack&bad_sight", "" },
+    { "s",      "Snowing(Dry)",  0, "no_air_attack&bad_sight", "" },
     { "m",      "Fair(Mud)",     1, "none", "_rain" },
     { "M",      "Overcast(Mud)", 1, "none", "_rain" },
-    { "rain",   "Raining(Mud)",  1, "no_air_attack°bad_sight", "_rain" }, /* R */
-    { "x",      "Snowing(Mud)",  1, "no_air_attack°bad_sight", "_rain" },
+    { "rain",   "Raining(Mud)",  1, "no_air_attack&bad_sight", "_rain" }, /* R */
+    { "x",      "Snowing(Mud)",  1, "no_air_attack&bad_sight", "_rain" },
     { "i",      "Fair(Ice)",     2, "double_fuel_cost", "_snow" },
     { "I",      "Overcast(Ice)", 2, "double_fuel_cost", "_snow" },
-    { "X",      "Raining(Ice)",  2, "double_fuel_cost°no_air_attack°bad_sight", "_snow" },
-    { "snow",   "Snowing(Ice)",  2, "double_fuel_cost°no_air_attack°bad_sight", "_snow" } /* S */
+    { "X",      "Raining(Ice)",  2, "double_fuel_cost&no_air_attack&bad_sight", "_snow" },
+    { "snow",   "Snowing(Ice)",  2, "double_fuel_cost&no_air_attack&bad_sight", "_snow" } /* S */
 };
 /*
 ====================================================================
@@ -105,11 +105,11 @@ struct {
     { 'a', "Airfield", "airfield", 2, 7, 99,
         "112211221122",
         { "1111A1X1", "1121A1X1", "1121A1X1" },
-        { "supply_air°supply_ground","supply_air°supply_ground","supply_air°supply_ground"} }, 
+        { "supply_air&supply_ground","supply_air&supply_ground","supply_air&supply_ground"} },
     { 't', "Town", "town", 3, 8, 1,
         "222222222222",
         { "1111A1X1", "1121A1X1", "1121A1X1" },
-        { "inf_close_def°supply_ground","inf_close_def°supply_ground","inf_close_def°supply_ground"} },
+        { "inf_close_def&supply_ground","inf_close_def&supply_ground","inf_close_def&supply_ground"} },
     { 'o', "Ocean", "ocean", 0, 0, 99,
         "112211221122",
         { "XXXXX11X", "XXXXX11X", "XXXXX11X" },
@@ -133,9 +133,9 @@ struct {
     { 'h', "Harbor", "harbor", 3, 8, 5, 
         "112211221122",
         { "1111A111", "1121A111", "1121A111" },
-        { "inf_close_def°supply_ground°supply_ships",
-          "inf_close_def°supply_ground°supply_ships",
-          "inf_close_def°supply_ground°supply_ships"} }
+        { "inf_close_def&supply_ground&supply_ships",
+          "inf_close_def&supply_ground&supply_ships",
+          "inf_close_def&supply_ground&supply_ships"} }
 };
 /*
 ====================================================================
@@ -304,49 +304,49 @@ int terrain_convert_database( void )
     fprintf( file, "@\n" );
     fprintf( file, "<weather\n" );
     for ( i = 0; i < NUM_WEATHER_TYPES; i++ )
-        fprintf( file, "<%s\nname»%s\nflags»%s\n>\n", 
+        fprintf( file, "<%s\nname=%s\nflags=%s\n>\n",
                  weatherTypes[i].id, weatherTypes[i].name, weatherTypes[i].flags );
     fprintf( file, ">\n" );
     /* domain */
-    fprintf( file, "domain»pg\n" );
+    fprintf( file, "domain=pg\n" );
     /* additional graphics and sounds */
-    fprintf( file, "hex_width»60\nhex_height»50\nhex_x_offset»45\nhex_y_offset»25\n" );
-    fprintf( file, "fog»pg/fog.bmp\ndanger»pg/danger.bmp\ngrid»pg/grid.bmp\nframe»pg/select_frame.bmp\n" );
-    fprintf( file, "crosshair»pg/crosshair.bmp\nexplosion»pg/explosion.bmp\ndamage_bar»pg/damage_bars.bmp\n" );
-    fprintf( file, "explosion_sound»pg/explosion.wav\nselect_sound»pg/select.wav\n" );
+    fprintf( file, "hex_width=60\nhex_height=50\nhex_x_offset=45\nhex_y_offset=25\n" );
+    fprintf( file, "fog=pg/fog.bmp\ndanger=pg/danger.bmp\ngrid=pg/grid.bmp\nframe=pg/select_frame.bmp\n" );
+    fprintf( file, "crosshair=pg/crosshair.bmp\nexplosion=pg/explosion.bmp\ndamage_bar=pg/damage_bars.bmp\n" );
+    fprintf( file, "explosion_sound=pg/explosion.wav\nselect_sound=pg/select.wav\n" );
     /* terrain types */
     fprintf( file, "<terrain\n" );
     for ( i = 0; i < NUM_TERRAIN_TYPES; i++ ) {
 		if (!separate_bridges && terrainTypes[i].id=='b') 
 			continue; /* skip bridge definition if road is used instead */
         fprintf( file, "<%c\n", terrainTypes[i].id );
-        fprintf( file, "name»%s\n", terrainTypes[i].name );
+        fprintf( file, "name=%s\n", terrainTypes[i].name );
         fprintf( file, "<image\n" );
         for ( j = 0; j < NUM_WEATHER_TYPES; j++ )
-            fprintf( file, "%s»%s/%s%s.bmp\n", weatherTypes[j].id, 
+            fprintf( file, "%s=%s/%s%s.bmp\n", weatherTypes[j].id,
                                     target_name, terrainTypes[i].set_name, 
                                     weatherTypes[j].set_ext );
         fprintf( file, ">\n" );
         fprintf( file, "<spot_cost\n" );
         for ( j = 0; j < NUM_WEATHER_TYPES; j++ )
-            fprintf( file, "%s»%c\n", weatherTypes[j].id, terrainTypes[i].spot_costs[j] );
+            fprintf( file, "%s=%c\n", weatherTypes[j].id, terrainTypes[i].spot_costs[j] );
         fprintf( file, ">\n" );
         fprintf( file, "<move_cost\n" );
         for ( k = 0; k < move_type_count; k++ ) 
         {
             fprintf( file, "<%s\n", move_types[k * 3] );
                 for ( j = 0; j < NUM_WEATHER_TYPES; j++ )
-                    fprintf( file, "%s»%c\n", weatherTypes[j].id,
+                    fprintf( file, "%s=%c\n", weatherTypes[j].id,
                              terrainTypes[i].move_costs[weatherTypes[j].ground][k] );
             fprintf( file, ">\n" );
         }
         fprintf( file, ">\n" );
-        fprintf( file, "min_entr»%d\nmax_entr»%d\n",
+        fprintf( file, "min_entr=%d\nmax_entr=%d\n",
                  terrainTypes[i].min_entr,terrainTypes[i].max_entr);
-        fprintf( file, "max_init»%d\n", terrainTypes[i].max_ini );
+        fprintf( file, "max_init=%d\n", terrainTypes[i].max_ini );
         fprintf( file, "<flags\n" );
         for ( j = 0; j < NUM_WEATHER_TYPES; j++ )
-            fprintf( file, "%s»%s\n", weatherTypes[j].id, 
+            fprintf( file, "%s=%s\n", weatherTypes[j].id,
                      terrainTypes[i].flags[weatherTypes[j].ground] );
         fprintf( file, ">\n" );
         fprintf( file, ">\n" );
