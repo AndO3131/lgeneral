@@ -162,11 +162,11 @@ int maps_convert( int map_id )
             fprintf( dest_file, "@\n" );
         /* terrain types */
         if (map_id == -1)
-            fprintf( dest_file, "terrain_db»%s.tdb\n", target_name );
+            fprintf( dest_file, "terrain_db=%s.tdb\n", target_name );
         else
-            fprintf( dest_file, "terrain_db»pg.tdb\n" );
+            fprintf( dest_file, "terrain_db=pg.tdb\n" );
         /* domain */
-        fprintf( dest_file, "domain»pg\n" );
+        fprintf( dest_file, "domain=pg\n" );
         /* read/write map size */
         width = height = 0;
         fseek( source_file, 101, SEEK_SET );
@@ -176,10 +176,10 @@ int maps_convert( int map_id )
         _fread( &height, 2, 1, source_file ); 
         height = SDL_SwapLE16( height );
         width++; height++;
-        fprintf( dest_file, "width»%i\nheight»%i\n", width, height );
+        fprintf( dest_file, "width=%i\nheight=%i\n", width, height );
         /* picture ids */
         fseek( source_file, 123 + 5 * width * height, SEEK_SET );
-        fprintf( dest_file, "tiles»" );
+        fprintf( dest_file, "tiles=" );
         for ( y = 0; y < height; y++ ) {
             for ( x = 0; x < width; x++ ) {
                 tile_id = 0;
@@ -188,11 +188,11 @@ int maps_convert( int map_id )
                 tile_get_id_string( tile_id, map_tile_str );
                 fprintf( dest_file, "%s", map_tile_str );
                 if ( y < height - 1 || x < width - 1 )
-                    fprintf( dest_file, "°" );
+                    fprintf( dest_file, "&" );
             }
         }
         fprintf( dest_file, "\n" );
-        fprintf( dest_file, "names»" );
+        fprintf( dest_file, "names=" );
         fseek( source_file, 123, SEEK_SET );
         for ( y = 0; y < height; y++ ) {
             for ( x = 0; x < width; x++ ) {
@@ -201,7 +201,7 @@ int maps_convert( int map_id )
                 tile_get_name( name_file, ibuf, name_buf );
                 fprintf( dest_file, "%s", name_buf );
                 if ( y < height - 1 || x < width - 1 )
-                    fprintf( dest_file, "°" );
+                    fprintf( dest_file, "&" );
             }
         }
         fprintf( dest_file, "\n" );

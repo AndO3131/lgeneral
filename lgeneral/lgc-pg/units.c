@@ -129,23 +129,23 @@ enum {
 };
 char *unit_classes[] = {
     "inf",      "Infantry",         "infantry",                         
-    "tank",     "Tank",             "low_entr_rate°tank",                             
-    "recon",    "Recon",            "recon°tank",                            
+    "tank",     "Tank",             "low_entr_rate&tank",
+    "recon",    "Recon",            "recon&tank",
     "antitank", "Anti-Tank",        "anti_tank",                             
-    "art",      "Artillery",        "artillery°suppr_fire°attack_first",                        
+    "art",      "Artillery",        "artillery&suppr_fire&attack_first",
     "antiair",  "Anti-Aircraft",    "low_entr_rate",
-    "airdef",   "Air-Defense",      "air_defense°attack_first",                      
-    "fort",     "Fortification",    "low_entr_rate°suppr_fire",                             
-    "fighter",  "Fighter",          "interceptor°carrier_ok°flying",    
-    "tacbomb",  "Tactical Bomber",  "bomber°carrier_ok°flying",         
-    "levbomb",  "Level Bomber",     "flying°suppr_fire°turn_suppr°carpet_bombing",                           
-    "sub",      "Submarine",        "swimming°diving",                  
-    "dest",     "Destroyer",        "destroyer°swimming°suppr_fire",               
-    "cap",      "Capital Ship",     "swimming°suppr_fire",                         
-    "carrier",  "Aircraft Carrier", "carrier°swimming",                 
+    "airdef",   "Air-Defense",      "air_defense&attack_first",
+    "fort",     "Fortification",    "low_entr_rate&suppr_fire",
+    "fighter",  "Fighter",          "interceptor&carrier_ok&flying",
+    "tacbomb",  "Tactical Bomber",  "bomber&carrier_ok&flying",
+    "levbomb",  "Level Bomber",     "flying&suppr_fire&turn_suppr&carpet_bombing",
+    "sub",      "Submarine",        "swimming&diving",
+    "dest",     "Destroyer",        "destroyer&swimming&suppr_fire",
+    "cap",      "Capital Ship",     "swimming&suppr_fire",
+    "carrier",  "Aircraft Carrier", "carrier&swimming",
     "landtrp",  "Land Transport",   "transporter",                      
-    "airtrp",   "Air Transport",    "transporter°flying",               
-    "seatrp",   "Sea Transport",    "transporter°swimming",             
+    "airtrp",   "Air Transport",    "transporter&flying",
+    "seatrp",   "Sea Transport",    "transporter&swimming",
 };
 int move_type_count = 8;
 char *move_types[] = {
@@ -171,17 +171,17 @@ char *add_flags[] = {
     "108", "parachute",
     "109", "parachute",
     "168", "jet",
-    "214", "bridge_eng°ignore_entr",
+    "214", "bridge_eng&ignore_entr",
     "215", "parachute",
     "226", "parachute",
     "270", "parachute",
-    "275", "bridge_eng°ignore_entr",
-    "329", "bridge_eng°ignore_entr",
+    "275", "bridge_eng&ignore_entr",
+    "329", "bridge_eng&ignore_entr",
     "382", "parachute",
     "383", "parachute",
     "385", "ignore_entr",
     "386", "ignore_entr",
-    "387", "bridge_eng°ignore_entr",
+    "387", "bridge_eng&ignore_entr",
     "415", "parachute",
     "X"
 };
@@ -409,11 +409,11 @@ void units_write_classes( FILE *file )
     int i;
     fprintf( file, "<target_types\n" );
     for ( i = 0; i < TARGET_TYPE_COUNT; i++ )
-        fprintf( file, "<%s\nname»%s\n>\n", target_types[i * 2], target_types[i * 2 + 1] );
+        fprintf( file, "<%s\nname=%s\n>\n", target_types[i * 2], target_types[i * 2 + 1] );
     fprintf( file, ">\n" );
     fprintf( file, "<move_types\n" );
     for ( i = 0; i < move_type_count; i++ )
-        fprintf( file, "<%s\nname»%s\nsound»%s\n>\n", 
+        fprintf( file, "<%s\nname=%s\nsound=%s\n>\n",
                  move_types[i * 3], move_types[i * 3 + 1], move_types[i * 3 + 2] );
     fprintf( file, ">\n" );
 
@@ -421,15 +421,15 @@ void units_write_classes( FILE *file )
 	fprintf( file, "<unit_classes\n" );
 	for ( i = 0; i < UNIT_CLASS_COUNT; i++ ) {
 		fprintf( file, "<%s\n", unit_classes[i * 3] );
-		fprintf( file, "name»%s\n", unit_classes[i * 3 + 1] );
+		fprintf( file, "name=%s\n", unit_classes[i * 3 + 1] );
 		if (i == LAND_TRANS)
-			fprintf( file, "purchase»trsp\n" );
+			fprintf( file, "purchase=trsp\n" );
 		else if (i == FORT || i == SUBMARINE || i == DESTROYER || 
 					i == CAPITAL || i == CARRIER ||	
 					i == AIR_TRANS || i == SEA_TRANS)
-			fprintf( file, "purchase»none\n" );
+			fprintf( file, "purchase=none\n" );
 		else
-			fprintf( file, "purchase»normal\n" );
+			fprintf( file, "purchase=normal\n" );
 		fprintf( file, ">\n" );
 	}
 	fprintf( file, ">\n" );
@@ -481,14 +481,14 @@ int units_convert_database( char *tac_icons )
     if ( !single_scen )
         fprintf( dest_file, "@\n" ); /* only a new file needs this magic */
     /* domain */
-    fprintf( dest_file, "domain»pg\n" );
-    fprintf( dest_file, "icons»%s\nicon_type»%s\n", tac_icons,
+    fprintf( dest_file, "domain=pg\n" );
+    fprintf( dest_file, "icons=%s\nicon_type=%s\n", tac_icons,
                                         apply_unit_mods?"single":"fixed");
-    fprintf( dest_file, "strength_icons»pg_strength.bmp\n" );
-    fprintf( dest_file, "strength_icon_width»16\nstrength_icon_height»12\n" );
-    fprintf( dest_file, "attack_icon»pg_attack.bmp\n" );
-    fprintf( dest_file, "move_icon»pg_move.bmp\n" );
-    fprintf( dest_file, "guard_icon»pg_guard.bmp\n" );
+    fprintf( dest_file, "strength_icons=pg_strength.bmp\n" );
+    fprintf( dest_file, "strength_icon_width=16\nstrength_icon_height=12\n" );
+    fprintf( dest_file, "attack_icon=pg_attack.bmp\n" );
+    fprintf( dest_file, "move_icon=pg_move.bmp\n" );
+    fprintf( dest_file, "guard_icon=pg_guard.bmp\n" );
     units_write_classes( dest_file );
     fprintf( dest_file, "<unit_lib\n" );
     /* first entry is RESERVED */
@@ -544,7 +544,7 @@ int units_convert_database( char *tac_icons )
             i = 0;
             while ( add_flags[i*2][0] != 'X' ) {
                 if ( atoi( add_flags[i * 2] ) == id ) {
-                    strcat( flags, "°" );
+                    strcat( flags, "&" );
                     strcat( flags, add_flags[i * 2 + 1] );
                     i = -1;
                     break;
@@ -554,44 +554,43 @@ int units_convert_database( char *tac_icons )
         }
 	/* whatever is legged or towed may use ground/air transporter */
         if ( entry.move > 0 && (entry.move_type == 3 || entry.move_type == 4) )
-            strcat( flags, "°air_trsp_ok°ground_trsp_ok" );
+            strcat( flags, "&air_trsp_ok&ground_trsp_ok" );
         /* all artillery with range 1 has no attack_first */
         if (entry.class==4&&entry.range==1)
         {
-            sprintf( flags, "artillery°suppr_fire" );
-            printf( "%s: overwrite flags to: artillery,suppr_fire\n",
-                                                                entry.name);
+            sprintf( flags, "artillery&suppr_fire" );
+            printf( "%s: overwrite flags to: artillery,suppr_fire\n", entry.name);
         }
         /* write entry */
         fprintf( dest_file, "<%i\n", id++ );
         string_replace_quote( entry.name, buf );
         if ( apply_unit_mods )
             fix_spelling_mistakes( buf );
-        fprintf( dest_file, "name»%s\n", buf );
-        fprintf( dest_file, "nation»%s\n", (entry.nation==-1)?"none":
+        fprintf( dest_file, "name=%s\n", buf );
+        fprintf( dest_file, "nation=%s\n", (entry.nation==-1)?"none":
 						nations[entry.nation * 3] );
-        fprintf( dest_file, "class»%s\n", unit_classes[entry.class * 3] );
-        fprintf( dest_file, "target_type»%s\n", target_types[entry.target_type * 2] );
-        fprintf( dest_file, "initiative»%i\n", entry.init );
-        fprintf( dest_file, "spotting»%i\n", entry.spot );
-        fprintf( dest_file, "movement»%i\n", entry.move );
-        fprintf( dest_file, "move_type»%s\n", move_types[entry.move_type * 3] );
-        fprintf( dest_file, "fuel»%i\n", entry.fuel );
-        fprintf( dest_file, "range»%i\n", entry.range );
-        fprintf( dest_file, "ammo»%i\n", entry.ammo );
-        fprintf( dest_file, "<attack\ncount»1\nsoft»%i\nhard»%i\nair»%i\nnaval»%i\n>\n",
+        fprintf( dest_file, "class=%s\n", unit_classes[entry.class * 3] );
+        fprintf( dest_file, "target_type=%s\n", target_types[entry.target_type * 2] );
+        fprintf( dest_file, "initiative=%i\n", entry.init );
+        fprintf( dest_file, "spotting=%i\n", entry.spot );
+        fprintf( dest_file, "movement=%i\n", entry.move );
+        fprintf( dest_file, "move_type=%s\n", move_types[entry.move_type * 3] );
+        fprintf( dest_file, "fuel=%i\n", entry.fuel );
+        fprintf( dest_file, "range=%i\n", entry.range );
+        fprintf( dest_file, "ammo=%i\n", entry.ammo );
+        fprintf( dest_file, "<attack\ncount=1\nsoft=%i\nhard=%i\nair=%i\nnaval=%i\n>\n",
                  entry.atk_soft, entry.atk_hard, entry.atk_air, entry.atk_naval );
-        fprintf( dest_file, "def_ground»%i\n", entry.def_ground );
-        fprintf( dest_file, "def_air»%i\n", entry.def_air );
-        fprintf( dest_file, "def_close»%i\n", entry.def_close );
-        fprintf( dest_file, "flags»%s\n", flags );
-        fprintf( dest_file, "icon_id»%i\n", entry.pic_id );
-        if ( strstr( flags, "°jet" ) )
-            fprintf( dest_file, "move_sound»%s\n", "pg/air2.wav" );
-        fprintf( dest_file, "cost»%i\n", entry.cost );
-        fprintf( dest_file, "start_year»19%i\n", entry.year );
-        fprintf( dest_file, "start_month»%i\n", entry.month );
-        fprintf( dest_file, "last_year»19%i\n", entry.last_year );
+        fprintf( dest_file, "def_ground=%i\n", entry.def_ground );
+        fprintf( dest_file, "def_air=%i\n", entry.def_air );
+        fprintf( dest_file, "def_close=%i\n", entry.def_close );
+        fprintf( dest_file, "flags=%s\n", flags );
+        fprintf( dest_file, "icon_id=%i\n", entry.pic_id );
+        if ( strstr( flags, "&jet" ) )
+            fprintf( dest_file, "move_sound=%s\n", "pg/air2.wav" );
+        fprintf( dest_file, "cost=%i\n", entry.cost );
+        fprintf( dest_file, "start_year=19%i\n", entry.year );
+        fprintf( dest_file, "start_month=%i\n", entry.month );
+        fprintf( dest_file, "last_year=19%i\n", entry.last_year );
         fprintf( dest_file, ">\n" );
     }
     fprintf( dest_file, ">\n" );

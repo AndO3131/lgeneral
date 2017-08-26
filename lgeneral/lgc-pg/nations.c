@@ -90,13 +90,13 @@ int nations_convert( void )
         return 0;
     }
     fprintf( file, "@\n" );
-    fprintf( file, "icons»%s.bmp\n", target_name );
-    fprintf( file, "icon_width»20\nicon_height»13\n" );
+    fprintf( file, "icons=%s.bmp\n", target_name );
+    fprintf( file, "icon_width=20\nicon_height=13\n" );
     /* domain */
-    fprintf( file, "domain»pg\n" );
+    fprintf( file, "domain=pg\n" );
     fprintf( file, "<nations\n" );
     for ( i = 0; i < nation_count; i++ )
-        fprintf( file, "<%s\nname»%s\nicon_id»%s\n>\n", nations[i * 3], nations[i * 3 + 1], nations[i * 3 + 2] );
+        fprintf( file, "<%s\nname=%s\nicon_id=%s\n>\n", nations[i * 3], nations[i * 3 + 1], nations[i * 3 + 2] );
     fprintf( file, ">\n" );
     fclose( file );
     
