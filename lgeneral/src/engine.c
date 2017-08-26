@@ -2245,7 +2245,7 @@ static void engine_handle_button( int id )
             /*x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y; */
             x = gui->main_menu->frame->img->bkgnd->surf_rect.x -
-        		    	    gui->opt_menu->frame->img->img->w;
+        		    	    gui->save_menu->frame->img->img->w;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->save_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->save_menu->frame->img->img->h;
@@ -2258,7 +2258,7 @@ static void engine_handle_button( int id )
             /* x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y; */
             x = gui->main_menu->frame->img->bkgnd->surf_rect.x -
-        		    	    gui->opt_menu->frame->img->img->w;
+        		    	    gui->load_menu->frame->img->img->w;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->load_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->load_menu->frame->img->img->h;
@@ -2358,7 +2358,7 @@ static void engine_handle_button( int id )
             /*x = gui->unit_buttons->frame->img->bkgnd->surf_rect.x + 30 - 1;
             y = gui->unit_buttons->frame->img->bkgnd->surf_rect.y; */
             x = gui->unit_buttons->frame->img->bkgnd->surf_rect.x -
-        		    	    gui->opt_menu->frame->img->img->w;
+        		    	    gui->split_menu->frame->img->img->w;
             y = gui->unit_buttons->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->split_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->split_menu->frame->img->img->h;

@@ -198,7 +198,7 @@ Create the gui and use the graphics in gfx/themes/...
 int gui_load( const char *dir )
 {
     char str[128];
-    int i;
+    int i, dy;
     int sx, sy;
     char path[256], path2[256], path3[256], path4[256];
 	
@@ -291,7 +291,7 @@ int gui_load( const char *dir )
     /* unit buttons */
     sprintf( path2, "../themes/%s/unit_buttons.bmp", dir );
     if ( ( gui->unit_buttons = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                             24, 24, 7, ID_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+                                             48, 48, 7, ID_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 6; sy = 6;
     group_add_button( gui->unit_buttons, ID_UNDO, sx, sy, 0, tr("Undo Turn [u]") ); sx += 60;
@@ -303,14 +303,14 @@ int gui_load( const char *dir )
     group_add_button( gui->unit_buttons, ID_DISBAND, sx, sy, 0, tr("Disband Unit") ); 
     /* split menu */
     sprintf( path2, "../themes/%s/strength_buttons.bmp", dir );
-    if ( ( gui->split_menu = group_create( gui_create_frame( 26, 186 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          20, 20, 10, ID_SPLIT_1, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->split_menu = group_create( gui_create_frame( 40, 296 ), 160, load_surf( path2, SDL_SWSURFACE ),
+                                          32, 32, 10, ID_SPLIT_1, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 3; sy = 3;
+    sx = 4; sy = 4;
     for ( i = 0; i < 9; i++ ) {
         sprintf( str, tr("Split Up %d Strength"), i+1 );
         group_add_button( gui->split_menu, ID_SPLIT_1 + i, sx, sy, 0, str );
-        sy += 20;
+        sy += 32;
     }
     group_hide( gui->split_menu, 1 );
     /* deploy window */
@@ -332,7 +332,7 @@ int gui_load( const char *dir )
     /* base menu */
     sprintf( path2, "../themes/%s/menu0_buttons.bmp", dir );
     if ( ( gui->base_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          24, 24, 9, ID_MENU, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+                                          48, 48, 9, ID_MENU, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 6; sy = 6;
     group_add_button( gui->base_menu, ID_AIR_MODE, sx, sy, 0, tr("Switch Air/Ground [t]") ); sx += 60;
@@ -346,7 +346,7 @@ int gui_load( const char *dir )
     /* main_menu */
     sprintf( path2, "../themes/%s/menu1_buttons.bmp", dir );
     if ( ( gui->main_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          24, 24, 7, ID_SAVE, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+                                          48, 48, 7, ID_SAVE, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 6; sy = 6;
     group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sx += 60;
@@ -358,43 +358,45 @@ int gui_load( const char *dir )
     group_add_button( gui->main_menu, ID_QUIT, sx, sy, 0, tr("Quit Game") );
     /* load menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
-    if ( ( gui->load_menu = group_create( gui_create_frame( 30, 246+24 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          24, 24, 11, ID_LOAD_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->load_menu = group_create( gui_create_frame( 38, 11*32+6 ), 160, load_surf( path2, SDL_SWSURFACE ),
+                                          32, 32, 11, ID_LOAD_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
+    dy = 32;
     for ( i = 0; i < SLOT_COUNT; i++ ) {
         sprintf( str, tr("Load: %s"), slot_get_name( i ) );
         group_add_button( gui->load_menu, ID_LOAD_0 + i, sx, sy, 0, str );
-        sy += 24;
+        sy += dy;
     }
     group_hide( gui->load_menu, 1 );
     /* save menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
-    if ( ( gui->save_menu = group_create( gui_create_frame( 30, 246 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          24, 24, 10, ID_SAVE_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->save_menu = group_create( gui_create_frame( 38, 10*32+6 ), 160, load_surf( path2, SDL_SWSURFACE ),
+                                          32, 32, 10, ID_SAVE_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
     for ( i = 0; i < 10; i++ ) {
         sprintf( str, tr("Save: %s"), slot_get_name( i ) );
         group_add_button( gui->save_menu, ID_SAVE_0 + i, sx, sy, 0, str );
-        sy += 24;
+        sy += dy;
     }
     group_hide( gui->save_menu, 1 );
     /* options */
     sprintf( path2, "../themes/%s/menu3_buttons.bmp", dir );
-    if ( ( gui->opt_menu = group_create( gui_create_frame( 30, 300 - 60 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          24, 24, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->opt_menu = group_create( gui_create_frame( 38, 6+8*38 ), 160, load_surf( path2, SDL_SWSURFACE ),
+                                          32, 32, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
+    dy = 38;
     //group_add_button( gui->opt_menu, ID_C_SUPPLY, sx, sy, 1, "Unit Supply" ); sy += 30;
     //group_add_button( gui->opt_menu, ID_C_WEATHER, sx, sy, 1, "Weather Influence" ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_GRID, sx, sy, 1, tr("Hex Grid [g]") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_SHOW_CPU, sx, sy, 1, tr("Show CPU Turn") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_SHOW_STRENGTH, sx, sy, 1, tr("Show Unit Strength [.]") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_SOUND, sx, sy, 1, tr("Sound") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_SOUND_INC, sx, sy, 0, tr("Sound Volume Up") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_SOUND_DEC, sx, sy, 0, tr("Sound Volume Down") ); sy += 30;
-    group_add_button( gui->opt_menu, ID_C_MUSIC, sx, sy, 1, tr("Music") ); sy += 30;
+    group_add_button( gui->opt_menu, ID_C_GRID, sx, sy, 1, tr("Hex Grid [g]") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_SHOW_CPU, sx, sy, 1, tr("Show CPU Turn") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_SHOW_STRENGTH, sx, sy, 1, tr("Show Unit Strength [.]") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_SOUND, sx, sy, 1, tr("Sound") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_SOUND_INC, sx, sy, 0, tr("Sound Volume Up") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_SOUND_DEC, sx, sy, 0, tr("Sound Volume Down") ); sy += dy;
+    group_add_button( gui->opt_menu, ID_C_MUSIC, sx, sy, 1, tr("Music") ); sy += dy;
     group_add_button( gui->opt_menu, ID_C_VMODE, sx, sy, 0, tr("Video Mode [v]") );
     group_hide( gui->opt_menu, 1 );
     /* video mode dialog */
