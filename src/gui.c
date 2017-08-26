@@ -383,7 +383,7 @@ int gui_load( const char *dir )
     group_hide( gui->save_menu, 1 );
     /* options */
     sprintf( path2, "../themes/%s/menu3_buttons.bmp", dir );
-    if ( ( gui->opt_menu = group_create( gui_create_frame( 38, 6+8*38 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->opt_menu = group_create( gui_create_frame( 38, 6+7*38 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                           32, 32, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
@@ -396,7 +396,7 @@ int gui_load( const char *dir )
     group_add_button( gui->opt_menu, ID_C_SOUND, sx, sy, 1, tr("Sound") ); sy += dy;
     group_add_button( gui->opt_menu, ID_C_SOUND_INC, sx, sy, 0, tr("Sound Volume Up") ); sy += dy;
     group_add_button( gui->opt_menu, ID_C_SOUND_DEC, sx, sy, 0, tr("Sound Volume Down") ); sy += dy;
-    group_add_button( gui->opt_menu, ID_C_MUSIC, sx, sy, 1, tr("Music") ); sy += dy;
+    //group_add_button( gui->opt_menu, ID_C_MUSIC, sx, sy, 1, tr("Music") ); sy += dy;
     group_add_button( gui->opt_menu, ID_C_VMODE, sx, sy, 0, tr("Video Mode [v]") );
     group_hide( gui->opt_menu, 1 );
     /* video mode dialog */
