@@ -463,6 +463,12 @@ static int parser_read_file_full( ParserState *st, PData *top )
 }
 static int parser_read_file_compact( ParserState *st, PData *section )
 {
+	char entryToken1 = 0xbb;
+	char itemToken1 = 0xb0;
+	char entryToken2 = '=';
+	char itemToken2 = '/';
+	int useNewTokens = 0;
+
     /* section is the parent pdata that needs some 
        entries */
     PData *pd = 0;
@@ -475,22 +481,27 @@ static int parser_read_file_compact( ParserState *st, PData *section )
             case '<':
                 /* add a whole subsection */
                 pd = parser_create_pdata(strdup( line + 1 ), 0, st->lineno, st->ctd);
-                pd->entries = list_create( 0, 0 );
+                pd->entries = list_create( LIST_NO_AUTO_DELETE, NULL );
                 parser_read_file_compact( st, pd );
                 /* add to section */
                 list_add( section->entries, pd );
                 break;
             default:
                 /* check name */
-                if ( ( cur = strchr( line, (char)DEFSEP/*'�'*/ ) ) == 0 ) {
-                    sprintf( parser_sub_error, tr("parse error: use '%c' for assignment or '<' for section"), (char)DEFSEP/*'�'*/);
-                    return 0;
+                if ( ( cur = strchr( line, entryToken1 ) ) == 0 ) {
+                	if ( ( cur = strchr( line, entryToken2 ) ) == 0 ) {
+                		sprintf( parser_sub_error,
+                				tr("parse error: use '%c' or '%c' for assignment or '<' for section"),
+                				entryToken1, entryToken2 );
+                		return 0;
+                	} else
+                		useNewTokens = 1;
                 }
                 cur[0] = 0; cur++;
                 /* read values as subsection */
                 pd = parser_create_pdata(strdup( line ),
-                                         parser_explode_string( cur, (char)ITEMSEP/*'�'*/ ),
-                                         st->lineno, st->ctd);
+                               parser_explode_string( cur, useNewTokens?itemToken2:itemToken1 ),
+                               st->lineno, st->ctd);
                 /* add to section */
                 list_add( section->entries, pd );
                 break;

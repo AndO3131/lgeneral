@@ -915,31 +915,31 @@ void Data::saveMapInfile(FILE *dest_file)
 	int x, y;
 
 	/* terrain types */
-	fprintf( dest_file, "terrain_db%c%s.tdb\n", 0xbb, "pg" );
+	fprintf( dest_file, "terrain_db%c%s.tdb\n", '=', "pg" );
 	/* domain */
-	fprintf( dest_file, "domain%cpg\n", 0xbb );
+	fprintf( dest_file, "domain%cpg\n", '=' );
 	/* write map size */
-	fprintf( dest_file, "width%c%i\nheight%c%i\n", 0xbb, mapw, 0xbb, maph );
+	fprintf( dest_file, "width%c%i\nheight%c%i\n", '=', mapw, '=', maph );
 	/* picture ids */
-	fprintf( dest_file, "tiles%c", 0xbb );
+	fprintf( dest_file, "tiles%c", '=' );
 	for ( y = 0; y < maph; y++ ) {
 		for ( x = 0; x < mapw; x++ ) {
 			std::ostringstream txt;
 			txt << terrain[map[x][y].tid[0]].id << map[x][y].tid[1];
 			fprintf( dest_file, "%s", txt.str().c_str() );
 			if ( y < maph - 1 || x < mapw - 1 )
-				fprintf( dest_file, "%c", 0xb0 );
+				fprintf( dest_file, "%c", '/' );
 		}
 	}
 	fprintf( dest_file, "\n" );
-	fprintf( dest_file, "names%c", 0xbb );
+	fprintf( dest_file, "names%c", '=' );
 	for ( y = 0; y < maph; y++ ) {
 		for ( x = 0; x < mapw; x++ ) {
 			std::string n;
 			n = map[x][y].name;
 			fprintf( dest_file, "%s", n.c_str() );
 			if ( y < maph - 1 || x < mapw - 1 )
-				fprintf( dest_file, "%c", 0xb0 );
+				fprintf( dest_file, "%c", '/' );
 		}
 	}
 	fprintf( dest_file, "\n" );
@@ -1090,7 +1090,7 @@ void Data::loadScenario(std::string fname)
 
 void Data::saveUnit(Unit &u, FILE *fh)
 {
-	const char entryToken = 0xbb;
+	const char entryToken = '=';
 
 	fprintf(fh, "<unit\n");
 	fprintf(fh, "id%c%s\n", entryToken, u.id.c_str());
@@ -1112,8 +1112,8 @@ void Data::saveUnit(Unit &u, FILE *fh)
 
 void Data::writeDefaultScenData(FILE *fh)
 {
-	const char entryToken = 0xbb;
-	const char itemToken = 0xb0;
+	const char entryToken = '=';
+	const char itemToken = '/';
 	std::string sd =
 			"name=MyScenario\n"
 			"desc=No description\n"
@@ -1226,8 +1226,8 @@ void Data::saveScenario(std::string fname, PData *mpd)
 	 * units (exp=0,entr=min,str=10 fixed for new units for now)
 	 */
 	const char *path = fname.c_str();
-	const char entryToken = 0xbb;
-	const char itemToken = 0xb0;
+	const char entryToken = '=';
+	const char itemToken = '/';
 	static FILE *dest_file;
 	char *str;
 	int i;
