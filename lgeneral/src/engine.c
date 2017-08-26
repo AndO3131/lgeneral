@@ -70,6 +70,7 @@ extern List *prev_scen_core_units;
 extern char *prev_scen_fname;
 extern Scen_Message *sMessages;
 extern int sMessage_count;
+extern int gui_panel_w;
 
 /*
 ====================================================================
@@ -130,6 +131,7 @@ int *hex_mask = 0;             /* used to determine hex from pointer pos */
 int map_x, map_y;              /* current position in map */
 int map_sw, map_sh;            /* number of tiles drawn to screen */
 int map_sx, map_sy;            /* position where to draw first tile */
+int mapview_w = 0;	/* remainder to full screen width, updated before use */
 int draw_map = 0;              /* if this flag is true engine_update() calls engine_draw_map() */
 enum {
     SCROLL_NONE = 0,
@@ -331,8 +333,8 @@ static void engine_set_status( int newstat )
     if ( newstat == STATUS_NONE && setup.type == SETUP_RUN_TITLE )
     {
         status = STATUS_TITLE;
-        /* re-show main menu */
-        if (!term_game) engine_show_game_menu(10,10);
+        /* re-show main menu
+        if (!term_game) engine_show_game_menu(10,10); */
     }
     else
         status = newstat;
@@ -468,6 +470,7 @@ static void engine_prep_camp_brief()
     }
     
     gui_draw_message_pane(camp_pane);
+    gui_panel_hide();
     engine_set_status(STATUS_CAMP_BRIEFING);
 }
 
@@ -478,7 +481,27 @@ Check menu buttons and enable/disable according to engine status.
 */
 static void engine_check_menu_buttons()
 {
-    /* airmode */
+	if (status == STATUS_TITLE || status == STATUS_TITLE_MENU ||
+		 status == STATUS_DEPLOY || status == STATUS_PURCHASE) {
+		group_set_active( gui->base_menu, ID_AIR_MODE, 0 );
+		group_set_active( gui->base_menu, ID_MENU, 0 );
+		group_set_active( gui->base_menu, ID_SCEN_INFO, 0 );
+		group_set_active( gui->base_menu, ID_PURCHASE, 0 );
+		group_set_active( gui->base_menu, ID_DEPLOY, 0 );
+		group_set_active( gui->base_menu, ID_UNIT_LIST, 0 );
+		group_set_active( gui->base_menu, ID_STRAT_MAP, 0 );
+		group_set_active( gui->base_menu, ID_END_TURN, 0 );
+		group_set_active( gui->base_menu, ID_CONDITIONS, 0 );
+
+	        group_set_active( gui->main_menu, ID_SAVE, 0 );
+	        group_set_active( gui->main_menu, ID_RESTART, 0 );
+		return;
+	}
+	/* we're in the game */
+        group_set_active( gui->main_menu, ID_SAVE, 1 );
+        group_set_active( gui->main_menu, ID_RESTART, 1 );
+
+	/* airmode */
     group_set_active( gui->base_menu, ID_AIR_MODE, 1 );
     /* menu */
     if ( cur_ctrl == PLAYER_CTRL_NOBODY )
@@ -496,7 +519,7 @@ static void engine_check_menu_buttons()
     else
         group_set_active( gui->base_menu, ID_PURCHASE, 0 );
     /* deploy */
-    if ( ( avail_units->count > 0 || deploy_turn ) && status == STATUS_NONE )
+    if ( ( avail_units->count > 0 ) && status == STATUS_NONE )
         group_set_active( gui->base_menu, ID_DEPLOY, 1 );
     else
         group_set_active( gui->base_menu, ID_DEPLOY, 0 );
@@ -511,7 +534,7 @@ static void engine_check_menu_buttons()
     else
         group_set_active( gui->base_menu, ID_STRAT_MAP, 0 );
     /* end turn */
-    if ( status != STATUS_NONE )
+    if ( status != STATUS_NONE || deploy_turn)
         group_set_active( gui->base_menu, ID_END_TURN, 0 );
     else
         group_set_active( gui->base_menu, ID_END_TURN, 1 );
@@ -530,7 +553,16 @@ Check unit buttons. (use current unit)
 static void engine_check_unit_buttons()
 {
     char str[128];
-    if ( cur_unit == 0 ) return;
+    if ( cur_unit == 0 || status == STATUS_TITLE_MENU) {
+	    group_set_active( gui->unit_buttons, ID_RENAME, 0 );
+	    group_set_active( gui->unit_buttons, ID_SUPPLY, 0 );
+	    group_set_active( gui->unit_buttons, ID_MERGE, 0 );
+	    group_set_active( gui->unit_buttons, ID_SPLIT, 0 );
+	    group_set_active( gui->unit_buttons, ID_UNDO, 0 );
+	    group_set_active( gui->unit_buttons, ID_EMBARK_AIR, 0 );
+	    group_set_active( gui->unit_buttons, ID_DISBAND, 0 );
+	    return;
+    }
     /* rename */
     group_set_active( gui->unit_buttons, ID_RENAME, 1 );
     /* supply */
@@ -600,6 +632,7 @@ static void engine_hide_deploy_unit_info()
 Show/Hide game menu.
 ====================================================================
 */
+/* NOT USED: Game menu is static now */
 static void engine_show_game_menu( int cx, int cy )
 {
     int i;
@@ -636,6 +669,7 @@ static void engine_show_game_menu( int cx, int cy )
 }
 static void engine_hide_game_menu()
 {
+	/* disabled for now it is displayed permanently
     if ( setup.type == SETUP_RUN_TITLE ) {
         status = STATUS_TITLE;
         label_hide( gui->label, 1 );
@@ -644,7 +678,7 @@ static void engine_hide_game_menu()
     else
         engine_set_status( STATUS_NONE );
     group_hide( gui->base_menu, 1 );
-    group_hide( gui->main_menu, 1 );
+    group_hide( gui->main_menu, 1 ); */
     group_hide( gui->save_menu, 1 );
     group_hide( gui->load_menu, 1 );
     group_hide( gui->opt_menu, 1 );
@@ -656,6 +690,7 @@ static void engine_hide_game_menu()
 Show/Hide unit menu.
 ====================================================================
 */
+/* NOT USED: Unit menu is static now */
 static void engine_show_unit_menu( int cx, int cy )
 {
     engine_check_unit_buttons();
@@ -664,8 +699,9 @@ static void engine_show_unit_menu( int cx, int cy )
 }
 static void engine_hide_unit_menu()
 {
+	/* disabled for now it is displayed permanently
     engine_set_status( STATUS_NONE );
-    group_hide( gui->unit_buttons, 1 );
+    group_hide( gui->unit_buttons, 1 ); */
     group_hide( gui->split_menu, 1 );
     old_mx = old_my = -1;
 }
@@ -735,7 +771,7 @@ static void engine_show_turn_info()
 #  define i time_factor 
     gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
     text_x = text_y = 0;
-    write_line( sdl.screen, gui->font_std, "Charset Test (latin1): Flöße über Wasser. \241Señálalo!", text_x, &text_y );
+    write_line( sdl.screen, gui->font_std, "Charset Test (latin1): Flï¿½ï¿½e ï¿½ber Wasser. \241Seï¿½ï¿½lalo!", text_x, &text_y );
     text[32] = 0;
     for (i = 0; i < 256; i++) {
         text[i % 32] = i ? i : 127;
@@ -890,7 +926,7 @@ static void engine_remove_unit( Unit *unit )
 
 /*
 ====================================================================
-Select this unit and unselect old selection if nescessary.
+Select this unit and unselect old selection if necessary.
 Clear the selection if NULL is passed as unit.
 ====================================================================
 */
@@ -903,6 +939,8 @@ static void engine_select_unit( Unit *unit )
         /* clear view */
         if ( modify_fog ) map_set_fog( F_SPOT );
         engine_clear_backup();
+        engine_check_unit_buttons();
+        group_hide(gui->split_menu, 1);
         return;
     }
     /* switch air/ground */
@@ -924,6 +962,8 @@ static void engine_select_unit( Unit *unit )
     if ( modify_fog && config.supply && unit->cur_mov
          && (unit->sel_prop->flags & FLYING) && unit->sel_prop->fuel)
         has_danger_zone = map_get_danger_mask( unit );
+    /* adjust unit buttons */
+    engine_check_unit_buttons();
     return;
 }
 
@@ -1159,6 +1199,8 @@ static void engine_begin_turn( Player *forced_player, int skip_unit_prep )
     engine_show_turn_info();
     engine_set_status( deploy_turn ? STATUS_DEPLOY : STATUS_NONE );
     phase = PHASE_NONE;
+    engine_check_unit_buttons();
+    engine_check_menu_buttons();
     /* update screen */
     if ( cur_ctrl != PLAYER_CTRL_CPU || config.show_cpu_turn ) {
         if ( cur_ctrl == PLAYER_CTRL_CPU )
@@ -1497,6 +1539,7 @@ static void engine_draw_map()
     int use_frame = ( cur_ctrl != PLAYER_CTRL_CPU );
     enum Stage { DrawTerrain, DrawUnits, DrawDangerZone } stage = DrawTerrain;
     enum Stage top_stage = has_danger_zone ? DrawDangerZone : DrawUnits;
+    SDL_Rect cr = {0,0,mapview_w,sdl.screen->h};
     
     /* reset_timer(); */
     
@@ -1514,6 +1557,8 @@ static void engine_draw_map()
         return;
     }
     
+    SDL_SetClipRect(sdl.screen, &cr);
+
     /* screen copy? */
     start_map_x = map_x;
     start_map_y = map_y;
@@ -1623,6 +1668,17 @@ static void engine_draw_map()
             x = map_sx + ( start_map_x - map_x ) * hex_x_offset;
         }
     }
+
+    SDL_SetClipRect(sdl.screen, NULL);
+
+    /* wallpaper gui panel */
+    for ( j = 0; j < sdl.screen->h; j += gui->wallpaper->h )
+            for ( i = mapview_w; i < sdl.screen->w; i += gui->wallpaper->w ) {
+                DEST( sdl.screen, i, j, gui->wallpaper->w, gui->wallpaper->h );
+                SOURCE( gui->wallpaper, 0, 0 );
+                blit_surf();
+            }
+
     /* printf( "time needed: %i ms\n", get_time() ); */
 }
 
@@ -2135,7 +2191,7 @@ static void engine_handle_button( int id )
             gui_vmode_dlg_show();
             status = STATUS_VMODE_DLG;
             break;
-        /* main menu */
+        /* main menu -- is fixed now
         case ID_MENU:
             x = gui->base_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
             y = gui->base_menu->frame->img->bkgnd->surf_rect.y;
@@ -2143,12 +2199,15 @@ static void engine_handle_button( int id )
                 y = sdl.screen->h - gui->main_menu->frame->img->img->h;
             group_move( gui->main_menu, x, y );
             group_hide( gui->main_menu, 0 );
-            break;
+            break; */
         case ID_OPTIONS:
             group_hide( gui->load_menu, 1 );
             group_hide( gui->save_menu, 1 );
-            x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
-            y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
+            /* x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            y = gui->main_menu->frame->img->bkgnd->surf_rect.y; */
+        	x = gui->main_menu->frame->img->bkgnd->surf_rect.x -
+        				gui->opt_menu->frame->img->img->w;
+        	y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->opt_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->opt_menu->frame->img->img->h;
             group_move( gui->opt_menu, x, y );
@@ -2156,11 +2215,14 @@ static void engine_handle_button( int id )
             break;
         case ID_RESTART:
             engine_hide_game_menu();
+            fdlg_hide(gui->camp_dlg, 1); // be sure it's closed
+            fdlg_hide(gui->scen_dlg, 1); // be sure it's closed
             action_queue_restart();
             engine_confirm_action( tr("Do you really want to restart this scenario?") );
             break;
         case ID_SCEN:
             engine_hide_game_menu();
+            fdlg_hide(gui->camp_dlg, 1); // be sure it's closed
             sprintf( path, "%s/scenarios", get_gamedir() );
             fdlg_open( gui->scen_dlg, path );
             group_set_active( gui->scen_dlg->group, ID_SCEN_SETUP, 0 );
@@ -2170,6 +2232,7 @@ static void engine_handle_button( int id )
             break;
         case ID_CAMP:
             engine_hide_game_menu();
+            fdlg_hide(gui->scen_dlg, 1); // be sure it's closed
             sprintf( path, "%s/campaigns", get_gamedir() );
             fdlg_open( gui->camp_dlg, path );
             group_set_active( gui->camp_dlg->group, ID_CAMP_OK, 0 );
@@ -2179,7 +2242,10 @@ static void engine_handle_button( int id )
         case ID_SAVE:
             group_hide( gui->load_menu, 1 );
             group_hide( gui->opt_menu, 1 );
-            x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            /*x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            y = gui->main_menu->frame->img->bkgnd->surf_rect.y; */
+            x = gui->main_menu->frame->img->bkgnd->surf_rect.x -
+        		    	    gui->opt_menu->frame->img->img->w;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->save_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->save_menu->frame->img->img->h;
@@ -2189,7 +2255,10 @@ static void engine_handle_button( int id )
         case ID_LOAD:
             group_hide( gui->save_menu, 1 );
             group_hide( gui->opt_menu, 1 );
-            x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            /* x = gui->main_menu->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            y = gui->main_menu->frame->img->bkgnd->surf_rect.y; */
+            x = gui->main_menu->frame->img->bkgnd->surf_rect.x -
+        		    	    gui->opt_menu->frame->img->img->w;
             y = gui->main_menu->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->load_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->load_menu->frame->img->img->h;
@@ -2209,7 +2278,7 @@ static void engine_handle_button( int id )
         case ID_END_TURN:
             engine_hide_game_menu();
             action_queue_end_turn();
-            group_set_active( gui->base_menu, ID_END_TURN, 0 );
+            //group_set_active( gui->base_menu, ID_END_TURN, 0 );
             engine_confirm_action( tr("Do you really want to end your turn?") );
             break;
         case ID_SCEN_INFO:
@@ -2286,7 +2355,10 @@ static void engine_handle_button( int id )
             max = unit_get_split_strength(cur_unit);
             for (i=0;i<10;i++)
                 group_set_active(gui->split_menu,ID_SPLIT_1+i,i<max);
-            x = gui->unit_buttons->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            /*x = gui->unit_buttons->frame->img->bkgnd->surf_rect.x + 30 - 1;
+            y = gui->unit_buttons->frame->img->bkgnd->surf_rect.y; */
+            x = gui->unit_buttons->frame->img->bkgnd->surf_rect.x -
+        		    	    gui->opt_menu->frame->img->img->w;
             y = gui->unit_buttons->frame->img->bkgnd->surf_rect.y;
             if ( y + gui->split_menu->frame->img->img->h >= sdl.screen->h )
                 y = sdl.screen->h - gui->split_menu->frame->img->img->h;
@@ -2361,6 +2433,7 @@ static void engine_handle_button( int id )
                 map_get_deploy_mask(cur_player,deploy_unit,deploy_turn);
                 map_set_fog( F_DEPLOY );
                 status = STATUS_DEPLOY;
+                engine_check_menu_buttons();
                 draw_map = 1;
             }
             break;
@@ -2371,7 +2444,8 @@ static void engine_handle_button( int id )
             status = STATUS_UNIT_LIST;
             break;
         case ID_STRAT_MAP:
-            engine_hide_game_menu();
+            //engine_hide_game_menu();
+            gui_panel_hide();
             status = STATUS_STRAT_MAP;
             strat_map_update_terrain_layer();
             strat_map_update_unit_layer();
@@ -2474,6 +2548,7 @@ static void engine_handle_button( int id )
             if ( !deploy_turn ) {
                 engine_set_status( STATUS_NONE );
                 group_hide( gui->deploy_window, 1 );
+                engine_check_menu_buttons();
             }
             break;
         case ID_CANCEL_DEPLOY:
@@ -2485,6 +2560,8 @@ static void engine_handle_button( int id )
             engine_set_status( STATUS_NONE );
             group_hide( gui->deploy_window, 1 );
             map_set_fog( F_SPOT );
+            if (!deploy_turn)
+                    engine_check_menu_buttons();
             break;
 	case ID_VMODE_OK:
 		i = select_dlg_get_selected_item_index( gui->vmode_dlg );
@@ -2589,9 +2666,9 @@ static void engine_check_events(int *reinit)
             else {
                 switch ( status ) {
                     case STATUS_TITLE:
-                        /* title menu */
+                        /* title menu
                         if ( button == BUTTON_RIGHT )
-                            engine_show_game_menu( cx, cy );
+                            engine_show_game_menu( cx, cy ); */
                         break;
                     case STATUS_TITLE_MENU:
                         if ( button == BUTTON_RIGHT )
@@ -2633,6 +2710,7 @@ static void engine_check_events(int *reinit)
                                 if ( button == BUTTON_LEFT )
                                     engine_focus( mx, my, 0 );
                                 engine_set_status( STATUS_NONE );
+                                gui_panel_show();
                                 old_mx = old_my = -1;
                                 /* before updating the map, clear the screen */
                                 SDL_FillRect( sdl.screen, 0, 0x0 );
@@ -2796,9 +2874,9 @@ static void engine_check_events(int *reinit)
                                     case BUTTON_LEFT:
                                         if ( cur_unit ) {
                                             /* handle current unit */
-                                            if ( cur_unit->x == mx && cur_unit->y == my && engine_get_prim_unit( mx, my, region ) == cur_unit)
+                                            /*if ( cur_unit->x == mx && cur_unit->y == my && engine_get_prim_unit( mx, my, region ) == cur_unit)
                                                 engine_show_unit_menu( cx, cy );
-                                            else
+                                            else*/
                                             if ( ( unit = engine_get_target( mx, my, region ) ) ) {
                                                 action_queue_attack( cur_unit, unit );
                                                 frame_hide( gui->qinfo1, 1 );
@@ -2864,16 +2942,16 @@ static void engine_check_events(int *reinit)
                                                 gui_set_cursor( CURSOR_STD );
                                             }
                                             else {
-                                                /* show menu */
-                                                engine_show_game_menu( cx, cy );
+                                                /* show menu
+                                                engine_show_game_menu( cx, cy ); */
                                             }
                                         }
                                         else
                                             if ( cur_unit ) {
                                                 /* handle current unit */
-                                                if ( cur_unit->x == mx && cur_unit->y == my && engine_get_prim_unit( mx, my, region ) == cur_unit )
-                                                    engine_show_unit_menu( cx, cy );
-                                                else {
+                                                /*if ( cur_unit->x == mx && cur_unit->y == my && engine_get_prim_unit( mx, my, region ) == cur_unit )
+                                                	engine_show_unit_menu( cx, cy );
+                                                else {*/
                                                     /* first capture the flag for the human unit */
                                                     if ( cur_ctrl == PLAYER_CTRL_HUMAN ) {
                                                         if ( engine_capture_flag( cur_unit ) ||
@@ -2889,8 +2967,10 @@ static void engine_check_events(int *reinit)
                                                     engine_select_unit( 0 );
                                                     engine_update_info( mx, my, region );
                                                     draw_map = 1;
-                                                }
+                                                //} old unit show menu block
                                             }
+                                        /* anytime anywhere: hide game menu on right click */
+                                        engine_hide_game_menu();
                                         break;
                                 }
                                 break;
@@ -3224,7 +3304,19 @@ static int engine_capture_flag( Unit *unit ) {
                 }
     return 0;
 }
-                                
+
+/* get new map view port after screen resolution change */
+static void engine_update_mapview_size()
+{
+	int i,j;
+	    mapview_w = sdl.screen->w - gui_panel_w;
+        /* reset engine's map size (number of tiles on screen) */
+        for ( i = map_sx, map_sw = 0; i < mapview_w; i += hex_x_offset )
+            map_sw++;
+        for ( j = map_sy, map_sh = 0; j < sdl.screen->h; j += hex_h )
+            map_sh++;
+}
+
 /*
 ====================================================================
 Deqeue the next action and perform it.
@@ -3234,7 +3326,7 @@ static void engine_handle_next_action( int *reinit )
 {
     Action *action = 0;
     int enemy_spotted = 0;
-    int depth, flags, i, j;
+    int depth, flags;
     /* lock action queue? */
     if ( status == STATUS_CONF || status == STATUS_ATTACK || status == STATUS_STRAT_ATTACK || status == STATUS_MOVE )
         return;
@@ -3295,11 +3387,7 @@ static void engine_handle_next_action( int *reinit )
                 /* adjust windows */
                 gui_adjust();
                 if ( setup.type != SETUP_RUN_TITLE ) {
-                    /* reset engine's map size (number of tiles on screen) */
-                    for ( i = map_sx, map_sw = 0; i < sdl.screen->w; i += hex_x_offset )
-                        map_sw++;
-                    for ( j = map_sy, map_sh = 0; j < sdl.screen->h; j += hex_h )
-                        map_sh++;
+                	engine_update_mapview_size();
                     /* reset map pos if nescessary */
                     if ( map_x + map_sw >= map_w )
                         map_x = map_w - map_sw;
@@ -4195,7 +4283,7 @@ static void engine_main_loop( int *reinit )
     int ms;
     if ( status == STATUS_TITLE && !term_game ) {
         engine_draw_bkgnd();
-        engine_show_game_menu(10,10);
+        //engine_show_game_menu(10,10);
         refresh_screen( 0, 0, 0, 0 );
     }
     else if ( status == STATUS_CAMP_BRIEFING )
@@ -4285,6 +4373,8 @@ int engine_init()
     /* scenario&campaign or title*/
     if ( setup.type == SETUP_RUN_TITLE ) {
         status = STATUS_TITLE;
+        engine_check_unit_buttons();
+        engine_check_menu_buttons();
         return 1;
     }
     if ( setup.type == SETUP_CAMP_BRIEFING ) {
@@ -4388,10 +4478,7 @@ int engine_init()
     map_x = map_y = 0;
     map_sx = -hex_x_offset;
     map_sy = -hex_h;
-    for ( i = map_sx, map_sw = 0; i < sdl.screen->w; i += hex_x_offset )
-        map_sw++;
-    for ( j = map_sy, map_sh = 0; j < sdl.screen->h; j += hex_h )
-        map_sh++;
+    engine_update_mapview_size();
     /* reset scroll delay */
     set_delay( &scroll_delay, 0 );
     scroll_block = 0;
@@ -4409,7 +4496,10 @@ int engine_init()
     status = STATUS_NONE;
     /* weather */
     cur_weather = scen_get_weather();
-    return 1;
+    /* unit buttons */
+    gui_panel_show();
+    engine_check_unit_buttons();
+    engine_check_menu_buttons();
 }
 void engine_shutdown()
 {

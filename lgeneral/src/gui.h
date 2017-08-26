@@ -141,6 +141,7 @@ typedef struct {
     Frame *finfo; /* full unit info */
     Frame *sinfo; /* scenario information */
     Frame *unit_list;
+    Frame *panel;
     Group *unit_buttons; /* unit action buttons */
     Group *split_menu; /* menu of number of units to split up */
     Group *confirm; /* confirmation window */
@@ -499,5 +500,9 @@ void gui_render_unit_list(SDL_Surface * contents,List * units);
 void gui_scroll_unit_list_up(List * units);
 void gui_scroll_unit_list_down(List * units);
 Unit *gui_unit_list_unit_clicked(List * units,int cx,int cy);
+
+/** Show/hide GUI. Buttons are not checked */
+void gui_panel_hide();
+void gui_panel_show();
 
 #endif
