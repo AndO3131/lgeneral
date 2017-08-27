@@ -93,18 +93,17 @@ void MapView::render()
 				int ux = (tw - ui.icon->getWidth()) / 2;
 				int uy = (th - ui.icon->getHeight()) / 2 + th/4;
 				ui.icon->copy(dx + ux, dy + uy);
-				/* add transporter */
-				if (t->gunit.trsp != "none" &&
-						(trspid = data->getUnitById(
-								t->gunit.trsp)) != -1) {
-					UnitInfo &ui = data->unitlib[trspid];
-					int uw = ui.icon->getWidth() *0.75;
-					int uh = ui.icon->getHeight() *0.75;
-					int ux = (tw - uw) / 2;
-					int uy = (th - uh);
-					ui.icon->copy(dx + ux, dy + uy, uw, uh);
+			}
+			/* transporter */
+			if (t->gunit.id != "" && t->gunit.trsp != "none" &&
+					(trspid = data->getUnitById(t->gunit.trsp)) != -1) {
+				UnitInfo &ui = data->unitlib[trspid];
+				int uw = ui.icon->getWidth() *0.75;
+				int uh = ui.icon->getHeight() *0.75;
+				int ux = (tw - uw) / 2;
+				int uy = (th - uh);
+				ui.icon->copy(dx + ux, dy + uy, uw, uh);
 
-				}
 			}
 			if (t->aunit.id != "") {
 				UnitInfo &ui = data->unitlib[t->aunit.libidx];
@@ -192,19 +191,19 @@ void MapView::setTile(bool clear, bool onlyname)
 		}
 	} else if (cat == ID_UNITITEMS) {
 		if (clear) {
-			if (sub == 15 && tile.gunit.trsp != "none")
-				tile.gunit.trsp = "";
-			else {
-				tile.gunit.id = "";
-				tile.aunit.id = "";
-			}
+			tile.gunit.id = "";
+			tile.gunit.trsp = "";
+			tile.aunit.id = "";
 		} else {
 			int uid = data->getUnitByIndex(sub,item);
 			Unit *u;
-			if (sub == 15) {
-				/* land transporter */
+			if (sub == GTRSP || sub == ATRSP || sub == STRSP) {
+				/* transporter */
 				if (tile.gunit.id != "") {
 					tile.gunit.trsp = data->unitlib[uid].id;
+					tile.gunit.trsptype = sub;
+					if (sub == ATRSP)
+						tile.aunit.id = ""; /* block air */
 				}
 			} else {
 				/* FIXME class 8,9,10 are flying... correct solution

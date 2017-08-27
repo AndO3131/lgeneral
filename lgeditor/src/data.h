@@ -43,6 +43,11 @@ typedef struct {
 	int nid; /* nation id */
 	Image *icon;
 } UnitInfo;
+enum {
+	GTRSP = 15,
+	ATRSP,
+	STRSP
+};
 typedef struct {
 	std::string id;
 	int libidx; /* index in unit lib */
@@ -51,6 +56,7 @@ typedef struct {
 	int x, y;
 	int str, entr, exp;
 	std::string trsp;
+	int trsptype;
 	int delay;
 } Unit;
 typedef struct {
