@@ -33,6 +33,25 @@ std::string lgenpath = LGENDIR; /* lgeneral directory */
 Data *data = NULL; /* global for anyone to access */
 GUI *gui = NULL; /* global for anyone to access */
 
+void print_help()
+{
+	std::string helpstr =
+		"Please read README for more detailed information.\n"
+		"Usage: lgeditor FILE [WIDTH HEIGHT]\n"
+		"FILE is either a map or scenario file.\n"
+		"If file doesn't not exist a basic scenario with empty map (30x30)"
+		"is generated.\n"
+		"If it is a map, generic scenario info is added\n"
+		"(20 turns, default victory conditions).\n"
+		"You can edit map, flags and units. Everything else has to\n"
+		"be changed by a text editor and remains unchanged on\n"
+		"saving/loading in LGeneral editor.\n"
+		"Tip: Copy and work a file as a user in your home and then\n"
+		"copy it back to LGeneral data directory for safety.\n"
+		"LGeneral needs to be 1.4.0 or newer to load it properly.";
+	printf("%s\n", helpstr.c_str());
+}
+
 int main(int argc, char **argv)
 {
 	std::string fname;
@@ -43,6 +62,8 @@ int main(int argc, char **argv)
 	if (TTF_Init() < 0)
 		SDL_Log("TTF_Init failed: %s\n", SDL_GetError());
 	
+	print_help();
+
 	/* read basic options */
 	fname = "./newmap";
 	w = 30;

@@ -56,6 +56,11 @@ Useful to, e.g, rename rivers or bigger towns afterwards. Should work with
 dragging as well but doesn't. Which is a bug (SDL doesn't seem to deliver button
 state right).
 
+If you are placing units and use land/sea/air transporter classes the selected
+transporter is added to the unit displaying as a small symbol at its bottom. No 
+checking for proper nation or location so make sure a german unit gets a german
+transporter, naval transporters aren't used on land, asf.
+
 At the bottom you can set the file name (including the path). No in-word editing
 possible, so changing the first character means erasing all the others. Therefore
 it is best to start lgeditor in your map directory and use no path at all (to have
@@ -67,7 +72,7 @@ myscen1 and save. Like this go up in numbers. You can go back to earlier version
 by changing file name. Set other things like scenario description, weather, ...
 using any text editor and copy final product to LGeneral's directory.
 
-BTW ff for some reason you really just want a map delete all lines before 
+BTW if for some reason you really just want a map delete all lines before 
 terrain_db... to have a pure map file.
 
 That's it for now. Pretty basic so far but it should work.
