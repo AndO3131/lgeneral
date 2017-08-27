@@ -1,3 +1,5 @@
+1.4.0:
+- accept = and / as alternative parser tokens (2017/08/26 MS)
 - replaced video mode list with full screen option (2017/08/26 MS)
 - added GUI panel with fixed buttons (2017/08/26 MS)
 
