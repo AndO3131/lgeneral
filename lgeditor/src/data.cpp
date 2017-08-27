@@ -1343,3 +1343,11 @@ int Data::getUnitByIndex(int cid, int uid)
 		}
 	return 0;
 }
+
+int Data::getUnitById(std::string id)
+{
+	for (unsigned int i = 0; i < unitlib.size(); i++)
+		if (unitlib[i].id == id)
+			return i;
+	return -1;
+}

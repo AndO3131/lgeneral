@@ -47,6 +47,7 @@ void MapView::render()
 	int basey = sdy;
 	int dx = sdx;
 	int dy = sdy;
+	int trspid = -1;
 
 	SDL_SetRenderTarget(mrc,bkgnd->getTex());
 	SDL_SetRenderDrawColor(mrc,0,0,0,0);
@@ -92,6 +93,18 @@ void MapView::render()
 				int ux = (tw - ui.icon->getWidth()) / 2;
 				int uy = (th - ui.icon->getHeight()) / 2 + th/4;
 				ui.icon->copy(dx + ux, dy + uy);
+				/* add transporter */
+				if (t->gunit.trsp != "none" &&
+						(trspid = data->getUnitById(
+								t->gunit.trsp)) != -1) {
+					UnitInfo &ui = data->unitlib[trspid];
+					int uw = ui.icon->getWidth() *0.75;
+					int uh = ui.icon->getHeight() *0.75;
+					int ux = (tw - uw) / 2;
+					int uy = (th - uh);
+					ui.icon->copy(dx + ux, dy + uy, uw, uh);
+
+				}
 			}
 			if (t->aunit.id != "") {
 				UnitInfo &ui = data->unitlib[t->aunit.libidx];
@@ -179,27 +192,38 @@ void MapView::setTile(bool clear, bool onlyname)
 		}
 	} else if (cat == ID_UNITITEMS) {
 		if (clear) {
-			tile.gunit.id = "";
-			tile.aunit.id = "";
+			if (sub == 15 && tile.gunit.trsp != "none")
+				tile.gunit.trsp = "";
+			else {
+				tile.gunit.id = "";
+				tile.aunit.id = "";
+			}
 		} else {
 			int uid = data->getUnitByIndex(sub,item);
 			Unit *u;
-			/* FIXME class 8,9,10 are flying... correct solution
-			 * would be to check for class flying flag */
-			if (sub >= 8 && sub <= 10)
-				u = &tile.aunit;
-			else
-				u = &tile.gunit;
-			u->libidx = uid;
-			u->id = data->unitlib[uid].id;
-			u->nat = data->countries[data->unitlib[uid].nid].id;
-			u->str = 10;
-			u->core = 0;
-			u->entr = data->terrain[data->map[sx][sy].tid[0]].minEntr;
-			u->exp = 0;
-			u->x = sx;
-			u->y = sy;
-			u->trsp = "none";
+			if (sub == 15) {
+				/* land transporter */
+				if (tile.gunit.id != "") {
+					tile.gunit.trsp = data->unitlib[uid].id;
+				}
+			} else {
+				/* FIXME class 8,9,10 are flying... correct solution
+				 * would be to check for class flying flag */
+				if (sub >= 8 && sub <= 10)
+					u = &tile.aunit;
+				else
+					u = &tile.gunit;
+				u->libidx = uid;
+				u->id = data->unitlib[uid].id;
+				u->nat = data->countries[data->unitlib[uid].nid].id;
+				u->str = 10;
+				u->core = 0;
+				u->entr = data->terrain[data->map[sx][sy].tid[0]].minEntr;
+				u->exp = 0;
+				u->x = sx;
+				u->y = sy;
+				u->trsp = "none";
+			}
 		}
 	}
 }
@@ -269,6 +293,12 @@ void MapView::handleEvent(const SDL_Event *ev)
 			txt << t.name << " (" << sx << ", " << sy << ")";
 			if (t.gunit.id != "")
 				txt << "  G: " << data->unitlib[t.gunit.libidx].name;
+			if (t.gunit.trsp != "none") {
+				int tid = data->getUnitById(t.gunit.trsp);
+				if (tid != -1)
+					txt << " [" << data->unitlib[tid].name << "] ";
+			}
+
 			if (t.aunit.id != "")
 				txt << "  A: " << data->unitlib[t.aunit.libidx].name;
 			tooltipLabel->setText(txt.str().c_str());

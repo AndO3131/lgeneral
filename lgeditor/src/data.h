@@ -100,6 +100,7 @@ public:
 
 	int countUnitsInClass(int cid);
 	int getUnitByIndex(int cid, int uid);
+	int getUnitById(std::string id);
 };
 
 #endif /* DATA_H_ */

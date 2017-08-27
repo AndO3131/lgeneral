@@ -1,3 +1,4 @@
+- allow adding transporters to ground units (2017/08/27 MS)
 - use = and & as alternative parser tokens (2017/08/26 MS)
 
 0.2:
