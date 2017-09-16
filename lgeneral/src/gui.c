@@ -383,11 +383,11 @@ int gui_load( const char *dir )
     group_hide( gui->save_menu, 1 );
     /* options */
     sprintf( path2, "../themes/%s/menu3_buttons.bmp", dir );
-    if ( ( gui->opt_menu = group_create( gui_create_frame( 38, 6+7*38 ), 160, load_surf( path2, SDL_SWSURFACE ),
-                                          32, 32, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->opt_menu = group_create( gui_create_frame( 54, 6+7*54 ), 160, load_surf( path2, SDL_SWSURFACE ),
+                                          48, 48, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
-    dy = 38;
+    dy = 54;
     //group_add_button( gui->opt_menu, ID_C_SUPPLY, sx, sy, 1, "Unit Supply" ); sy += 30;
     //group_add_button( gui->opt_menu, ID_C_WEATHER, sx, sy, 1, "Weather Influence" ); sy += 30;
     group_add_button( gui->opt_menu, ID_C_GRID, sx, sy, 1, tr("Hex Grid [g]") ); sy += dy;
