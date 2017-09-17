@@ -327,7 +327,7 @@ int gui_load( const char *dir )
     group_add_button( gui->deploy_window, ID_CANCEL_DEPLOY, sx + 30, sy, 0, tr("Cancel Deployment") );
     group_hide( gui->deploy_window, 1 );
     /* edit */
-    if ( ( gui->edit = edit_create( gui_create_frame( 240, 30 ), 160, gui->font_std, 20, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->edit = edit_create( gui_create_frame( 214, 30 ), 160, gui->font_std, 20, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     edit_hide( gui->edit, 1 );
     /* base menu */
@@ -549,7 +549,6 @@ measurements.
 void gui_adjust()
 {
     int label_top = 10;
-    int label_x = sdl.screen->w - gui_panel_w + 10;//(sdl.screen->w - gui->label->frame->img->img->w ) >> 1;
     int panel_x = sdl.screen->w - gui_panel_w;
     int cx;
     /* panel */
@@ -560,7 +559,8 @@ void gui_adjust()
     label_top += gui->label->frame->img->img->h + 5;
     label_move( gui->label2, cx, label_top );
     /* edit */
-    edit_move( gui->edit, label_x, label_top );
+    cx = panel_x + (gui_panel_w - gui->edit->label->frame->img->img->w)/2;
+    edit_move( gui->edit, cx, label_top );
     /* unit menu */
     label_top += gui->label->frame->img->img->h + 5;
     cx = panel_x + (gui_panel_w - gui->unit_buttons->frame->img->img->w)/2;
@@ -569,14 +569,15 @@ void gui_adjust()
     /* basic menu */
     cx = panel_x + (gui_panel_w - gui->base_menu->frame->img->img->w)/2;
     group_move(gui->base_menu, cx, label_top );
-    label_top += gui->base_menu->frame->img->img->h + 5;
-    /* main menu */
-    cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
-    group_move(gui->main_menu, cx, label_top );
+    label_top += gui->base_menu->frame->img->img->h + 10;
     /* unit infos */
     cx = panel_x + (gui_panel_w - gui->qinfo1->img->img->w)/2;
-    frame_move( gui->qinfo1, cx, sdl.screen->h - 10 - gui->qinfo1->img->img->h );
-    frame_move( gui->qinfo2, cx, sdl.screen->h - 20 - gui->qinfo1->img->img->h * 2 );
+    frame_move( gui->qinfo1, cx, label_top );
+    label_top += gui->qinfo1->img->img->h + 5;
+    frame_move( gui->qinfo2, cx, label_top );
+    /* main menu */
+    cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
+    group_move(gui->main_menu, cx, sdl.screen->h - gui->main_menu->frame->img->img->h - 10 );
     /* full info */
     frame_move( gui->finfo, ( sdl.screen->w - gui_panel_w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
     frame_move( gui->unit_list, ( sdl.screen->w - gui_panel_w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
