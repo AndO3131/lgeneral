@@ -105,7 +105,7 @@ int deploy_show_count = 7; /* number of displayed units in list */
 int unit_list_offset = 0; /* offset in unit_list */
 int unit_list_max_offset = 0;
 int unit_list_graphical_offset=150; /* y-offset for rendering in dialog */ 
-int gui_panel_w = 260;	/* size of fixed GUI panel */;
+int gui_panel_w = 220;	/* size of fixed GUI panel */;
 
 /*
 ====================================================================
@@ -198,7 +198,7 @@ Create the gui and use the graphics in gfx/themes/...
 int gui_load( const char *dir )
 {
     char str[128];
-    int i, dy;
+    int i, dy, dx;
     int sx, sy;
     char path[256], path2[256], path3[256], path4[256];
 	
@@ -251,20 +251,20 @@ int gui_load( const char *dir )
     if ( ( gui->cursors = image_create( load_surf( path, SDL_SWSURFACE ), 22, 22, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     /* gui panel */
-    if ( ( gui->panel = frame_create( gui_create_frame( 260, sdl.screen->h ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->panel = frame_create( gui_create_frame( gui_panel_w, sdl.screen->h ), 160, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     /* info label */
-    if ( ( gui->label = label_create( gui_create_frame( 240, 30 ), 160, gui->font_std, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->label = label_create( gui_create_frame( 214, 30 ), 160, gui->font_std, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    if ( ( gui->label2 = label_create( gui_create_frame( 240, 30 ), 160, gui->font_std, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->label2 = label_create( gui_create_frame( 214, 30 ), 160, gui->font_std, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     label_hide( gui->label, 1 );
     label_hide( gui->label2, 1 );
     /* quick unit infos */
-    if ( ( gui->qinfo1 = frame_create( gui_create_frame( 240, 60 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->qinfo1 = frame_create( gui_create_frame( 214, 60 ), 160, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->qinfo1, 1 );
-    if ( ( gui->qinfo2 = frame_create( gui_create_frame( 240, 60 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->qinfo2 = frame_create( gui_create_frame( 214, 60 ), 160, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->qinfo2, 1 );
     /* full unit info */
@@ -289,17 +289,18 @@ int gui_load( const char *dir )
     group_add_button( gui->confirm, ID_CANCEL, sx, sy, 0, tr("Cancel") );
     group_hide( gui->confirm, 1 );
     /* unit buttons */
+    sx = 6; sy = 6;
+    dx = dy = 51;
     sprintf( path2, "../themes/%s/unit_buttons.bmp", dir );
-    if ( ( gui->unit_buttons = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->unit_buttons = group_create( gui_create_frame( 2*sx+4*dx-3, 2*sy+2*dy-3 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                              48, 48, 7, ID_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 6; sy = 6;
-    group_add_button( gui->unit_buttons, ID_UNDO, sx, sy, 0, tr("Undo Turn [u]") ); sx += 60;
-    group_add_button( gui->unit_buttons, ID_SUPPLY, sx, sy, 0, tr("Supply Unit [s]") ); sx += 60;
-    group_add_button( gui->unit_buttons, ID_EMBARK_AIR, sx, sy, 0, tr("Air Embark") ); sx += 60;
-    group_add_button( gui->unit_buttons, ID_RENAME, sx, sy, 0, tr("Rename Unit") ); sx = 6; sy += 60;
-    group_add_button( gui->unit_buttons, ID_MERGE, sx, sy, 0, tr("Merge Unit [j]") ); sx += 60;
-    group_add_button( gui->unit_buttons, ID_SPLIT, sx, sy, 0, tr("Split Unit [x+1..9]") ); sx += 120;
+    group_add_button( gui->unit_buttons, ID_UNDO, sx, sy, 0, tr("Undo Turn [u]") ); sx += dx;
+    group_add_button( gui->unit_buttons, ID_SUPPLY, sx, sy, 0, tr("Supply Unit [s]") ); sx += dx;
+    group_add_button( gui->unit_buttons, ID_EMBARK_AIR, sx, sy, 0, tr("Air Embark") ); sx += dx;
+    group_add_button( gui->unit_buttons, ID_RENAME, sx, sy, 0, tr("Rename Unit") ); sx = 6; sy += dy;
+    group_add_button( gui->unit_buttons, ID_MERGE, sx, sy, 0, tr("Merge Unit [j]") ); sx += dx;
+    group_add_button( gui->unit_buttons, ID_SPLIT, sx, sy, 0, tr("Split Unit [x+1..9]") ); sx += 2*dx;
     group_add_button( gui->unit_buttons, ID_DISBAND, sx, sy, 0, tr("Disband Unit") ); 
     /* split menu */
     sprintf( path2, "../themes/%s/strength_buttons.bmp", dir );
@@ -330,31 +331,33 @@ int gui_load( const char *dir )
         goto failure;
     edit_hide( gui->edit, 1 );
     /* base menu */
+    sx = 6; sy = 6;
+    dx = dy = 51;
     sprintf( path2, "../themes/%s/menu0_buttons.bmp", dir );
-    if ( ( gui->base_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->base_menu = group_create( gui_create_frame( 2*sx+4*dx-3, 2*sy+2*dy-3 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                           48, 48, 9, ID_MENU, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 6; sy = 6;
-    group_add_button( gui->base_menu, ID_AIR_MODE, sx, sy, 0, tr("Switch Air/Ground [t]") ); sx += 60;
-    group_add_button( gui->base_menu, ID_STRAT_MAP, sx, sy, 0, tr("Strategic Map [o]") ); sx += 60;
-    group_add_button( gui->base_menu, ID_PURCHASE, sx, sy, 0, tr("Request Reinforcements") ); sx += 60;
-    group_add_button( gui->base_menu, ID_DEPLOY, sx, sy, 0, tr("Deploy Reinforcements [d]") ); sx = 6; sy += 60;
-    group_add_button( gui->base_menu, ID_UNIT_LIST, sx, sy, 0, tr("Unit List") ); sx += 60;
-    group_add_button( gui->base_menu, ID_SCEN_INFO, sx, sy, 0, tr("Scenario Info [i]") ); sx += 60;
-    group_add_button( gui->base_menu, ID_CONDITIONS, sx, sy, 0, tr("Victory Conditions") ); sx += 60;
-    group_add_button( gui->base_menu, ID_END_TURN, sx, sy, 0, tr("End Turn [e]") ); sy += 40; 
+    group_add_button( gui->base_menu, ID_AIR_MODE, sx, sy, 0, tr("Switch Air/Ground [t]") ); sx += dx;
+    group_add_button( gui->base_menu, ID_STRAT_MAP, sx, sy, 0, tr("Strategic Map [o]") ); sx += dx;
+    group_add_button( gui->base_menu, ID_PURCHASE, sx, sy, 0, tr("Request Reinforcements") ); sx += dx;
+    group_add_button( gui->base_menu, ID_DEPLOY, sx, sy, 0, tr("Deploy Reinforcements [d]") ); sx = 6; sy += dy;
+    group_add_button( gui->base_menu, ID_UNIT_LIST, sx, sy, 0, tr("Unit List") ); sx += dx;
+    group_add_button( gui->base_menu, ID_SCEN_INFO, sx, sy, 0, tr("Scenario Info [i]") ); sx += dx;
+    group_add_button( gui->base_menu, ID_CONDITIONS, sx, sy, 0, tr("Victory Conditions") ); sx += dx;
+    group_add_button( gui->base_menu, ID_END_TURN, sx, sy, 0, tr("End Turn [e]") );
     /* main_menu */
+    sx = 6; sy = 6;
+    dx = dy = 51;
     sprintf( path2, "../themes/%s/menu1_buttons.bmp", dir );
-    if ( ( gui->main_menu = group_create( gui_create_frame( 240, 120 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->main_menu = group_create( gui_create_frame( 2*sx+4*dx-3, 2*sy+2*dy-3 ), 160, load_surf( path2, SDL_SWSURFACE ),
                                           48, 48, 7, ID_SAVE, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
-    sx = 6; sy = 6;
-    group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sx += 60;
-    group_add_button( gui->main_menu, ID_LOAD, sx, sy, 0, tr("Load Game") ); sx += 60;
-    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sx += 60;
-    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sx = 6; sy += 60;
-    group_add_button( gui->main_menu, ID_SCEN, sx, sy, 0, tr("Load Scenario") ); sx += 60;
-    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sx += 120;
+    group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sx += dx;
+    group_add_button( gui->main_menu, ID_LOAD, sx, sy, 0, tr("Load Game") ); sx += dx;
+    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sx += dx;
+    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sx = 6; sy += dy;
+    group_add_button( gui->main_menu, ID_SCEN, sx, sy, 0, tr("Load Scenario") ); sx += dx;
+    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sx += 2*dx;
     group_add_button( gui->main_menu, ID_QUIT, sx, sy, 0, tr("Quit Game") );
     /* load menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
@@ -547,26 +550,33 @@ void gui_adjust()
 {
     int label_top = 10;
     int label_x = sdl.screen->w - gui_panel_w + 10;//(sdl.screen->w - gui->label->frame->img->img->w ) >> 1;
+    int panel_x = sdl.screen->w - gui_panel_w;
+    int cx;
     /* panel */
     frame_move(gui->panel, sdl.screen->w - gui_panel_w, 0);
     /* info labels */
-    label_move( gui->label, label_x, label_top );
+    cx = panel_x + (gui_panel_w - gui->label->frame->img->img->w)/2;
+    label_move( gui->label, cx, label_top );
     label_top += gui->label->frame->img->img->h + 5;
-    label_move( gui->label2, label_x, label_top );
+    label_move( gui->label2, cx, label_top );
     /* edit */
     edit_move( gui->edit, label_x, label_top );
     /* unit menu */
     label_top += gui->label->frame->img->img->h + 5;
-    group_move(gui->unit_buttons, label_x, label_top);
+    cx = panel_x + (gui_panel_w - gui->unit_buttons->frame->img->img->w)/2;
+    group_move(gui->unit_buttons, cx, label_top);
     label_top += gui->unit_buttons->frame->img->img->h + 5;
     /* basic menu */
-    group_move(gui->base_menu, label_x, label_top );
+    cx = panel_x + (gui_panel_w - gui->base_menu->frame->img->img->w)/2;
+    group_move(gui->base_menu, cx, label_top );
     label_top += gui->base_menu->frame->img->img->h + 5;
     /* main menu */
-    group_move(gui->main_menu, label_x, label_top );
+    cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
+    group_move(gui->main_menu, cx, label_top );
     /* unit infos */
-    frame_move( gui->qinfo1, label_x, sdl.screen->h - 10 - gui->qinfo1->img->img->h );
-    frame_move( gui->qinfo2, label_x, sdl.screen->h - 20 - gui->qinfo1->img->img->h * 2 );
+    cx = panel_x + (gui_panel_w - gui->qinfo1->img->img->w)/2;
+    frame_move( gui->qinfo1, cx, sdl.screen->h - 10 - gui->qinfo1->img->img->h );
+    frame_move( gui->qinfo2, cx, sdl.screen->h - 20 - gui->qinfo1->img->img->h * 2 );
     /* full info */
     frame_move( gui->finfo, ( sdl.screen->w - gui_panel_w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
     frame_move( gui->unit_list, ( sdl.screen->w - gui_panel_w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
@@ -831,10 +841,20 @@ void gui_show_quick_info( Frame *qinfo, Unit *unit )
 					6, qinfo->contents->h - 6, 
 					(unit->core==1)?"C":"A", 255 );
 	}
-    /* name */
+    /* name - clip to 16 chars */
     gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
-    write_text( gui->font_std, qinfo->contents, 12 + hex_w, 10, unit->name, 255 );
-    write_text( gui->font_std, qinfo->contents, 12 + hex_w, 22, unit->prop.name, 255 );
+    if (strlen(unit->name) > 16) {
+	    snprintf(str,17,"%s",unit->name);
+	    str[15] = str[14] = str[13] = '.';
+    } else
+	    sprintf(str,"%s",unit->name);
+    write_text( gui->font_std, qinfo->contents, 12 + hex_w, 10, str, 255 );
+    if (strlen(unit->prop.name) > 16) {
+	    snprintf(str,17,"%s",unit->prop.name);
+	    str[15] = str[14] = str[13] = '.';
+    } else
+	    sprintf(str,"%s",unit->prop.name);
+    write_text( gui->font_std, qinfo->contents, 12 + hex_w, 22, str, 255 );
     /* status */
     gui->font_status->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
     if ( cur_player && !player_is_ally( unit->player, cur_player ) )
