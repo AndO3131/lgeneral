@@ -1,3 +1,6 @@
+- no entrenchment for naval units (2017/09/17 MS)
+- rearranged panel to prevent confusing quit with end turn (2017/09/17 MS)
+
 1.4.1:
 - fixed configure or automake 1.15.1   (2017/09/17 ales_dj)
 - fixed missing DESTDIR in gfx/* Makefiles (2017/09/17 ales_dj)

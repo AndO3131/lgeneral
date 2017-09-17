@@ -1048,8 +1048,9 @@ void scen_prep_unit( Unit *unit, int type )
             unit->cur_mov = unit->cur_fuel;
     unit_unmount( unit );
     unit->cur_atk_count = unit->sel_prop->atk_count;
-    /* if unit is preparded normally check entrenchment */
-    if ( type == SCEN_PREP_UNIT_NORMAL && !(unit->sel_prop->flags & FLYING) ) {
+    /* if unit is prepared normally check entrenchment */
+    if ( type == SCEN_PREP_UNIT_NORMAL && !(unit->sel_prop->flags & FLYING)
+		    	    	    && !(unit->sel_prop->flags & SWIMMING)) {
         min_entr = map_tile( unit->x, unit->y )->terrain->min_entr;
         max_entr = map_tile( unit->x,unit->y )->terrain->max_entr;
         if ( unit->entr < min_entr )
