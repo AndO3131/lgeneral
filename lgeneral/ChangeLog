@@ -1,3 +1,5 @@
+1.4.1:
+- fixed configure or automake 1.15.1   (2017/09/17 ales_dj)
 - fixed missing DESTDIR in gfx/* Makefiles (2017/09/17 ales_dj)
 - redesigned GUI panel icons and made panel a little smaller (2017/09/17 MS)
 
