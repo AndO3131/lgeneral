@@ -348,18 +348,26 @@ Draw wallpaper and background.
 static void engine_draw_bkgnd()
 {
     int i, j;
+    /* wallpaper */
     for ( j = 0; j < sdl.screen->h; j += gui->wallpaper->h )
         for ( i = 0; i < sdl.screen->w; i += gui->wallpaper->w ) {
             DEST( sdl.screen, i, j, gui->wallpaper->w, gui->wallpaper->h );
             SOURCE( gui->wallpaper, 0, 0 );
             blit_surf();
         }
+    /* title picture */
     DEST( sdl.screen, 
-          ( sdl.screen->w - gui->bkgnd->w ) / 2,
+          ( sdl.screen->w - gui_panel_w - gui->bkgnd->w ) / 2,
           ( sdl.screen->h - gui->bkgnd->h ) / 2,
           gui->bkgnd->w, gui->bkgnd->h );
     SOURCE( gui->bkgnd, 0, 0 );
     blit_surf();
+    /* credits */
+    gui->font_std->align = ALIGN_X_RIGHT | ALIGN_Y_BOTTOM;
+    write_text( gui->font_std, sdl.screen, sdl.screen->w - gui_panel_w - 2, sdl.screen->h - 2, tr("(C) 2001-2017 Michael Speck"), 255 );
+    gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_BOTTOM;
+    write_text( gui->font_std, sdl.screen, 2, sdl.screen->h - 2, tr("http://lgames.sf.net"), 255 );
+
 }
 
 /*
