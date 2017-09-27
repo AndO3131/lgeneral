@@ -159,7 +159,7 @@ static void syntax(int argc, char *argv[])
 static void print_version()
 {
     /* display some credits */
-    printf( tr("LGeneral %s\nCopyright 2001-2015 Michael Speck\nPublished under GNU GPL\n---\n"), VERSION );
+    printf( tr("LGeneral %s\nCopyright 2001-2017 Michael Speck\nPublished under GNU GPL\n---\n"), VERSION );
     printf( tr("Looking up data in: %s\n"), get_gamedir() );
 #ifndef WITH_SOUND
     printf( tr("Compiled without sound and music\n") );
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
     event_enable_filter();
     
     /* show lgeneral title */
-    if (!suppress_title) show_title();
+    //if (!suppress_title) show_title();
     
     /* switch to configs resolution */
     sdl.num_vmodes = get_video_modes( &sdl.vmodes ); /* always successful */
