@@ -1719,8 +1719,12 @@ void map_get_deploy_mask( Player *player, Unit *unit, int init )
                 {
                     if (map[x][y].a_unit) mask[x][y].deploy = 0;
                 } else {
-                    if (map[x][y].g_unit&&(!init||!map_check_unit_embark(unit,x,y,EMBARK_AIR,1))) 
-                        mask[x][y].deploy = 0;
+                	/* blocked by unit and we are not embarkable? */
+                	if (map[x][y].g_unit&&(!init||!map_check_unit_embark(unit,x,y,EMBARK_AIR,1)))
+                		mask[x][y].deploy = 0;
+                	/* can we move on tile? (don't go into ocean...) */
+                	if(terrain_get_mov(map[x][y].terrain,unit->prop.mov_type,cur_weather) == 0)
+                		mask[x][y].deploy = 0;
                 }
     }
 }
