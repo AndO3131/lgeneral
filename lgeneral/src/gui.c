@@ -238,11 +238,11 @@ int gui_load( const char *dir )
     /* basic fonts */
     sprintf( path, "../themes/%s/font_std.bmp", dir );
     gui->font_std = load_font( path );
-    sprintf( path, "../themes/%s/font_status.bmp", dir );
+    sprintf( path, "../themes/%s/font_std.bmp", dir );
     gui->font_status = load_font( path );
     sprintf( path, "../themes/%s/font_error.bmp", dir );
     gui->font_error = load_font( path );
-    sprintf( path, "../themes/%s/font_turn_info.bmp", dir );
+    sprintf( path, "../themes/%s/font_std.bmp", dir );
     gui->font_turn_info = load_font( path );
     sprintf( path, "../themes/%s/font_brief.bmp", dir );
     gui->font_brief = load_font( path );
@@ -859,12 +859,12 @@ void gui_show_quick_info( Frame *qinfo, Unit *unit )
     /* status */
     gui->font_status->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
     if ( cur_player && !player_is_ally( unit->player, cur_player ) )
-        len = sprintf( str, GS_AMMO "? " GS_FUEL "? " GS_ENTR "%i  " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->entr );
+        len = sprintf( str, GS_AMMO "? " GS_FUEL "? " GS_ENTR "%i " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->entr );
     else
         if ( unit_check_fuel_usage( unit ) )
-            len = sprintf( str, GS_AMMO "%i " GS_FUEL "%i " GS_ENTR "%i  " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->cur_ammo, unit->cur_fuel, unit->entr );
+            len = sprintf( str, GS_AMMO "%i " GS_FUEL "%i " GS_ENTR "%i " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->cur_ammo, unit->cur_fuel, unit->entr );
         else
-            len = sprintf( str, GS_AMMO "%i " GS_FUEL "- " GS_ENTR "%i  " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->cur_ammo, unit->entr );
+            len = sprintf( str, GS_AMMO "%i " GS_FUEL "- " GS_ENTR "%i " GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP GS_NOEXP " ", unit->cur_ammo, unit->entr );
     for ( i = 0; i < unit->exp_level; i++ )
         str[len - 6 + i] = (char)CharExp;
     str[len - 6 + i] = (char)(CharExpGrowth + (unit->exp % 100 / 20));
