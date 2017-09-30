@@ -354,10 +354,10 @@ int gui_load( const char *dir )
         goto failure;
     group_add_button( gui->main_menu, ID_SAVE, sx, sy, 0, tr("Save Game") ); sx += dx;
     group_add_button( gui->main_menu, ID_LOAD, sx, sy, 0, tr("Load Game") ); sx += dx;
-    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sx += dx;
-    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sx = 6; sy += dy;
     group_add_button( gui->main_menu, ID_SCEN, sx, sy, 0, tr("Load Scenario") ); sx += dx;
-    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sx += 2*dx;
+    group_add_button( gui->main_menu, ID_CAMP, sx, sy, 0, tr("Load Campaign") ); sx = 6; sy += dy;
+    group_add_button( gui->main_menu, ID_OPTIONS, sx, sy, 0, tr("Options") ); sx += dx;
+    group_add_button( gui->main_menu, ID_RESTART, sx, sy, 0, tr("Restart Scenario") ); sx += 2*dx;
     group_add_button( gui->main_menu, ID_QUIT, sx, sy, 0, tr("Quit Game") );
     /* load menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
