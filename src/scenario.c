@@ -455,6 +455,14 @@ int scen_load( const char *fname )
         if ( map[x][y].nation )
             map[x][y].deploy_center = 1;
         map[x][y].obj = obj;
+        if (obj) {
+        	/* Convert to upper case */
+        	char *s = map[x][y].name;
+        	while (*s) {
+        		*s = toupper((unsigned char) *s);
+        		s++;
+        	}
+        }
     }
     /* victory conditions */
     scen_result[0] = 0;
