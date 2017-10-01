@@ -3406,7 +3406,7 @@ static void engine_handle_next_action( int *reinit )
                 /* set config */
                 config.width = action->w;
                 config.height = action->h;
-                config.fullscreen = flags & SDL_FULLSCREEN;
+                config.fullscreen = (flags & SDL_FULLSCREEN)?1:0;
             }
             break;
         case ACTION_SET_SPOT_MASK:

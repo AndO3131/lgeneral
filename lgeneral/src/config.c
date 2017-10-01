@@ -127,24 +127,24 @@ void save_config( )
         fprintf( stderr, tr("Cannot access config file '%s' to save settings\n"), file_name );
     else {
         fprintf( file, "@\n" );
-        fprintf( file, "grid»%i\n", config.grid );
-        fprintf( file, "tran»%i\n", config.tran );
-        fprintf( file, "bar»%i\n", config.show_bar );
-        fprintf( file, "width»%i\n", config.width );
-        fprintf( file, "height»%i\n", config.height );
-        fprintf( file, "fullscreen»%i\n", config.fullscreen );
-        fprintf( file, "anim_speed»%i\n", config.anim_speed );
-        fprintf( file, "supply»%i\n", config.supply );
-        fprintf( file, "weather»%i\n", config.weather );
-        fprintf( file, "fog_of_war»%i\n", config.fog_of_war );
-        fprintf( file, "cpu_turn»%i\n", config.show_cpu_turn );
-        fprintf( file, "deploy»%i\n", config.deploy_turn );
-        fprintf( file, "purchase»%i\n", config.purchase );
-        fprintf( file, "ai_debug»%i\n", config.ai_debug );
-        fprintf( file, "sound_on»%i\n", config.sound_on );
-        fprintf( file, "sound_volume»%i\n", config.sound_volume );
-        fprintf( file, "music_on»%i\n", config.music_on );
-        fprintf( file, "music_volume»%i\n", config.music_volume );
+        fprintf( file, "grid=%i\n", config.grid );
+        fprintf( file, "tran=%i\n", config.tran );
+        fprintf( file, "bar=%i\n", config.show_bar );
+        fprintf( file, "width=%i\n", config.width );
+        fprintf( file, "height=%i\n", config.height );
+        fprintf( file, "fullscreen=%i\n", config.fullscreen );
+        fprintf( file, "anim_speed=%i\n", config.anim_speed );
+        fprintf( file, "supply=%i\n", config.supply );
+        fprintf( file, "weather=%i\n", config.weather );
+        fprintf( file, "fog_of_war=%i\n", config.fog_of_war );
+        fprintf( file, "cpu_turn=%i\n", config.show_cpu_turn );
+        fprintf( file, "deploy=%i\n", config.deploy_turn );
+        fprintf( file, "purchase=%i\n", config.purchase );
+        fprintf( file, "ai_debug=%i\n", config.ai_debug );
+        fprintf( file, "sound_on=%i\n", config.sound_on );
+        fprintf( file, "sound_volume=%i\n", config.sound_volume );
+        fprintf( file, "music_on=%i\n", config.music_on );
+        fprintf( file, "music_volume=%i\n", config.music_volume );
         fclose( file );
     }
 }
