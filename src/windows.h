@@ -419,6 +419,7 @@ Add button. Graphic is taken from conf_buttons.
 ====================================================================
 */
 void fdlg_add_button( FDlg *fdlg, int id, int lock, const char *tooltip );
+void fdlg_add_button_xy( FDlg *fdlg, int id, int x, int y, int lock, const char *tooltip );
 
 /*
 ====================================================================
@@ -443,16 +444,13 @@ int fdlg_handle_button( FDlg *fdlg, int button_id, int cx, int cy, Button **butt
 
 /*
 ====================================================================
-Setup dialogue
+Scenario + Setup dialogue
 ====================================================================
 */
 typedef struct {
-    LBox *list;
-    Group *ctrl;
-    Group *module;
-    Group *confirm;
-    void (*select_cb)(void*); /* called on selecting an item */
-    int sel_id; /* id of selected entry */
+	FDlg *fdlg;
+	Group *config;
+	Group *ctrl;
 } SDlg;
 
 /*
@@ -460,17 +458,17 @@ typedef struct {
 Create setup dialogue.
 ====================================================================
 */
-SDlg *sdlg_create( SDL_Surface *list_frame, SDL_Surface *list_buttons,
-                   int list_button_w, int list_button_h, int cell_h,
-                   SDL_Surface *ctrl_frame, SDL_Surface *ctrl_buttons,
-                   int ctrl_button_w, int ctrl_button_h, int id_ctrl,
-                   SDL_Surface *mod_frame, SDL_Surface *mod_buttons,
-                   int mod_button_w, int mod_button_h, int id_mod,
-                   SDL_Surface *conf_frame, SDL_Surface *conf_buttons,
-                   int conf_button_w, int conf_button_h, int id_conf,
+SDlg *sdlg_create(
+                   SDL_Surface *lbox_frame, int alpha, int border,
+                   SDL_Surface *lbox_buttons, int lbox_button_w, int lbox_button_h,
+                   int cell_h,
+                   SDL_Surface *file_frame,
+                   SDL_Surface *file_buttons, int file_button_w, int file_button_h,
+                   int id_ok,
                    Label *label,
-                   void (*list_render_cb)(void*,SDL_Surface*),
-                   void (*list_select_cb)(void*),
+                   void (*lbox_cb)( void*, SDL_Surface* ),
+                   void (*file_cb)( const char*, SDL_Surface* ),
+                   SDL_Surface *conf_frame, SDL_Surface *ctrl_frame,
                    SDL_Surface *surf, int x, int y );
 void sdlg_delete( SDlg **sdlg );
 
@@ -504,6 +502,9 @@ handle_button
 ====================================================================
 */
 int sdlg_handle_button( SDlg *sdlg, int button_id, int cx, int cy, Button **button );
+
+void sdlg_open( SDlg *sdlg, const char *root );
+void sdlg_update_controlview(SDlg *sdlg, int show);
 
 /*
 ====================================================================

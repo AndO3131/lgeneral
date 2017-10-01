@@ -259,7 +259,7 @@ static void engine_set_status( int newstat );
 static void engine_show_final_message( void );
 static void engine_select_player( Player *player, int skip_unit_prep );
 static int engine_capture_flag( Unit *unit );
-static void engine_show_game_menu( int cx, int cy );
+//static void engine_show_game_menu( int cx, int cy );
 static void engine_handle_button( int id );
 static int engine_has_strategic_target(int active, int x,int y);
 
@@ -640,7 +640,7 @@ static void engine_hide_deploy_unit_info()
 Show/Hide game menu.
 ====================================================================
 */
-/* NOT USED: Game menu is static now */
+/* NOT USED: Game menu is static now
 static void engine_show_game_menu( int cx, int cy )
 {
     int i;
@@ -660,21 +660,21 @@ static void engine_show_game_menu( int cx, int cy )
         group_set_active( gui->main_menu, ID_SAVE, 1 );
         group_set_active( gui->main_menu, ID_RESTART, 1 );
     }
-    /* lock config buttons */
+    // lock config buttons
     group_lock_button( gui->opt_menu, ID_C_SUPPLY, config.supply );
     group_lock_button( gui->opt_menu, ID_C_WEATHER, config.weather );
     group_lock_button( gui->opt_menu, ID_C_GRID, config.grid );
     group_lock_button( gui->opt_menu, ID_C_SHOW_CPU, config.show_cpu_turn );
     group_lock_button( gui->opt_menu, ID_C_SHOW_STRENGTH, config.show_bar );
     group_lock_button( gui->opt_menu, ID_C_SOUND, config.sound_on );
-    /* loads */
+    // loads
     gui_update_slot_tooltips();
     for ( i = 0; i < SLOT_COUNT; i++ )
         if ( slot_is_valid( i ) )
             group_set_active( gui->load_menu, ID_LOAD_0 + i, 1 );
         else
             group_set_active( gui->load_menu, ID_LOAD_0 + i, 0 );
-}
+} */
 static void engine_hide_game_menu()
 {
 	/* disabled for now it is displayed permanently
@@ -698,13 +698,13 @@ static void engine_hide_game_menu()
 Show/Hide unit menu.
 ====================================================================
 */
-/* NOT USED: Unit menu is static now */
+/* NOT USED: Unit menu is static now
 static void engine_show_unit_menu( int cx, int cy )
 {
     engine_check_unit_buttons();
     gui_show_unit_buttons( cx, cy );
     status = STATUS_UNIT_MENU;
-}
+} */
 static void engine_hide_unit_menu()
 {
 	/* disabled for now it is displayed permanently
@@ -2233,7 +2233,7 @@ static void engine_handle_button( int id )
         case ID_RESTART:
             engine_hide_game_menu();
             fdlg_hide(gui->camp_dlg, 1); // be sure it's closed
-            fdlg_hide(gui->scen_dlg, 1); // be sure it's closed
+            sdlg_hide(gui->scen_dlg, 1); // be sure it's closed
             action_queue_restart();
             engine_confirm_action( tr("Do you really want to restart this scenario?") );
             break;
@@ -2241,15 +2241,14 @@ static void engine_handle_button( int id )
             engine_hide_game_menu();
             fdlg_hide(gui->camp_dlg, 1); // be sure it's closed
             sprintf( path, "%s/scenarios", get_gamedir() );
-            fdlg_open( gui->scen_dlg, path );
-            group_set_active( gui->scen_dlg->group, ID_SCEN_SETUP, 0 );
-            group_set_active( gui->scen_dlg->group, ID_SCEN_OK, 0 );
-            group_set_active( gui->scen_dlg->group, ID_SCEN_CANCEL, 1 );
+            sdlg_open( gui->scen_dlg, path );
+            group_set_active( gui->scen_dlg->fdlg->group, ID_SCEN_OK, 0 );
+            group_set_active( gui->scen_dlg->fdlg->group, ID_SCEN_CANCEL, 1 );
             status = STATUS_RUN_SCEN_DLG;
             break;
         case ID_CAMP:
             engine_hide_game_menu();
-            fdlg_hide(gui->scen_dlg, 1); // be sure it's closed
+            sdlg_hide(gui->scen_dlg, 1); // be sure it's closed
             sprintf( path, "%s/campaigns", get_gamedir() );
             fdlg_open( gui->camp_dlg, path );
             group_set_active( gui->camp_dlg->group, ID_CAMP_OK, 0 );
@@ -2284,6 +2283,8 @@ static void engine_handle_button( int id )
             break;
         case ID_QUIT:
             engine_hide_game_menu();
+            sdlg_hide(gui->scen_dlg,1);
+            fdlg_hide(gui->camp_dlg,1);
             action_queue_quit();
             engine_confirm_action( tr("Do you really want to quit?") );
             break;
@@ -2470,11 +2471,11 @@ static void engine_handle_button( int id )
             draw_map = 1;
             break; 
         case ID_SCEN_CANCEL:
-            fdlg_hide( gui->scen_dlg, 1 );
+            sdlg_hide( gui->scen_dlg, 1 );
             engine_set_status( STATUS_NONE );
             break;
         case ID_SCEN_OK:
-            fdlg_hide( gui->scen_dlg, 1 );
+            sdlg_hide( gui->scen_dlg, 1 );
             engine_set_status( STATUS_NONE );
             action_queue_start_scen();
             break;
@@ -2488,57 +2489,38 @@ static void engine_handle_button( int id )
             engine_set_status( STATUS_NONE );
             action_queue_start_camp();
             break;
-        case ID_SCEN_SETUP:
-            fdlg_hide( gui->scen_dlg, 1 );
-            gui_open_scen_setup();
-            status = STATUS_RUN_SETUP;
-            break;
         case ID_SETUP_OK:
-            fdlg_hide( gui->scen_dlg, 0 );
-            sdlg_hide( gui->setup, 1 );
+            sdlg_hide( gui->scen_dlg, 0 );
             status = STATUS_RUN_SCEN_DLG;
             break;
-        case ID_SETUP_SUPPLY:
+        case ID_SCEN_SUPPLY:
             config.supply = !config.supply;
             break;
-        case ID_SETUP_WEATHER:
+        case ID_SCEN_WEATHER:
             config.weather = !config.weather;
             break;
-        case ID_SETUP_FOG:
+        case ID_SCEN_FOG:
             config.fog_of_war = !config.fog_of_war;
             break;
-        case ID_SETUP_DEPLOYTURN:
+        case ID_SCEN_DEPLOYTURN:
             config.deploy_turn = !config.deploy_turn;
             break;
-        case ID_SETUP_PURCHASE:
+        case ID_SCEN_PURCHASE:
             config.purchase = !config.purchase;
             break;
-        case ID_SETUP_CTRL:
-            setup.ctrl[gui->setup->sel_id] = !(setup.ctrl[gui->setup->sel_id] - 1) + 1;
-            gui_handle_player_select( gui->setup->list->cur_item );
+        case ID_SCEN_SWITCHCTRL1:
+        	if (setup.ctrl[0] == PLAYER_CTRL_CPU)
+        		setup.ctrl[0] = PLAYER_CTRL_HUMAN;
+        	else
+        		setup.ctrl[0] = PLAYER_CTRL_CPU;
+        	sdlg_update_controlview(gui->scen_dlg,1);
             break;
-        case ID_SETUP_MODULE:
-            sdlg_hide( gui->setup, 1 );
-            group_set_active( gui->module_dlg->group, ID_MODULE_OK, 0 );
-            group_set_active( gui->module_dlg->group, ID_MODULE_CANCEL, 1 );
-            sprintf( path, "%s/ai_modules", get_gamedir() );
-            fdlg_open( gui->module_dlg, path );
-            status = STATUS_RUN_MODULE_DLG;
-            break;
-        case ID_MODULE_OK:
-            if ( gui->module_dlg->lbox->cur_item ) {
-                if ( gui->module_dlg->subdir[0] != 0 )
-                    sprintf( path, "%s/%s", gui->module_dlg->subdir, (char*)gui->module_dlg->lbox->cur_item );
-                else
-                    sprintf( path, "%s", (char*)gui->module_dlg->lbox->cur_item );
-                free( setup.modules[gui->setup->sel_id] );
-                setup.modules[gui->setup->sel_id] = strdup( path );
-                gui_handle_player_select( gui->setup->list->cur_item );
-            }
-        case ID_MODULE_CANCEL:
-            fdlg_hide( gui->module_dlg, 1 );
-            sdlg_hide( gui->setup, 0 );
-            status = STATUS_RUN_SETUP;
+        case ID_SCEN_SWITCHCTRL2:
+        	if (setup.ctrl[1] == PLAYER_CTRL_CPU)
+        		setup.ctrl[1] = PLAYER_CTRL_HUMAN;
+        	else
+        		setup.ctrl[1] = PLAYER_CTRL_CPU;
+        	sdlg_update_controlview(gui->scen_dlg,1);
             break;
         case ID_DEPLOY_UP:
             gui_scroll_deploy_up();
@@ -4517,6 +4499,7 @@ int engine_init()
     gui_panel_show();
     engine_check_unit_buttons();
     engine_check_menu_buttons();
+    return 1;
 }
 void engine_shutdown()
 {

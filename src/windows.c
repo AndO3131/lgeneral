@@ -22,6 +22,8 @@
 #include "windows.h"
 #include "localize.h"
 #include "purchase_dlg.h"
+#include "date.h"
+#include "scenario.h"
 #include "gui.h"
 
 /*
@@ -34,6 +36,7 @@ extern int hex_w;
 extern int old_mx, old_my;
 extern Config config;
 extern GUI *gui;
+extern Setup setup;            /* engine setup with scenario information */
 
 /*
 ====================================================================
@@ -829,6 +832,10 @@ void fdlg_add_button( FDlg *fdlg, int id, int lock, const char *tooltip )
     int x = fdlg->button_x - ( id - fdlg->group->base_id + 1 ) * fdlg->button_dist;
     group_add_button( fdlg->group, id, x, fdlg->button_y, lock, tooltip );
 }
+void fdlg_add_button_xy( FDlg *fdlg, int id, int x, int y, int lock, const char *tooltip )
+{
+    group_add_button( fdlg->group, id, x, y, lock, tooltip );
+}
 
 /*
 ====================================================================
@@ -924,71 +931,68 @@ int fdlg_handle_button( FDlg *fdlg, int button_id, int cx, int cy, Button **butt
 Create setup dialogue.
 ====================================================================
 */
-SDlg *sdlg_create( SDL_Surface *list_frame, SDL_Surface *list_buttons,
-                   int list_button_w, int list_button_h, int cell_h,
-                   SDL_Surface *ctrl_frame, SDL_Surface *ctrl_buttons,
-                   int ctrl_button_w, int ctrl_button_h, int id_ctrl,
-                   SDL_Surface *mod_frame, SDL_Surface *mod_buttons,
-                   int mod_button_w, int mod_button_h, int id_mod,
-                   SDL_Surface *conf_frame, SDL_Surface *conf_buttons,
-                   int conf_button_w, int conf_button_h, int id_conf,
+SDlg *sdlg_create(
+                   SDL_Surface *lbox_frame, int alpha, int border,
+                   SDL_Surface *lbox_buttons, int lbox_button_w, int lbox_button_h,
+                   int cell_h,
+                   SDL_Surface *file_frame,
+                   SDL_Surface *file_buttons, int file_button_w, int file_button_h,
+                   int id_ok,
                    Label *label,
-                   void (*list_render_cb)(void*,SDL_Surface*),
-                   void (*list_select_cb)(void*),
+                   void (*lbox_cb)( void*, SDL_Surface* ),
+                   void (*file_cb)( const char*, SDL_Surface* ),
+                   SDL_Surface *conf_frame, SDL_Surface *ctrl_frame,
                    SDL_Surface *surf, int x, int y )
 {
-    int border = 10, alpha = 160, px, py;
-    int cell_w = list_frame->w - 2 * border;
-    int cell_count = ( list_frame->h - 2 * border ) / ( cell_h + 1 );
+    int px, py;
 
     SDlg *sdlg = calloc( 1, sizeof( SDlg ) );
 
-    /* listbox for players */
-    if ( ( sdlg->list = lbox_create( list_frame, alpha, border, list_buttons, list_button_w, list_button_h, label,
-                                     cell_count, 2, cell_w, cell_h, 1, 0x0000ff, list_render_cb, surf, x, y ) ) == 0 )
-        goto failure;
+    if ((sdlg->fdlg = fdlg_create(lbox_frame, alpha, border,
+                   lbox_buttons, lbox_button_w, lbox_button_h, cell_h,
+                   file_frame,file_buttons, file_button_w, file_button_h,
+                   id_ok, label, lbox_cb, file_cb,
+                  surf, x, y)) == 0)
+	    goto failure;
 
     /* group with human/cpu control button */
-    if ( ( sdlg->ctrl = group_create( ctrl_frame, alpha, ctrl_buttons, 
-                                      ctrl_button_w, ctrl_button_h, 1, id_ctrl, label, surf, x + list_frame->w - 1, y ) ) == 0 )
+    if ( ( sdlg->config = group_create( conf_frame, alpha,
+		    	    	file_buttons,
+		    	    	file_button_w, file_button_h,
+		    	    	5, ID_SCEN_OK, label,
+		    	    	surf, x + lbox_frame->w - 1, y + file_frame->h ) ) == 0 )
         goto failure;
-    group_add_button( sdlg->ctrl, id_ctrl, ctrl_frame->w - border - ctrl_button_w, ( ctrl_frame->h - ctrl_button_h ) / 2, 0, tr("Switch Control") );
-
-    /* group with ai module select button */
-    if ( ( sdlg->module = group_create( mod_frame, alpha, mod_buttons, 
-                                        mod_button_w, mod_button_h, 1, id_mod, label, surf, 
-                                        x + list_frame->w - 1, y + ctrl_frame->h ) ) == 0 )
-        goto failure;
-    group_add_button( sdlg->module, id_mod, ctrl_frame->w - border - ctrl_button_w, ( mod_frame->h - mod_button_h ) / 2, 0, tr("Select AI Module") );
-#ifndef USE_DL
-    group_set_active( sdlg->module, id_mod, 0 );
-#endif
+    px = border;
+    py = (conf_frame->h - file_button_h) / 2;
+    group_add_button( sdlg->config, ID_SCEN_FOG, px, py, 1, tr("Fog Of War") );
+    px += border + file_button_w;
+    group_add_button( sdlg->config, ID_SCEN_SUPPLY, px, py, 1, tr("Unit Supply") );
+    px += border + file_button_w;
+    group_add_button( sdlg->config, ID_SCEN_WEATHER, px, py, 1, tr("Weather Influence") );
+    px += border + file_button_w;
+    group_add_button( sdlg->config, ID_SCEN_DEPLOYTURN, px, py, 1, tr("Deploy Turn") );
+    px += border + file_button_w;
+    group_add_button( sdlg->config, ID_SCEN_PURCHASE, px, py, 1, tr("Purchase Option") );
+    group_lock_button( sdlg->config, ID_SCEN_FOG, config.fog_of_war );
+    group_lock_button( sdlg->config, ID_SCEN_SUPPLY, config.supply );
+    group_lock_button( sdlg->config, ID_SCEN_WEATHER, config.weather );
+    group_lock_button( sdlg->config, ID_SCEN_DEPLOYTURN, config.deploy_turn );
+    group_lock_button( sdlg->config, ID_SCEN_PURCHASE, config.purchase );
 
     /* group with settings and confirm buttons; id_conf is id of first button
      * in image conf_buttons */
-    if ( ( sdlg->confirm = group_create( conf_frame, alpha, conf_buttons, 
-                                         conf_button_w, conf_button_h, 6, id_conf, label, surf, 
-                                         x + list_frame->w - 1, y + ctrl_frame->h + mod_frame->h ) ) == 0 )
+    if ( ( sdlg->ctrl = group_create( ctrl_frame, alpha, file_buttons,
+	    	    	file_button_w, file_button_h,
+	    	    	2, ID_SCEN_OK, label, surf,
+                        x + lbox_frame->w - 1, y + file_frame->h + conf_frame->h ) ) == 0 )
         goto failure;
-    px = conf_frame->w - (border + conf_button_w);
-    py = (conf_frame->h - conf_button_h) / 2;
-    group_add_button( sdlg->confirm, ID_SETUP_OK, px, py, 0, tr("Ok") );
-    px = border;
-    group_add_button( sdlg->confirm, ID_SETUP_FOG, px, py, 1, tr("Fog Of War") );
-    px += border + conf_button_w;
-    group_add_button( sdlg->confirm, ID_SETUP_SUPPLY, px, py, 1, tr("Unit Supply") );
-    px += border + conf_button_w;
-    group_add_button( sdlg->confirm, ID_SETUP_WEATHER, px, py, 1, tr("Weather Influence") );
-    px += border + conf_button_w;
-    group_add_button( sdlg->confirm, ID_SETUP_DEPLOYTURN, px, py, 1, tr("Deploy Turn") );
-    px += border + conf_button_w;
-    group_add_button( sdlg->confirm, ID_SETUP_PURCHASE, px, py, 1, tr("Purchase Option") );
-    group_lock_button( sdlg->confirm, ID_SETUP_FOG, config.fog_of_war );
-    group_lock_button( sdlg->confirm, ID_SETUP_SUPPLY, config.supply );
-    group_lock_button( sdlg->confirm, ID_SETUP_WEATHER, config.weather );
-    group_lock_button( sdlg->confirm, ID_SETUP_DEPLOYTURN, config.deploy_turn );
-    group_lock_button( sdlg->confirm, ID_SETUP_PURCHASE, config.purchase );
-    sdlg->select_cb = list_select_cb;
+    group_add_button( sdlg->ctrl, ID_SCEN_SWITCHCTRL1, border,
+		    ( ctrl_frame->h - file_button_h ) / 2, 0, tr("Switch Control") );
+    group_add_button( sdlg->ctrl, ID_SCEN_SWITCHCTRL2,
+		    ctrl_frame->w - border - file_button_w,
+		    ( ctrl_frame->h - file_button_h ) / 2, 0, tr("Switch Control") );
+    sdlg_update_controlview(sdlg,0);
+
     return sdlg;
 failure:
     sdlg_delete( &sdlg );
@@ -997,10 +1001,9 @@ failure:
 void sdlg_delete( SDlg **sdlg )
 {
     if ( *sdlg ) {
-        lbox_delete( &(*sdlg)->list );
+        fdlg_delete( &(*sdlg)->fdlg );
         group_delete( &(*sdlg)->ctrl );
-        group_delete( &(*sdlg)->module );
-        group_delete( &(*sdlg)->confirm );
+        group_delete( &(*sdlg)->config );
         free( *sdlg ); *sdlg = 0;
     }
 }
@@ -1012,31 +1015,27 @@ Draw setup dialogue.
 */
 void sdlg_hide( SDlg *sdlg, int hide )
 {
-    lbox_hide( sdlg->list, hide );
-    group_hide( sdlg->ctrl, hide );
-    group_hide( sdlg->module, hide );
-    group_hide( sdlg->confirm, hide );
+    fdlg_hide( sdlg->fdlg, hide );
+    group_hide( sdlg->ctrl, 1 );
+    group_hide( sdlg->config, 1 );
 }
 void sdlg_get_bkgnd( SDlg *sdlg )
 {
-    lbox_get_bkgnd( sdlg->list );
+	fdlg_get_bkgnd( sdlg->fdlg );
     group_get_bkgnd( sdlg->ctrl );
-    group_get_bkgnd( sdlg->module );
-    group_get_bkgnd( sdlg->confirm );
+    group_get_bkgnd( sdlg->config );
 }
 void sdlg_draw_bkgnd( SDlg *sdlg )
 {
-    lbox_draw_bkgnd( sdlg->list );
+	fdlg_draw_bkgnd( sdlg->fdlg );
     group_draw_bkgnd( sdlg->ctrl );
-    group_draw_bkgnd( sdlg->module );
-    group_draw_bkgnd( sdlg->confirm );
+    group_draw_bkgnd( sdlg->config );
 }
 void sdlg_draw( SDlg *sdlg )
 {
-    lbox_draw( sdlg->list );
+    fdlg_draw( sdlg->fdlg );
     group_draw( sdlg->ctrl );
-    group_draw( sdlg->module );
-    group_draw( sdlg->confirm );
+    group_draw( sdlg->config );
 }
 
 /*
@@ -1046,19 +1045,17 @@ Scenario setup dialogue
 */
 void sdlg_set_surface( SDlg *sdlg, SDL_Surface *surf )
 {
-    lbox_set_surface( sdlg->list, surf );
+    fdlg_set_surface( sdlg->fdlg, surf );
     group_set_surface( sdlg->ctrl, surf );
-    group_set_surface( sdlg->module, surf );
-    group_set_surface( sdlg->confirm, surf );
+    group_set_surface( sdlg->config, surf );
 }
 void sdlg_move( SDlg *sdlg, int x, int y )
 {
-    lbox_move( sdlg->list, x, y );
-    group_move( sdlg->ctrl, x + sdlg->list->group->frame->img->img->w - 1, y );
-    group_move( sdlg->module, x + sdlg->list->group->frame->img->img->w - 1, 
-                sdlg->ctrl->frame->img->img->h + y );
-    group_move( sdlg->confirm, x + sdlg->list->group->frame->img->img->w - 1, 
-                sdlg->ctrl->frame->img->img->h + sdlg->module->frame->img->img->h + y );
+	int fw = sdlg->fdlg->lbox->group->frame->img->img->w;
+	int fh = sdlg->fdlg->group->frame->img->img->h;
+	fdlg_move( sdlg->fdlg, x, y );
+    group_move( sdlg->config, x + fw - 1, y + fh);
+    group_move( sdlg->ctrl, x + fw - 1, y + fh + sdlg->ctrl->frame->img->img->h);
 }
 
 /*
@@ -1068,12 +1065,10 @@ handle_motion updates the focus of the buttons
 */
 int sdlg_handle_motion( SDlg *sdlg, int cx, int cy )
 {
-    void *item;
-    if ( !sdlg->list->group->frame->img->bkgnd->hide ) {
+    if ( !sdlg->fdlg->group->frame->img->bkgnd->hide ) {
         if ( !group_handle_motion( sdlg->ctrl, cx, cy ) )
-        if ( !group_handle_motion( sdlg->module, cx, cy ) )
-        if ( !group_handle_motion( sdlg->confirm, cx, cy ) )
-        if ( !lbox_handle_motion( sdlg->list, cx, cy, &item ) )
+        if ( !group_handle_motion( sdlg->config, cx, cy ) )
+        if ( !fdlg_handle_motion( sdlg->fdlg, cx, cy ) )
             return 0;
         return 1;
     }
@@ -1086,21 +1081,57 @@ handle_button
 */
 int sdlg_handle_button( SDlg *sdlg, int button_id, int cx, int cy, Button **button )
 {
-    void *item = 0;
-    if ( !sdlg->list->group->frame->img->bkgnd->hide ) {
+    if ( !sdlg->fdlg->group->frame->img->bkgnd->hide ) {
         if ( group_handle_button( sdlg->ctrl, button_id, cx, cy, button ) )
             return 1;
-        if ( group_handle_button( sdlg->module, button_id, cx, cy, button ) )
+        if ( group_handle_button( sdlg->config, button_id, cx, cy, button ) )
             return 1;
-        if ( group_handle_button( sdlg->confirm, button_id, cx, cy, button ) )
-            return 1;
-        if ( lbox_handle_button( sdlg->list, button_id, cx, cy, button, &item ) ) {
-            if ( item ) {
-                (sdlg->select_cb)(item);
-            }
-        }
+        if ( fdlg_handle_button( sdlg->fdlg, button_id, cx, cy, button ) )
+           return 1;
     }
     return 0;
+}
+
+/** Open path in scenarion dialog */
+void sdlg_open( SDlg *sdlg, const char *root )
+{
+	fdlg_open(sdlg->fdlg,root);
+	sdlg_hide(sdlg,0);
+}
+
+/** Read setup and render current control selections to group */
+void sdlg_update_controlview(SDlg *sdlg, int show)
+{
+	Font *font = gui->font_std;
+	int xoff = 50;
+	int x = xoff, y = (sdlg->ctrl->frame->contents->h - font->height*2)/2;
+
+	SDL_FillRect(sdlg->ctrl->frame->contents,0,0);
+	if (!show) {
+		group_hide(sdlg->ctrl,1);
+		group_hide(sdlg->config,1);
+		frame_apply(sdlg->ctrl->frame); /* render content to image */
+		return;
+	}
+
+	/* XXX only for first to players won't have more anyway */
+	font->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
+	write_text(font, sdlg->ctrl->frame->contents, x, y, setup.names[0], 0);
+	y += font->height;
+	write_text(font, sdlg->ctrl->frame->contents, x, y,
+			setup.ctrl[0]==PLAYER_CTRL_CPU?"CPU":tr("Human"), 0);
+
+	x = sdlg->ctrl->frame->contents->w - xoff;
+	y -= font->height;
+	font->align = ALIGN_X_RIGHT | ALIGN_Y_TOP;
+	write_text(font, sdlg->ctrl->frame->contents, x, y, setup.names[1], 0);
+	y += font->height;
+	write_text(font, sdlg->ctrl->frame->contents, x, y,
+			setup.ctrl[1]==PLAYER_CTRL_CPU?"CPU":tr("Human"), 0);
+
+	frame_apply(sdlg->ctrl->frame); /* render content to image */
+	group_hide(sdlg->ctrl,0);
+	group_hide(sdlg->config,0);
 }
 
 
