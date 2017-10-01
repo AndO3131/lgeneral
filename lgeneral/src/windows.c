@@ -964,7 +964,7 @@ SDlg *sdlg_create(
 		    	    	5, ID_SCEN_OK, label,
 		    	    	surf, x + lbox_frame->w - 1, y + file_frame->h ) ) == 0 )
         goto failure;
-    px = border;
+    px = border+10;
     py = (conf_frame->h - file_button_h) / 2;
     group_add_button( sdlg->config, ID_SCEN_FOG, px, py, 1, tr("Fog Of War") );
     px += border + file_button_w;

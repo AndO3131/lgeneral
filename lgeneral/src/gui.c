@@ -268,20 +268,20 @@ int gui_load( const char *dir )
         goto failure;
     frame_hide( gui->qinfo2, 1 );
     /* full unit info */
-    if ( ( gui->finfo = frame_create( gui_create_frame( 460, 280 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->finfo = frame_create( gui_create_frame( 460, 280 ), 200, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->finfo, 1 );
     //unit list
-    if ( ( gui->unit_list = frame_create( gui_create_frame( 600, 460 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->unit_list = frame_create( gui_create_frame( 600, 460 ), 200, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->unit_list, 1 );
     /* scenario info */
-    if ( ( gui->sinfo = frame_create( gui_create_frame( 300, 260 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->sinfo = frame_create( gui_create_frame( 300, 260 ), 200, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->sinfo, 1 );
     /* confirm window */
     sprintf( path2, "../themes/%s/confirm_buttons.bmp", dir );
-    if ( ( gui->confirm = group_create( gui_create_frame( 200, 80 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->confirm = group_create( gui_create_frame( 200, 80 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                         20, 20, 6, ID_OK, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = gui->confirm->frame->img->img->w - 60; sy = gui->confirm->frame->img->img->h - 30;
@@ -304,7 +304,7 @@ int gui_load( const char *dir )
     group_add_button( gui->unit_buttons, ID_DISBAND, sx, sy, 0, tr("Disband Unit") ); 
     /* split menu */
     sprintf( path2, "../themes/%s/strength_buttons.bmp", dir );
-    if ( ( gui->split_menu = group_create( gui_create_frame( 40, 296 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->split_menu = group_create( gui_create_frame( 40, 296 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                           32, 32, 10, ID_SPLIT_1, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 4; sy = 4;
@@ -316,7 +316,7 @@ int gui_load( const char *dir )
     group_hide( gui->split_menu, 1 );
     /* deploy window */
     sprintf( path2, "../themes/%s/deploy_buttons.bmp", dir );
-    if ( ( gui->deploy_window = group_create( gui_create_frame( 80, 440 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->deploy_window = group_create( gui_create_frame( 80, 440 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                               20, 20, 6, ID_APPLY_DEPLOY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = gui->deploy_window->frame->img->img->w - 65;
@@ -361,7 +361,7 @@ int gui_load( const char *dir )
     group_add_button( gui->main_menu, ID_QUIT, sx, sy, 0, tr("Quit Game") );
     /* load menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
-    if ( ( gui->load_menu = group_create( gui_create_frame( 38, 11*32+6 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->load_menu = group_create( gui_create_frame( 38, 11*32+6 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                           32, 32, 11, ID_LOAD_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
@@ -374,7 +374,7 @@ int gui_load( const char *dir )
     group_hide( gui->load_menu, 1 );
     /* save menu */
     sprintf( path2, "../themes/%s/menu2_buttons.bmp", dir );
-    if ( ( gui->save_menu = group_create( gui_create_frame( 38, 10*32+6 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->save_menu = group_create( gui_create_frame( 38, 10*32+6 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                           32, 32, 10, ID_SAVE_0, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
@@ -386,7 +386,7 @@ int gui_load( const char *dir )
     group_hide( gui->save_menu, 1 );
     /* options */
     sprintf( path2, "../themes/%s/menu3_buttons.bmp", dir );
-    if ( ( gui->opt_menu = group_create( gui_create_frame( 54, 6+7*54 ), 160, load_surf( path2, SDL_SWSURFACE ),
+    if ( ( gui->opt_menu = group_create( gui_create_frame( 54, 6+7*54 ), 200, load_surf( path2, SDL_SWSURFACE ),
                                           48, 48, 10, ID_C_SUPPLY, gui->label, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     sx = 3; sy = 3;
@@ -421,7 +421,7 @@ int gui_load( const char *dir )
     /* scenario dialogue + setup */
     sprintf( path, "../themes/%s/scen_dlg_buttons.bmp", dir );
     sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
-    gui->scen_dlg = sdlg_create( gui_create_frame( 120, 300 ), 160, 10,
+    gui->scen_dlg = sdlg_create( gui_create_frame( 120, 300 ), 200, 10,
                                  load_surf( path2, SDL_SWSURFACE), 24, 24,
                                  20,
                                  gui_create_frame( 240, 220),
@@ -439,7 +439,7 @@ int gui_load( const char *dir )
     /* campaign dialogue */
     sprintf( path, "../themes/%s/confirm_buttons.bmp", dir );
     sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
-    gui->camp_dlg = fdlg_create( gui_create_frame( 120, 240 ), 160, 10,
+    gui->camp_dlg = fdlg_create( gui_create_frame( 120, 240 ), 200, 10,
                                  load_surf( path2, SDL_SWSURFACE), 24, 24,
                                  20,
                                  gui_create_frame( 220, 240),

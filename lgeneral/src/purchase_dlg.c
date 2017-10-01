@@ -577,7 +577,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 {
 	PurchaseDlg *pdlg = NULL;
 	char path[512];
-	int sx, sy;
+	int sx, sy, alpha=200;
 	
 	pdlg = calloc( 1, sizeof(PurchaseDlg) );
 	if (pdlg == NULL)
@@ -585,7 +585,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 	
 	/* create main group (= main window) */
 	snprintf( path, 512, "%s/confirm_buttons.bmp", theme_path );
-	pdlg->main_group = group_create( gui_create_frame( 300, 320 ), 160, 
+	pdlg->main_group = group_create( gui_create_frame( 300, 320 ), alpha,
 				load_surf( path, SDL_SWSURFACE ),
 				20, 20, 2, ID_PURCHASE_OK,
 				gui->label, sdl.screen, 0, 0 );
@@ -599,14 +599,14 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 							tr("Exit") );
 	
 	/* create unit limit info frame */
-	pdlg->ulimit_frame = frame_create( gui_create_frame( 112, 40 ), 160,
+	pdlg->ulimit_frame = frame_create( gui_create_frame( 112, 40 ), alpha,
 							sdl.screen, 0, 0);
 	if (pdlg->ulimit_frame == NULL)
 		goto failure;
 	
 	/* create nation listbox */
 	snprintf( path, 512, "%s/scroll_buttons.bmp", theme_path );
-	pdlg->nation_lbox = lbox_create( gui_create_frame( 112, 74 ), 160, 6,
+	pdlg->nation_lbox = lbox_create( gui_create_frame( 112, 74 ), alpha, 6,
 			load_surf( path, SDL_SWSURFACE ), 24, 24, gui->label,
 			3, 1, 100, 12, 1, 0x0000ff,
 			render_lbox_nation, sdl.screen, 0, 0);
@@ -615,7 +615,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 	
 	/* create class listbox */
 	snprintf( path, 512, "%s/scroll_buttons.bmp", theme_path );
-	pdlg->uclass_lbox = lbox_create( gui_create_frame( 112, 166 ), 160, 6,
+	pdlg->uclass_lbox = lbox_create( gui_create_frame( 112, 166 ), alpha, 6,
 			load_surf( path, SDL_SWSURFACE ), 24, 24, gui->label,
 			10, 2, 100, 12, 1, 0x0000ff,
 			render_lbox_uclass, sdl.screen, 0, 0);
@@ -624,7 +624,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 	
 	/* create units listbox */
 	snprintf( path, 512, "%s/scroll_buttons.bmp", theme_path );
-	pdlg->unit_lbox = lbox_create( gui_create_frame( 112, 200 ), 160, 6,
+	pdlg->unit_lbox = lbox_create( gui_create_frame( 112, 200 ), alpha, 6,
 			load_surf( path, SDL_SWSURFACE ), 24, 24, gui->label,
 			4, 3, 100, 40, 1, 0x0000ff,
 			render_lbox_unit, sdl.screen, 0, 0);
@@ -633,7 +633,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 	
 	/* create transporters listbox */
 	snprintf( path, 512, "%s/scroll_buttons.bmp", theme_path );
-	pdlg->trsp_lbox = lbox_create( gui_create_frame( 112, 120 ), 160, 6,
+	pdlg->trsp_lbox = lbox_create( gui_create_frame( 112, 120 ), alpha, 6,
 			load_surf( path, SDL_SWSURFACE ), 24, 24, gui->label,
 			2, 1, 100, 40, 1, 0x0000ff,
 			render_lbox_unit, sdl.screen, 0, 0);
@@ -642,7 +642,7 @@ PurchaseDlg *purchase_dlg_create( const char *theme_path )
 	
 	/* create reinforcements listbox */
 	snprintf( path, 512, "%s/scroll_buttons.bmp", theme_path );
-	pdlg->reinf_lbox = lbox_create( gui_create_frame( 112, 280 ), 160, 6,
+	pdlg->reinf_lbox = lbox_create( gui_create_frame( 112, 280 ), alpha, 6,
 			load_surf( path, SDL_SWSURFACE ), 24, 24, gui->label,
 			6, 3, 100, 40, 1, 0x0000ff,
 			render_lbox_reinf, sdl.screen, 0, 0);
