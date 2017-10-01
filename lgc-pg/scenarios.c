@@ -438,7 +438,7 @@ void scen_create_pg_weather( FILE *dest_file, int scen_id, FILE *scen_file, int 
         }
         fprintf( dest_file, "%s", w );
         if ( i < turns - 1 )
-            fprintf( dest_file, "=" );
+            fprintf( dest_file, "&" );
         i++;
     }
     fprintf( dest_file, "\n" );
