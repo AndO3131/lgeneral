@@ -380,8 +380,8 @@ void scen_create_pg_weather( FILE *dest_file, int scen_id, FILE *scen_file, int 
     char *weathers[] = {
         "fffffroRff",
         "ffffffffffffrooorRff",
-        "fffforRRRmfffforRROffffff",
-        "fffffffrROooffffffffffooroffff",
+        "fffforRRRmfffforRRoffffff",
+        "fffffffrRoooffffffffffooroffff",
         "ffffffffffffoorfffffffffff",
         "ffffffooorfffff",
         "",
