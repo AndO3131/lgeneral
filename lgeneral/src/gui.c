@@ -200,7 +200,7 @@ int gui_load( const char *dir )
     char str[128];
     int i, dy, dx;
     int sx, sy;
-    char path[256], path2[256], path3[256], path4[256];
+    char path[256], path2[256];
 	
     gui_delete();
     gui = calloc( 1, sizeof( GUI ) );
@@ -412,20 +412,23 @@ int gui_load( const char *dir )
 			    load_surf( path2, SDL_SWSURFACE ), 20, 20,
 			    ID_VMODE_OK, sdl.screen, 0, 0);
     select_dlg_hide( gui->vmode_dlg, 1 );
-    /* scenario dialogue */
+
+    /* scenario dialogue + setup */
     sprintf( path, "../themes/%s/scen_dlg_buttons.bmp", dir );
     sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
-    gui->scen_dlg = fdlg_create( gui_create_frame( 120, 240 ), 160, 10,
+    gui->scen_dlg = sdlg_create( gui_create_frame( 120, 300 ), 160, 10,
                                  load_surf( path2, SDL_SWSURFACE), 24, 24,
                                  20,
-                                 gui_create_frame( 220, 240),
-                                 load_surf( path, SDL_SWSURFACE ), 24, 24,
+                                 gui_create_frame( 240, 220),
+                                 load_surf( path, SDL_SWSURFACE ), 32, 32,
                                  ID_SCEN_OK, 
                                  gui->label, 
                                  gui_render_file_name, gui_render_scen_info,
+                                 gui_create_frame( 240, 40),
+                                 gui_create_frame( 240, 40),
                                  sdl.screen, 0, 0 );
-    fdlg_add_button( gui->scen_dlg, ID_SCEN_SETUP, 0, tr("Player Setup") );
-    fdlg_hide( gui->scen_dlg, 1 );
+    sdlg_hide( gui->scen_dlg, 1 );
+
     /* campaign dialogue */
     sprintf( path, "../themes/%s/confirm_buttons.bmp", dir );
     sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
@@ -439,33 +442,6 @@ int gui_load( const char *dir )
                                  gui_render_file_name, gui_render_camp_info,
                                  sdl.screen, 0, 0 );
     fdlg_hide( gui->camp_dlg, 1 );
-    /* setup window */
-    sprintf( path, "../themes/%s/scroll_buttons.bmp", dir );
-    sprintf( path2, "../themes/%s/ctrl_buttons.bmp", dir );
-    sprintf( path3, "../themes/%s/module_buttons.bmp", dir );
-    sprintf( path4, "../themes/%s/setup_confirm_buttons.bmp", dir );
-    gui->setup = sdlg_create( 
-                             gui_create_frame( 120, 120 ), load_surf( path, SDL_SWSURFACE ),  24, 24, 20, 
-                             gui_create_frame( 220, 40 ),  load_surf( path2, SDL_SWSURFACE ), 24, 24, ID_SETUP_CTRL,
-                             gui_create_frame( 220, 40 ),  load_surf( path3, SDL_SWSURFACE ), 24, 24, ID_SETUP_MODULE,
-                             gui_create_frame( 220, 40 ),  load_surf( path4, SDL_SWSURFACE ), 24, 24, ID_SETUP_OK,
-                             gui->label,
-                             gui_render_player_name, gui_handle_player_select,
-                             sdl.screen, 0, 0 );
-    sdlg_hide( gui->setup, 1 );
-    /* module dialogue */
-    sprintf( path, "../themes/%s/confirm_buttons.bmp", dir );
-    sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
-    gui->module_dlg = fdlg_create( gui_create_frame( 120, 240 ), 160, 10,
-                                 load_surf( path2, SDL_SWSURFACE), 24, 24,
-                                 20,
-                                 gui_create_frame( 220, 240),
-                                 load_surf( path, SDL_SWSURFACE ), 20, 20,
-                                 ID_MODULE_OK, 
-                                 gui->label, 
-                                 gui_render_file_name, gui_render_module_info,
-                                 sdl.screen, 0, 0 );
-    fdlg_hide( gui->module_dlg, 1 );
     /* purchase dialogue */
     sprintf( path2, "../themes/%s", dir );
     if ( (gui->purchase_dlg = purchase_dlg_create( path2 )) == NULL)
@@ -526,10 +502,8 @@ void gui_delete()
         group_delete( &gui->save_menu );
         group_delete( &gui->opt_menu );
 	select_dlg_delete( &gui->vmode_dlg );
-        fdlg_delete( &gui->scen_dlg );
+        sdlg_delete( &gui->scen_dlg );
         fdlg_delete( &gui->camp_dlg );
-        sdlg_delete( &gui->setup );
-        fdlg_delete( &gui->module_dlg );
         edit_delete( &gui->edit );
 	purchase_dlg_delete( &gui->purchase_dlg );
 #ifdef WITH_SOUND
@@ -593,25 +567,15 @@ void gui_adjust()
                     (sdl.screen->w - gui_panel_w - select_dlg_get_width(gui->vmode_dlg)) /2,
                     (sdl.screen->h - select_dlg_get_height(gui->vmode_dlg)) /2);
     /* scenario dialogue */
-    fdlg_move( gui->scen_dlg, ( sdl.screen->w - gui_panel_w -
-		    	    	    	    	    ( gui->scen_dlg->group->frame->img->img->w  +
-                                                  gui->scen_dlg->lbox->group->frame->img->img->w ) ) / 2,
-               ( sdl.screen->h - gui->scen_dlg->group->frame->img->img->h ) / 2 );
+    sdlg_move( gui->scen_dlg, ( sdl.screen->w - gui_panel_w -
+		    	    	    	    	    ( gui->scen_dlg->fdlg->group->frame->img->img->w  +
+                                                  gui->scen_dlg->fdlg->lbox->group->frame->img->img->w ) ) / 2,
+               ( sdl.screen->h - gui->scen_dlg->fdlg->lbox->group->frame->img->img->h ) / 2 );
     /* campaign dialogue */
     fdlg_move( gui->camp_dlg, ( sdl.screen->w - gui_panel_w -
 		    	    	    	    	    ( gui->camp_dlg->group->frame->img->img->w  +
                                                   gui->camp_dlg->lbox->group->frame->img->img->w ) ) / 2,
                ( sdl.screen->h - gui->camp_dlg->group->frame->img->img->h ) / 2 );
-    /* scenario setup */
-    sdlg_move( gui->setup, ( sdl.screen->w - gui_panel_w -
-		    	    	    	    	    ( gui->setup->list->group->frame->img->img->w + gui->setup->ctrl->frame->img->img->w ) ) / 2,
-                           ( sdl.screen->h - ( gui->setup->list->group->frame->img->img->h ) ) / 2 );
-    /* module dialogue */
-    fdlg_move( gui->module_dlg, ( sdl.screen->w - gui_panel_w -
-		    	    	    	    	    ( gui->module_dlg->group->frame->img->img->w  +
-                                                  gui->module_dlg->lbox->group->frame->img->img->w ) ) / 2,
-               ( sdl.screen->h - gui->module_dlg->group->frame->img->img->h ) / 2 );
-	       
     /* purchase dialogue */
     purchase_dlg_move(gui->purchase_dlg, 
 		(sdl.screen->w - gui_panel_w - purchase_dlg_get_width(gui->purchase_dlg)) /2,
@@ -651,10 +615,8 @@ void gui_get_bkgnds()
     group_get_bkgnd( gui->confirm );
     group_get_bkgnd( gui->deploy_window );
     select_dlg_get_bkgnd( gui->vmode_dlg );
-    fdlg_get_bkgnd( gui->scen_dlg );
+    sdlg_get_bkgnd( gui->scen_dlg );
     fdlg_get_bkgnd( gui->camp_dlg );
-    fdlg_get_bkgnd( gui->module_dlg );
-    sdlg_get_bkgnd( gui->setup );
     purchase_dlg_get_bkgnd( gui->purchase_dlg );
     image_get_bkgnd( gui->cursors );
 }
@@ -679,10 +641,8 @@ void gui_draw_bkgnds()
     group_draw_bkgnd( gui->confirm );
     group_draw_bkgnd( gui->deploy_window );
     select_dlg_draw_bkgnd( gui->vmode_dlg );
-    fdlg_draw_bkgnd( gui->scen_dlg );
+    sdlg_draw_bkgnd( gui->scen_dlg );
     fdlg_draw_bkgnd( gui->camp_dlg );
-    fdlg_draw_bkgnd( gui->module_dlg );
-    sdlg_draw_bkgnd( gui->setup );
     purchase_dlg_draw_bkgnd( gui->purchase_dlg );
     image_draw_bkgnd( gui->cursors );
 }
@@ -707,10 +667,8 @@ void gui_draw()
     group_draw( gui->confirm ); 
     group_draw( gui->deploy_window );
     select_dlg_draw( gui->vmode_dlg );
-    fdlg_draw( gui->scen_dlg );
+    sdlg_draw( gui->scen_dlg );
     fdlg_draw( gui->camp_dlg );
-    fdlg_draw( gui->module_dlg );
-    sdlg_draw( gui->setup );
     purchase_dlg_draw( gui->purchase_dlg );
     image_draw( gui->cursors ); 
 }
@@ -771,10 +729,8 @@ int gui_handle_motion( int cx, int cy )
     if ( !group_handle_motion( gui->split_menu, cx, cy ) )
     if ( !group_handle_motion( gui->confirm, cx, cy ) )
     if ( !select_dlg_handle_motion( gui->vmode_dlg, cx, cy ) )
-    if ( !fdlg_handle_motion( gui->scen_dlg, cx, cy  ) )
+    if ( !sdlg_handle_motion( gui->scen_dlg, cx, cy  ) )
     if ( !fdlg_handle_motion( gui->camp_dlg, cx, cy  ) )
-    if ( !fdlg_handle_motion( gui->module_dlg, cx, cy  ) )
-    if ( !sdlg_handle_motion( gui->setup, cx, cy  ) )
     if ( !purchase_dlg_handle_motion( gui->purchase_dlg, cx, cy  ) )
         ret = 0;
     /* cursor */
@@ -796,10 +752,8 @@ int  gui_handle_button( int button_id, int cx, int cy, Button **button )
     if ( !group_handle_button( gui->confirm, button_id, cx, cy, button ) )
     if ( !group_handle_button( gui->deploy_window, button_id, cx, cy, button ) )
     if ( !select_dlg_handle_button( gui->vmode_dlg, button_id, cx, cy, button ) )
-    if ( !fdlg_handle_button( gui->scen_dlg, button_id, cx, cy, button ) )
+    if ( !sdlg_handle_button( gui->scen_dlg, button_id, cx, cy, button ) )
     if ( !fdlg_handle_button( gui->camp_dlg, button_id, cx, cy, button ) )
-    if ( !fdlg_handle_button( gui->module_dlg, button_id, cx, cy, button ) )
-    if ( !sdlg_handle_button( gui->setup, button_id, cx, cy, button ) )
     if ( !purchase_dlg_handle_button( gui->purchase_dlg, button_id, cx, cy, button ) )
         ret = 0;
     return ret;
@@ -1480,14 +1434,14 @@ void gui_render_scen_info( const char *path, SDL_Surface *buffer )
     char *info;
     if ( path == 0 ) {
         /* no selection met */
-        group_set_active( gui->scen_dlg->group, ID_SCEN_SETUP, 0 );
-        group_set_active( gui->scen_dlg->group, ID_SCEN_OK, 0 );
+        group_set_active( gui->scen_dlg->fdlg->group, ID_SCEN_OK, 0 );
+        sdlg_update_controlview(gui->scen_dlg,0);
         SDL_FillRect( buffer, 0, 0x0 );
     }
     else
     if ( ( info = scen_load_info( path ) ) ) {
-        group_set_active( gui->scen_dlg->group, ID_SCEN_SETUP, 1 );
-        group_set_active( gui->scen_dlg->group, ID_SCEN_OK, 1 );
+        group_set_active( gui->scen_dlg->fdlg->group, ID_SCEN_OK, 1 );
+        sdlg_update_controlview(gui->scen_dlg,1);
         /* render info */
         SDL_FillRect( buffer, 0, 0x0 );
         gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_TOP;
@@ -1780,34 +1734,6 @@ void gui_handle_message_pane_event( MessagePane *pane, int mx, int my, int butto
 
 /*
 ====================================================================
-Open scenario setup and set first player as selected.
-====================================================================
-*/
-void gui_open_scen_setup()
-{
-    int i;
-    List *list;
-    /* adjust the config settings, might have changed
-       due to loading */
-    group_lock_button( gui->setup->confirm, ID_SETUP_FOG, config.fog_of_war );
-    group_lock_button( gui->setup->confirm, ID_SETUP_SUPPLY, config.supply );
-    group_lock_button( gui->setup->confirm, ID_SETUP_WEATHER, config.weather );
-    group_lock_button( gui->setup->confirm, ID_SETUP_DEPLOYTURN, config.deploy_turn );
-    group_lock_button( gui->setup->confirm, ID_SETUP_PURCHASE, config.purchase);
-    /* do the list and chose first entry */
-    list = list_create( LIST_AUTO_DELETE, LIST_NO_CALLBACK );
-    for ( i = 0; i < setup.player_count; i++ )
-        list_add( list, strdup( setup.names[i] ) );
-    lbox_set_items( gui->setup->list, list );
-    gui->setup->list->cur_item = list_first( list );
-    lbox_apply( gui->setup->list );
-    if ( gui->setup->list->cur_item )
-        gui_handle_player_select( gui->setup->list->cur_item );
-    sdlg_hide( gui->setup, 0 );
-}
-
-/*
-====================================================================
 Render the player name in the scenario setup
 ====================================================================
 */
@@ -1816,54 +1742,6 @@ void gui_render_player_name( void *item, SDL_Surface *buffer )
     SDL_FillRect( buffer, 0, 0x0 );
     gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_CENTER;
     write_text( gui->font_std, buffer, 4, buffer->h >> 1, (char*)item, 255 );
-}
-
-/*
-====================================================================
-Handle the selection of a player in setup.
-====================================================================
-*/
-void gui_handle_player_select( void *item )
-{
-    int i;
-    const char *name;
-    char str[64];
-    SDL_Surface *contents;
-    /* update selection */
-    name = (const char*)item;
-    for ( i = 0; i < setup.player_count; i++ )
-        if ( STRCMP( name, setup.names[i] ) ) {
-            gui->setup->sel_id = i;
-            gui->font_std->align = ALIGN_X_LEFT | ALIGN_Y_CENTER;
-            contents = gui->setup->ctrl->frame->contents;
-            SDL_FillRect( contents, 0, 0x0 );
-            if ( setup.ctrl[i] == PLAYER_CTRL_HUMAN )
-                sprintf( str, tr("Control: Human") );
-            else
-                sprintf( str, tr("Control: CPU") );
-            write_text( gui->font_std, contents, 10, contents->h >> 1, str, 255 );
-            frame_apply( gui->setup->ctrl->frame );
-            contents = gui->setup->module->frame->contents;
-            SDL_FillRect( contents, 0, 0x0 );
-            sprintf( str, tr("AI Module: %s"), setup.modules[i] );
-            write_text( gui->font_std, contents, 10, contents->h >> 1, str, 255 );
-            frame_apply( gui->setup->module->frame );
-            break;
-        }
-}
-
-
-/*
-====================================================================
-Load a module's info
-====================================================================
-*/
-void gui_render_module_info( const char *path, SDL_Surface *buffer )
-{
-    if ( path )
-        group_set_active( gui->module_dlg->group, ID_MODULE_OK, 1 );
-    else
-        group_set_active( gui->module_dlg->group, ID_MODULE_OK, 0 );
 }
 
 /*

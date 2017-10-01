@@ -103,10 +103,16 @@ enum {
     ID_C_VMODE,
     ID_SCEN_OK,
     ID_SCEN_CANCEL,
-    ID_SCEN_SETUP,
+    ID_SCEN_FOG,
+    ID_SCEN_SUPPLY,
+    ID_SCEN_WEATHER,
+    ID_SCEN_DEPLOYTURN,
+    ID_SCEN_PURCHASE,
+    ID_SCEN_SWITCHCTRL1,
+    ID_SCEN_SWITCHCTRL2,
     ID_CAMP_OK,
     ID_CAMP_CANCEL,
-    ID_SETUP_OK,
+    ID_SETUP_OK, /* old setup dialog now in scenario */
     ID_SETUP_FOG,
     ID_SETUP_SUPPLY,
     ID_SETUP_WEATHER,
@@ -154,10 +160,8 @@ typedef struct {
     Group *load_menu;
     Group *save_menu;
     SelectDlg *vmode_dlg;
-    FDlg *scen_dlg;    /* scenario selection */
+    SDlg *scen_dlg;    /* scenario selection */
     FDlg *camp_dlg;    /* campaign selection */
-    SDlg *setup;       /* scenario setup (controls and ai modules) */
-    FDlg *module_dlg;  /* ai module selection */
     /* frame tiles */
     SDL_Surface *fr_luc, *fr_llc, *fr_ruc, *fr_rlc, *fr_hori, *fr_vert;
     SDL_Surface *brief_frame;   /* briefing window */

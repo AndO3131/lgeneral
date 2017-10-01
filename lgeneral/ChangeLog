@@ -1,3 +1,4 @@
+- moved scenario settings directly to file dialog (2017/10/01 MS)
 - write objective names in capitals (2017/09/30 MS)
 - adjusted fonts to match GUI panel (2017/09/30 MS)
 - do not allow unit deployment on impassable terrain (2017/09/27 MS)
