@@ -468,7 +468,10 @@ SDlg *sdlg_create(
                    Label *label,
                    void (*lbox_cb)( void*, SDL_Surface* ),
                    void (*file_cb)( const char*, SDL_Surface* ),
-                   SDL_Surface *conf_frame, SDL_Surface *ctrl_frame,
+                   SDL_Surface *conf_frame,
+                   SDL_Surface *conf_buttons, int conf_button_w, int conf_button_h,
+                   SDL_Surface *ctrl_frame,
+                   SDL_Surface *ctrl_buttons, int ctrl_button_w, int ctrl_button_h,
                    SDL_Surface *surf, int x, int y );
 void sdlg_delete( SDlg **sdlg );
 
