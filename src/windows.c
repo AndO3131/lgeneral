@@ -965,15 +965,15 @@ SDlg *sdlg_create(
 		    	    	surf, x + lbox_frame->w - 1, y + file_frame->h ) ) == 0 )
         goto failure;
     px = border+10;
-    py = (conf_frame->h - file_button_h) / 2;
+    py = (conf_frame->h - conf_button_h) / 2;
     group_add_button( sdlg->config, ID_SCEN_FOG, px, py, 1, tr("Fog Of War") );
-    px += border + file_button_w;
+    px += border + conf_button_w;
     group_add_button( sdlg->config, ID_SCEN_SUPPLY, px, py, 1, tr("Unit Supply") );
-    px += border + file_button_w;
+    px += border + conf_button_w;
     group_add_button( sdlg->config, ID_SCEN_WEATHER, px, py, 1, tr("Weather Influence") );
-    px += border + file_button_w;
+    px += border + conf_button_w;
     group_add_button( sdlg->config, ID_SCEN_DEPLOYTURN, px, py, 1, tr("Deploy Turn") );
-    px += border + file_button_w;
+    px += border + conf_button_w;
     group_add_button( sdlg->config, ID_SCEN_PURCHASE, px, py, 1, tr("Purchase Option") );
     group_lock_button( sdlg->config, ID_SCEN_FOG, config.fog_of_war );
     group_lock_button( sdlg->config, ID_SCEN_SUPPLY, config.supply );
@@ -989,10 +989,10 @@ SDlg *sdlg_create(
                         x + lbox_frame->w - 1, y + file_frame->h + conf_frame->h ) ) == 0 )
         goto failure;
     group_add_button( sdlg->ctrl, ID_SCEN_SWITCHCTRL1, border,
-		    ( ctrl_frame->h - file_button_h ) / 2, 0, tr("Switch Control") );
+		    ( ctrl_frame->h - ctrl_button_h ) / 2, 0, tr("Switch Control") );
     group_add_button( sdlg->ctrl, ID_SCEN_SWITCHCTRL2,
-		    ctrl_frame->w - border - file_button_w,
-		    ( ctrl_frame->h - file_button_h ) / 2, 0, tr("Switch Control") );
+		    ctrl_frame->w - border - ctrl_button_w,
+		    ( ctrl_frame->h - ctrl_button_h ) / 2, 0, tr("Switch Control") );
     sdlg_update_controlview(sdlg,0);
 
     return sdlg;

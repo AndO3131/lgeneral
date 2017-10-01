@@ -200,7 +200,7 @@ int gui_load( const char *dir )
     char str[128];
     int i, dy, dx;
     int sx, sy;
-    char path[256], path2[256];
+    char path[256], path2[256], path3[256];
 	
     gui_delete();
     gui = calloc( 1, sizeof( GUI ) );
@@ -421,11 +421,12 @@ int gui_load( const char *dir )
     /* scenario dialogue + setup */
     sprintf( path, "../themes/%s/scen_dlg_buttons.bmp", dir );
     sprintf( path2, "../themes/%s/scroll_buttons.bmp", dir );
+    sprintf( path3, "../themes/%s/confirm_buttons.bmp", dir );
     gui->scen_dlg = sdlg_create( gui_create_frame( 120, 300 ), 200, 10,
                                  load_surf( path2, SDL_SWSURFACE), 24, 24,
                                  20,
                                  gui_create_frame( 240, 220),
-                                 load_surf( path, SDL_SWSURFACE ), 32, 32,
+                                 load_surf( path3, SDL_SWSURFACE ), 20, 20,
                                  ID_SCEN_OK, 
                                  gui->label, 
                                  gui_render_file_name, gui_render_scen_info,
