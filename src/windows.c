@@ -941,7 +941,10 @@ SDlg *sdlg_create(
                    Label *label,
                    void (*lbox_cb)( void*, SDL_Surface* ),
                    void (*file_cb)( const char*, SDL_Surface* ),
-                   SDL_Surface *conf_frame, SDL_Surface *ctrl_frame,
+                   SDL_Surface *conf_frame,
+                   SDL_Surface *conf_buttons, int conf_button_w, int conf_button_h,
+                   SDL_Surface *ctrl_frame,
+                   SDL_Surface *ctrl_buttons, int ctrl_button_w, int ctrl_button_h,
                    SDL_Surface *surf, int x, int y )
 {
     int px, py;
@@ -957,8 +960,7 @@ SDlg *sdlg_create(
 
     /* group with human/cpu control button */
     if ( ( sdlg->config = group_create( conf_frame, alpha,
-		    	    	file_buttons,
-		    	    	file_button_w, file_button_h,
+		    conf_buttons, conf_button_w, conf_button_h,
 		    	    	5, ID_SCEN_OK, label,
 		    	    	surf, x + lbox_frame->w - 1, y + file_frame->h ) ) == 0 )
         goto failure;
@@ -981,8 +983,8 @@ SDlg *sdlg_create(
 
     /* group with settings and confirm buttons; id_conf is id of first button
      * in image conf_buttons */
-    if ( ( sdlg->ctrl = group_create( ctrl_frame, alpha, file_buttons,
-	    	    	file_button_w, file_button_h,
+    if ( ( sdlg->ctrl = group_create( ctrl_frame, alpha, ctrl_buttons,
+		    	    ctrl_button_w, ctrl_button_h,
 	    	    	2, ID_SCEN_OK, label, surf,
                         x + lbox_frame->w - 1, y + file_frame->h + conf_frame->h ) ) == 0 )
         goto failure;

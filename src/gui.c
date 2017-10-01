@@ -425,7 +425,9 @@ int gui_load( const char *dir )
                                  gui->label, 
                                  gui_render_file_name, gui_render_scen_info,
                                  gui_create_frame( 240, 40),
+                                 load_surf( path, SDL_SWSURFACE ), 32, 32,
                                  gui_create_frame( 240, 40),
+                                 load_surf( path, SDL_SWSURFACE ), 32, 32,
                                  sdl.screen, 0, 0 );
     sdlg_hide( gui->scen_dlg, 1 );
 
