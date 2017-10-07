@@ -23,6 +23,7 @@
 #include "unit.h"
 #include "file.h"
 #include "map.h"
+#include "strat_map.h"
 #include "list.h"
 #include "nation.h"
 #include "unit_lib.h"
@@ -67,6 +68,9 @@ extern VCond *vconds;
 extern int vcond_count;
 extern Config config;
 extern int camp_loaded;
+extern int mm_width;
+extern int mm_height;
+extern SDL_Surface *minimap;
 
 /*
 ====================================================================
@@ -267,6 +271,9 @@ int gui_load( const char *dir )
     if ( ( gui->qinfo2 = frame_create( gui_create_frame( 214, 60 ), 160, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
     frame_hide( gui->qinfo2, 1 );
+    /* minimap */
+    if ( ( gui->minimap = frame_create( gui_create_frame( 210, 210 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+        goto failure;
     /* full unit info */
     if ( ( gui->finfo = frame_create( gui_create_frame( 460, 280 ), 200, sdl.screen, 0, 0 ) ) == 0 )
         goto failure;
@@ -500,6 +507,7 @@ void gui_delete()
         frame_delete( &gui->unit_list );
         frame_delete( &gui->sinfo );
         frame_delete( &gui->panel );
+        frame_delete( &gui->minimap );
         group_delete( &gui->confirm );
         group_delete( &gui->unit_buttons );
         group_delete( &gui->split_menu );
@@ -538,7 +546,7 @@ void gui_adjust()
     /* info labels */
     cx = panel_x + (gui_panel_w - gui->label->frame->img->img->w)/2;
     label_move( gui->label, cx, label_top );
-    label_top += gui->label->frame->img->img->h + 5;
+    label_top += gui->label->frame->img->img->h;
     label_move( gui->label2, cx, label_top );
     /* edit */
     cx = panel_x + (gui_panel_w - gui->edit->label->frame->img->img->w)/2;
@@ -547,7 +555,7 @@ void gui_adjust()
     label_top += gui->label->frame->img->img->h + 5;
     cx = panel_x + (gui_panel_w - gui->unit_buttons->frame->img->img->w)/2;
     group_move(gui->unit_buttons, cx, label_top);
-    label_top += gui->unit_buttons->frame->img->img->h + 5;
+    label_top += gui->unit_buttons->frame->img->img->h;
     /* basic menu */
     cx = panel_x + (gui_panel_w - gui->base_menu->frame->img->img->w)/2;
     group_move(gui->base_menu, cx, label_top );
@@ -555,8 +563,12 @@ void gui_adjust()
     /* unit infos */
     cx = panel_x + (gui_panel_w - gui->qinfo1->img->img->w)/2;
     frame_move( gui->qinfo1, cx, label_top );
-    label_top += gui->qinfo1->img->img->h + 5;
+    label_top += gui->qinfo1->img->img->h;
     frame_move( gui->qinfo2, cx, label_top );
+    label_top += gui->qinfo2->img->img->h + 5;
+    /* minimap */
+    cx = panel_x + (gui_panel_w - gui->minimap->img->img->w)/2;
+    frame_move( gui->minimap, cx, label_top);
     /* main menu */
     cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
     group_move(gui->main_menu, cx, sdl.screen->h - gui->main_menu->frame->img->img->h - 10 );
@@ -609,6 +621,7 @@ void gui_get_bkgnds()
     label_get_bkgnd( gui->label2 );
     frame_get_bkgnd( gui->qinfo1 );
     frame_get_bkgnd( gui->qinfo2 );
+    frame_get_bkgnd( gui->minimap );
     frame_get_bkgnd( gui->finfo );
     frame_get_bkgnd( gui->unit_list );
     frame_get_bkgnd( gui->sinfo );
@@ -661,6 +674,7 @@ void gui_draw()
     label_draw( gui->label2 ); 
     frame_draw( gui->qinfo1 ); 
     frame_draw( gui->qinfo2 ); 
+    frame_draw( gui->minimap );
     frame_draw( gui->finfo ); 
     frame_draw( gui->unit_list ); 
     frame_draw( gui->sinfo ); 
@@ -2069,6 +2083,7 @@ void gui_panel_hide()
 	group_hide(gui->load_menu,1);
 	group_hide(gui->save_menu,1);
 	group_hide(gui->opt_menu,1);
+	frame_hide(gui->minimap,1);
 }
 void gui_panel_show()
 {
@@ -2080,4 +2095,19 @@ void gui_panel_show()
 	group_hide(gui->load_menu,1);
 	group_hide(gui->save_menu,1);
 	group_hide(gui->opt_menu,1);
+	frame_hide(gui->minimap,0);
+}
+
+void gui_update_minimap()
+{
+	int x = (gui->minimap->contents->w - mm_width) / 2;
+	int y = (gui->minimap->contents->h - mm_height) / 2;
+
+	minimap_render();
+	FULL_DEST(gui->minimap->contents);
+	fill_surf(0x0);
+	DEST(gui->minimap->contents,x,y,gui->minimap->contents->w,gui->minimap->contents->h);
+	FULL_SOURCE(minimap);
+	blit_surf();
+	frame_apply(gui->minimap);
 }

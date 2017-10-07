@@ -175,6 +175,9 @@ Uint32 set_pixel( SDL_Surface *surf, int x, int y, int pixel )
 {
     int pos = 0;
 
+    if (x < 0 || y < 0 || x >= surf->w || y >= surf->h)
+	    return pixel;
+
     pos = y * surf->pitch + x * surf->format->BytesPerPixel;
     memcpy( surf->pixels + pos, &pixel, surf->format->BytesPerPixel );
     return pixel;

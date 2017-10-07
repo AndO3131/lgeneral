@@ -1124,6 +1124,8 @@ static void engine_select_player( Player *player, int skip_unit_prep )
     list_clear( df_units );
     actions_clear();
     scroll_block = 0;
+    /* render minimap */
+    gui_update_minimap();
 }
 
 /*
@@ -3802,6 +3804,8 @@ static void engine_update( int ms )
                     phase = PHASE_END_MOVE;
                     break;
                 case PHASE_END_MOVE:
+                	/* update minimap */
+                	gui_update_minimap();
                     /* fade out sound */
 #ifdef WITH_SOUND         
                     audio_fade_out( 0, 500 ); /* move sound channel */
