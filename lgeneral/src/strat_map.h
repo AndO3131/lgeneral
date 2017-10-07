@@ -58,4 +58,8 @@ Blink the dots that show unmoved units.
 */
 void strat_map_blink();
 
+/** Render new minimap after any changes. */
+void minimap_render();
+
+
 #endif

@@ -148,6 +148,7 @@ typedef struct {
     Frame *sinfo; /* scenario information */
     Frame *unit_list;
     Frame *panel;
+    Frame *minimap;
     Group *unit_buttons; /* unit action buttons */
     Group *split_menu; /* menu of number of units to split up */
     Group *confirm; /* confirmation window */
@@ -508,5 +509,8 @@ Unit *gui_unit_list_unit_clicked(List * units,int cx,int cy);
 /** Show/hide GUI. Buttons are not checked */
 void gui_panel_hide();
 void gui_panel_show();
+
+/* Update(=render) minimap */
+void gui_update_minimap();
 
 #endif

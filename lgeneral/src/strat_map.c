@@ -47,6 +47,7 @@ extern Mask_Tile **mask;
 extern Map_Tile **map;
 extern int air_mode;
 extern Player *cur_player;
+extern int gui_panel_w;
 
 /*
 ====================================================================
@@ -73,11 +74,124 @@ static SDL_Surface *blink_dot = 0; /* white and black dot that blinks indicating
 static List *dots = 0; /* list of dot positions that need blinking */
 static int blink_on = 0; /* switch used for blinking */
 
+/** Minimap data */
+int mmtw, mmth;
+int mm_width, mm_height;
+SDL_Surface *minimap;
+SDL_Surface *mm_terrain;
+SDL_Surface *mm_fogtile;
+SDL_Surface *mm_unit_friend;
+SDL_Surface *mm_unit_foe;
+SDL_Surface *mm_objtile;
+int mm_friend_color = 0x0000ff; // not good to see: 8b8b8;
+int mm_foe_color = 0xff0000; // 0x8bb2a0; /* and all others */
+int mm_obj_color = 0xfffc00;
+
 /*
 ====================================================================
 LOCALS
 ====================================================================
 */
+
+/** Create a minimap as close as possible to wanted sized. */
+void minimap_create(int wanted_w, int wanted_h)
+{
+	int i, j, tx, ty, sx, sy;
+	Uint32 pixel;
+
+	mmtw = mmth = wanted_w / map_w;
+	mm_width = map_w * mmtw;
+	mm_height = map_h * mmth - mmth/2;
+	minimap = create_surf(mm_width, mm_height, SDL_SWSURFACE);
+	mm_terrain = create_surf(mm_width, mm_height, SDL_SWSURFACE);
+
+	for (j = 0; j < map_h; j++) {
+		for (i = 0; i < map_w; i++) {
+			SDL_Surface *tpic = terrain_types[map[i][j].terrain_id].images[0];
+			sx = i * mmtw;
+			sy = j * mmth;
+			if ((i & 1) == 0)
+				sy -= mmth/2;
+			for (ty = 0; ty < mmth; ty++)
+				for (tx = 0; tx < mmtw; tx++) {
+					pixel = get_pixel( tpic,
+							map[i][j].image_offset +
+								hex_w/4 + hex_w/2 * tx / mmtw,
+								hex_h/4 + hex_h/2 * ty / mmth );
+					set_pixel( mm_terrain, sx + tx, sy + ty, pixel);
+				}
+		}
+	}
+
+	mm_fogtile = create_surf(mmtw,mmth,SDL_SWSURFACE);
+	FULL_DEST(mm_fogtile);
+	fill_surf(0x020202);
+
+	mm_unit_friend = create_surf(mmtw,mmth,SDL_SWSURFACE);
+	FULL_DEST(mm_unit_friend);
+	fill_surf(mm_friend_color);
+
+	mm_unit_foe = create_surf(mmtw,mmth,SDL_SWSURFACE);
+	FULL_DEST(mm_unit_foe);
+	fill_surf(mm_foe_color);
+
+	mm_objtile = create_surf(mmtw+2,mmth+2,SDL_SWSURFACE);
+	FULL_DEST(mm_objtile);
+	fill_surf(mm_obj_color);
+}
+
+void minimap_delete()
+{
+	free_surf(&minimap);
+	free_surf(&mm_terrain);
+	free_surf(&mm_fogtile);
+	free_surf(&mm_unit_foe);
+	free_surf(&mm_unit_friend);
+	free_surf(&mm_objtile);
+}
+
+/** Render minimap from terrain and current map/unit state to minimap */
+void minimap_render()
+{
+	int sx,sy,i,j;
+
+	FULL_DEST(minimap);
+	FULL_SOURCE(mm_terrain);
+	blit_surf();
+
+	for (j = 0; j < map_h; j++)
+		for (i = 0; i < map_w; i++) {
+			sx = i * mmtw;
+			sy = j * mmth;
+			if ((i & 1) == 0)
+				sy -= mmth/2;
+			if (mask[i][j].fog) {
+				DEST(minimap,sx,sy,mm_fogtile->w,mm_fogtile->h);
+				FULL_SOURCE(mm_fogtile);
+				alpha_blit_surf(FOG_ALPHA);
+			} else if ( map[i][j].g_unit || map[i][j].a_unit ) {
+				SDL_Surface *surf = mm_unit_foe;
+				if (map[i][j].g_unit && player_is_ally(cur_player,map[i][j].g_unit->player))
+					surf = mm_unit_friend;
+				if (map[i][j].a_unit && player_is_ally(cur_player,map[i][j].a_unit->player))
+					surf = mm_unit_friend;
+				DEST(minimap,sx,sy,surf->w,surf->h);
+				FULL_SOURCE(surf);
+				alpha_blit_surf(200);
+			}
+			if (map[i][j].obj) {
+				SDL_Surface *surf = mm_unit_foe;
+				DEST(minimap,sx-1,sy-1,mm_objtile->w,mm_objtile->h);
+				FULL_SOURCE(mm_objtile);
+				alpha_blit_surf(200);
+				if (map[i][j].player && player_is_ally(cur_player,map[i][j].player))
+					surf = mm_unit_friend;
+				DEST(minimap,sx,sy,surf->w,surf->h);
+				FULL_SOURCE(surf);
+				alpha_blit_surf(200);
+			}
+		}
+}
 
 /*
 ====================================================================
@@ -209,6 +323,9 @@ void strat_map_create()
     set_pixel( blink_dot, 0, 1, SDL_MapRGB( blink_dot->format, 16, 16, 16 ) );
     /* position list */
     dots = list_create( LIST_AUTO_DELETE, LIST_NO_CALLBACK );
+
+    /* create our smaller brother */
+    minimap_create(gui_panel_w - 10, gui_panel_w - 1);
 }
 
 /*
@@ -235,6 +352,8 @@ void strat_map_delete()
         list_delete( dots );
         dots = 0;
     }
+
+    minimap_delete();
 }
 
 /*
@@ -279,6 +398,11 @@ void strat_map_update_terrain_layer()
                         map_tile( i, j )->strat_image_offset, 0 );
                 blit_surf();
             }
+    /* TEST */
+    minimap_render();
+    DEST(strat_map,0,0,minimap->w,minimap->h);
+    SOURCE(minimap,0,0);
+    blit_surf();
 }
 typedef struct {
     int x, y;
@@ -444,3 +568,4 @@ void strat_map_blink()
     }
     add_refresh_region( screen_x, screen_y, width, height );
 }
+
