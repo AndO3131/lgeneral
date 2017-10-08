@@ -398,11 +398,6 @@ void strat_map_update_terrain_layer()
                         map_tile( i, j )->strat_image_offset, 0 );
                 blit_surf();
             }
-    /* TEST */
-    minimap_render();
-    DEST(strat_map,0,0,minimap->w,minimap->h);
-    SOURCE(minimap,0,0);
-    blit_surf();
 }
 typedef struct {
     int x, y;
