@@ -2650,7 +2650,9 @@ static void engine_check_events(int *reinit)
                     }
                 }
             }
-            gui_handle_motion( cx, cy );
+            if (!gui_handle_motion( cx, cy ))
+        	    if (mmview_handle_motion(gui->minimap,cx,cy,&nx,&ny))
+        		    engine_goto_xy(nx,ny);
 	    /* if gui->label is hidden we are on a gui window and there is no
 	     * tooltip; in case of purchase dialogue unhide it to show prestige
 	     * info */
@@ -2665,7 +2667,7 @@ static void engine_check_events(int *reinit)
 #ifdef WITH_SOUND
                 wav_play( gui->wav_click );
 #endif                
-            } else if (mmview_clicked(gui->minimap, button, cx, cy, &nx, &ny)) {
+            } else if (mmview_handle_click(gui->minimap, button, cx, cy, &nx, &ny)) {
         	    engine_goto_xy(nx,ny);
             } else {
                 switch ( status ) {

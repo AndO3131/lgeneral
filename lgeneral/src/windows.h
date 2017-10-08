@@ -567,6 +567,7 @@ void mmview_move(MMView *mmv, int x, int y);
 #define mmview_draw(__MMV) frame_draw((__MMV)->minimap_frame)
 #define mmview_hide(__MMV,__ON) frame_hide((__MMV)->minimap_frame,__ON)
 void mmview_render(MMView *mmv, int full);
-int mmview_clicked( MMView *mmv, int button_id, int x, int y, int *newx, int *newy );
+int mmview_handle_click( MMView *mmv, int button_id, int x, int y, int *newx, int *newy );
+int mmview_handle_motion( MMView *mmv, int x, int y, int *newx, int *newy );
 
 #endif
