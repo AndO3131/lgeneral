@@ -549,4 +549,24 @@ int select_dlg_handle_button( SelectDlg *sdlg, int bid, int cx, int cy,
 #define select_dlg_get_selected_item_index( sdlg ) \
 	lbox_get_selected_item_index( sdlg->select_lbox )
 
+/** Minimap view */
+typedef struct {
+	Frame *minimap_frame;
+	SDL_Surface *viewport_box;
+	int w,h; /* of minimap frame, actual size is extern mm_width/height */
+	int vsx, vsy; /* start position in frame */
+	int vx, vy, vw, vh; /* of viewport in minimap */
+} MMView;
+
+MMView *mmview_create(int w, int h);
+void mmview_delete(MMView **mmv);
+void mmview_resize_viewport(MMView *mmv);
+void mmview_adjust_viewport(MMView *mmv);
+void mmview_move(MMView *mmv, int x, int y);
+#define mmview_get_bkgnd(__MMV) frame_get_bkgnd((__MMV)->minimap_frame)
+#define mmview_draw(__MMV) frame_draw((__MMV)->minimap_frame)
+#define mmview_hide(__MMV,__ON) frame_hide((__MMV)->minimap_frame,__ON)
+void mmview_render(MMView *mmv, int full);
+int mmview_clicked( MMView *mmv, int button_id, int x, int y, int *newx, int *newy );
+
 #endif

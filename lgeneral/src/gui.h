@@ -148,7 +148,7 @@ typedef struct {
     Frame *sinfo; /* scenario information */
     Frame *unit_list;
     Frame *panel;
-    Frame *minimap;
+    MMView *minimap;
     Group *unit_buttons; /* unit action buttons */
     Group *split_menu; /* menu of number of units to split up */
     Group *confirm; /* confirmation window */
@@ -185,6 +185,7 @@ struct MessagePane;
 Create the gui and use the graphics in gfx/themes/path
 ====================================================================
 */
+SDL_Surface *gui_create_frame( int w, int h );
 int gui_load( const char *path );
 void gui_delete();
 
@@ -512,6 +513,7 @@ void gui_panel_show();
 void gui_resize_panel();
 
 /* Update(=render) minimap */
-void gui_update_minimap();
+void gui_init_minimap();
+void gui_update_minimap(int full);
 
 #endif

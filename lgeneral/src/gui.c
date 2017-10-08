@@ -272,7 +272,7 @@ int gui_load( const char *dir )
         goto failure;
     frame_hide( gui->qinfo2, 1 );
     /* minimap */
-    if ( ( gui->minimap = frame_create( gui_create_frame( 210, 210 ), 160, sdl.screen, 0, 0 ) ) == 0 )
+    if ( ( gui->minimap = mmview_create( 210, 210 )) == 0 )
         goto failure;
     /* full unit info */
     if ( ( gui->finfo = frame_create( gui_create_frame( 460, 280 ), 200, sdl.screen, 0, 0 ) ) == 0 )
@@ -507,7 +507,7 @@ void gui_delete()
         frame_delete( &gui->unit_list );
         frame_delete( &gui->sinfo );
         frame_delete( &gui->panel );
-        frame_delete( &gui->minimap );
+        mmview_delete( &gui->minimap );
         group_delete( &gui->confirm );
         group_delete( &gui->unit_buttons );
         group_delete( &gui->split_menu );
@@ -583,8 +583,8 @@ void gui_adjust()
 		cy += gui->qinfo2->img->img->h + 5;
 	}
 	/* minimap */
-	cx = panel_x + (gui_panel_w - gui->minimap->img->img->w)/2;
-	frame_move( gui->minimap, cx, cy);
+	cx = panel_x + (gui_panel_w - gui->minimap->w)/2;
+	mmview_move( gui->minimap, cx, cy);
 	/* main menu */
 	cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
 	group_move(gui->main_menu, cx, sdl.screen->h - gui->main_menu->frame->img->img->h - 10 );
@@ -637,7 +637,7 @@ void gui_get_bkgnds()
     label_get_bkgnd( gui->label2 );
     frame_get_bkgnd( gui->qinfo1 );
     frame_get_bkgnd( gui->qinfo2 );
-    frame_get_bkgnd( gui->minimap );
+    mmview_get_bkgnd( gui->minimap );
     frame_get_bkgnd( gui->finfo );
     frame_get_bkgnd( gui->unit_list );
     frame_get_bkgnd( gui->sinfo );
@@ -692,7 +692,7 @@ void gui_draw()
     label_draw( gui->label2 ); 
     frame_draw( gui->qinfo1 ); 
     frame_draw( gui->qinfo2 ); 
-    frame_draw( gui->minimap );
+    mmview_draw( gui->minimap );
     frame_draw( gui->finfo ); 
     frame_draw( gui->unit_list ); 
     frame_draw( gui->sinfo ); 
@@ -2101,7 +2101,7 @@ void gui_panel_hide()
 	group_hide(gui->load_menu,1);
 	group_hide(gui->save_menu,1);
 	group_hide(gui->opt_menu,1);
-	frame_hide(gui->minimap,1);
+	mmview_hide(gui->minimap,1);
 }
 void gui_panel_show()
 {
@@ -2113,7 +2113,7 @@ void gui_panel_show()
 	group_hide(gui->load_menu,1);
 	group_hide(gui->save_menu,1);
 	group_hide(gui->opt_menu,1);
-	frame_hide(gui->minimap,0);
+	mmview_hide(gui->minimap,0);
 }
 void gui_resize_panel()
 {
@@ -2121,16 +2121,17 @@ void gui_resize_panel()
 	gui->panel = frame_create(gui_create_frame( gui_panel_w, sdl.screen->h ), 160, sdl.screen, 0, 0 );
 }
 
-void gui_update_minimap()
+/** Init first time after map was loaded */
+void gui_init_minimap()
 {
-	int x = (gui->minimap->contents->w - mm_width) / 2;
-	int y = (gui->minimap->contents->h - mm_height) / 2;
+	mmview_resize_viewport(gui->minimap);
+	mmview_render(gui->minimap,1);
+}
 
-	minimap_render();
-	FULL_DEST(gui->minimap->contents);
-	fill_surf(0x0);
-	DEST(gui->minimap->contents,x,y,gui->minimap->contents->w,gui->minimap->contents->h);
-	FULL_SOURCE(minimap);
-	blit_surf();
-	frame_apply(gui->minimap);
+/** Rerender actual minimap if "full" otherwise just update box position and
+ * render only view */
+void gui_update_minimap(int full)
+{
+	mmview_adjust_viewport(gui->minimap);
+	mmview_render(gui->minimap,full);
 }
