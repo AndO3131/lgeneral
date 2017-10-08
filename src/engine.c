@@ -3386,6 +3386,7 @@ static void engine_handle_next_action( int *reinit )
                                         (flags&SDL_FULLSCREEN)?tr("Fullscreen"):
                                             tr("Window"));
                 /* adjust windows */
+                gui_resize_panel();
                 gui_adjust();
                 if ( setup.type != SETUP_RUN_TITLE ) {
                 	engine_update_mapview_size();

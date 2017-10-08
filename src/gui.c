@@ -538,68 +538,84 @@ measurements.
 */
 void gui_adjust()
 {
-    int label_top = 10;
-    int panel_x = sdl.screen->w - gui_panel_w;
-    int cx;
-    /* panel */
-    frame_move(gui->panel, sdl.screen->w - gui_panel_w, 0);
-    /* info labels */
-    cx = panel_x + (gui_panel_w - gui->label->frame->img->img->w)/2;
-    label_move( gui->label, cx, label_top );
-    label_top += gui->label->frame->img->img->h;
-    label_move( gui->label2, cx, label_top );
-    /* edit */
-    cx = panel_x + (gui_panel_w - gui->edit->label->frame->img->img->w)/2;
-    edit_move( gui->edit, cx, label_top );
-    /* unit menu */
-    label_top += gui->label->frame->img->img->h + 5;
-    cx = panel_x + (gui_panel_w - gui->unit_buttons->frame->img->img->w)/2;
-    group_move(gui->unit_buttons, cx, label_top);
-    label_top += gui->unit_buttons->frame->img->img->h;
-    /* basic menu */
-    cx = panel_x + (gui_panel_w - gui->base_menu->frame->img->img->w)/2;
-    group_move(gui->base_menu, cx, label_top );
-    label_top += gui->base_menu->frame->img->img->h + 10;
-    /* unit infos */
-    cx = panel_x + (gui_panel_w - gui->qinfo1->img->img->w)/2;
-    frame_move( gui->qinfo1, cx, label_top );
-    label_top += gui->qinfo1->img->img->h;
-    frame_move( gui->qinfo2, cx, label_top );
-    label_top += gui->qinfo2->img->img->h + 5;
-    /* minimap */
-    cx = panel_x + (gui_panel_w - gui->minimap->img->img->w)/2;
-    frame_move( gui->minimap, cx, label_top);
-    /* main menu */
-    cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
-    group_move(gui->main_menu, cx, sdl.screen->h - gui->main_menu->frame->img->img->h - 10 );
-    /* full info */
-    frame_move( gui->finfo, ( sdl.screen->w - gui_panel_w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
-    frame_move( gui->unit_list, ( sdl.screen->w - gui_panel_w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
-    /* scenario info */
-    frame_move( gui->sinfo, ( sdl.screen->w - gui_panel_w - gui->sinfo->img->img->w ) >> 1, ( sdl.screen->h - gui->sinfo->img->img->h ) >> 1 );
-    /* confirm window */
-    group_move( gui->confirm, ( sdl.screen->w - gui_panel_w - gui->confirm->frame->img->img->w ) >> 1, ( sdl.screen->h - gui->confirm->frame->img->img->h ) >> 1 );
-    /* deploy window */
-    group_move( gui->deploy_window, ( sdl.screen->w - gui_panel_w - gui->deploy_window->frame->img->img->w ),
-                ( sdl.screen->h - gui->deploy_window->frame->img->img->h ) / 2 );
-    /* select dialogs */
-    select_dlg_move( gui->vmode_dlg, 
-                    (sdl.screen->w - gui_panel_w - select_dlg_get_width(gui->vmode_dlg)) /2,
-                    (sdl.screen->h - select_dlg_get_height(gui->vmode_dlg)) /2);
-    /* scenario dialogue */
-    sdlg_move( gui->scen_dlg, ( sdl.screen->w - gui_panel_w -
-		    	    	    	    	    ( gui->scen_dlg->fdlg->group->frame->img->img->w  +
-                                                  gui->scen_dlg->fdlg->lbox->group->frame->img->img->w ) ) / 2,
-               ( sdl.screen->h - gui->scen_dlg->fdlg->lbox->group->frame->img->img->h ) / 2 );
-    /* campaign dialogue */
-    fdlg_move( gui->camp_dlg, ( sdl.screen->w - gui_panel_w -
-		    	    	    	    	    ( gui->camp_dlg->group->frame->img->img->w  +
-                                                  gui->camp_dlg->lbox->group->frame->img->img->w ) ) / 2,
-               ( sdl.screen->h - gui->camp_dlg->group->frame->img->img->h ) / 2 );
-    /* purchase dialogue */
-    purchase_dlg_move(gui->purchase_dlg, 
-		(sdl.screen->w - gui_panel_w - purchase_dlg_get_width(gui->purchase_dlg)) /2,
-		(sdl.screen->h - purchase_dlg_get_height(gui->purchase_dlg)) /2);
+	int sw = sdl.screen->w, sh = sdl.screen->h;
+	int cx, cy = 10;
+	int panel_x = sdl.screen->w - gui_panel_w;
+
+	/* panel */
+	frame_move(gui->panel, sw - gui_panel_w, 0);
+	/* info labels + edit */
+	if (sh <= 600) {
+		int label_top = 10;
+		cx = (sw - gui_panel_w - gui->label->frame->img->img->w) / 2;
+		label_move( gui->label, cx, label_top );
+		label_top += gui->label->frame->img->img->h;
+		label_move( gui->label2, cx, label_top );
+		cx = ( sw - gui_panel_w - gui->edit->label->frame->img->img->w)/2;
+		edit_move( gui->edit, cx, label_top );
+	} else {
+		cx = panel_x + (gui_panel_w - gui->label->frame->img->img->w)/2;
+		label_move( gui->label, cx, cy );
+		cy += gui->label->frame->img->img->h;
+		label_move( gui->label2, cx, cy );
+		cx = panel_x + (gui_panel_w - gui->edit->label->frame->img->img->w)/2;
+		edit_move( gui->edit, cx, cy );
+		cy += gui->label->frame->img->img->h + 5;
+	}
+	/* unit menu */
+	cx = panel_x + (gui_panel_w - gui->unit_buttons->frame->img->img->w)/2;
+	group_move(gui->unit_buttons, cx, cy);
+	cy += gui->unit_buttons->frame->img->img->h;
+	/* basic menu */
+	cx = panel_x + (gui_panel_w - gui->base_menu->frame->img->img->w)/2;
+	group_move(gui->base_menu, cx, cy );
+	cy += gui->base_menu->frame->img->img->h + 10;
+	/* unit infos */
+	if (sh <= 600) {
+		int dist = 10;
+		frame_move( gui->qinfo1, dist, sh - dist - gui->qinfo1->img->img->h );
+		frame_move( gui->qinfo2, dist, sh - dist - 2*gui->qinfo1->img->img->h );
+	} else {
+		cx = panel_x + (gui_panel_w - gui->qinfo1->img->img->w)/2;
+		frame_move( gui->qinfo1, cx, cy );
+		cy += gui->qinfo1->img->img->h;
+		frame_move( gui->qinfo2, cx, cy );
+		cy += gui->qinfo2->img->img->h + 5;
+	}
+	/* minimap */
+	cx = panel_x + (gui_panel_w - gui->minimap->img->img->w)/2;
+	frame_move( gui->minimap, cx, cy);
+	/* main menu */
+	cx = panel_x + (gui_panel_w - gui->main_menu->frame->img->img->w)/2;
+	group_move(gui->main_menu, cx, sdl.screen->h - gui->main_menu->frame->img->img->h - 10 );
+	/* full info */
+	frame_move( gui->finfo, ( sdl.screen->w - gui_panel_w - gui->finfo->img->img->w ) >> 1, ( sdl.screen->h - gui->finfo->img->img->h ) >> 1 );
+	frame_move( gui->unit_list, ( sdl.screen->w - gui_panel_w - gui->unit_list->img->img->w ) >> 1, ( sdl.screen->h - gui->unit_list->img->img->h ) >> 1 );
+	/* scenario info */
+	frame_move( gui->sinfo, ( sdl.screen->w - gui_panel_w - gui->sinfo->img->img->w ) >> 1, ( sdl.screen->h - gui->sinfo->img->img->h ) >> 1 );
+	/* confirm window */
+	group_move( gui->confirm, ( sdl.screen->w - gui_panel_w - gui->confirm->frame->img->img->w ) >> 1, ( sdl.screen->h - gui->confirm->frame->img->img->h ) >> 1 );
+	/* deploy window */
+	group_move( gui->deploy_window, ( sdl.screen->w - gui_panel_w - gui->deploy_window->frame->img->img->w ),
+			( sdl.screen->h - gui->deploy_window->frame->img->img->h ) / 2 );
+	/* select dialogs */
+	select_dlg_move( gui->vmode_dlg,
+			(sdl.screen->w - gui_panel_w - select_dlg_get_width(gui->vmode_dlg)) /2,
+			(sdl.screen->h - select_dlg_get_height(gui->vmode_dlg)) /2);
+	/* scenario dialogue */
+	sdlg_move( gui->scen_dlg, ( sdl.screen->w - gui_panel_w -
+			( gui->scen_dlg->fdlg->group->frame->img->img->w  +
+					gui->scen_dlg->fdlg->lbox->group->frame->img->img->w ) ) / 2,
+			( sdl.screen->h - gui->scen_dlg->fdlg->lbox->group->frame->img->img->h ) / 2 );
+	/* campaign dialogue */
+	fdlg_move( gui->camp_dlg, ( sdl.screen->w - gui_panel_w -
+			( gui->camp_dlg->group->frame->img->img->w  +
+					gui->camp_dlg->lbox->group->frame->img->img->w ) ) / 2,
+			( sdl.screen->h - gui->camp_dlg->group->frame->img->img->h ) / 2 );
+	/* purchase dialogue */
+	purchase_dlg_move(gui->purchase_dlg,
+			(sdl.screen->w - gui_panel_w - purchase_dlg_get_width(gui->purchase_dlg)) /2,
+			(sdl.screen->h - purchase_dlg_get_height(gui->purchase_dlg)) /2);
 }
 
 /*
@@ -644,21 +660,23 @@ void gui_get_bkgnds()
 void gui_draw_bkgnds()
 {
 	frame_draw_bkgnd( gui->panel ); // includes some windows
-    //label_draw_bkgnd( gui->label );
-    //label_draw_bkgnd( gui->label2 );
-    //frame_draw_bkgnd( gui->qinfo1 );
-    //frame_draw_bkgnd( gui->qinfo2 );
+	if (sdl.screen->h <= 600) {
+		label_draw_bkgnd( gui->label );
+		label_draw_bkgnd( gui->label2 );
+		frame_draw_bkgnd( gui->qinfo1 );
+		frame_draw_bkgnd( gui->qinfo2 );
+		edit_draw_bkgnd( gui->edit );
+	}
     frame_draw_bkgnd( gui->finfo ); 
     frame_draw_bkgnd( gui->unit_list ); 
     frame_draw_bkgnd( gui->sinfo );
-    group_draw_bkgnd( gui->base_menu );
-    group_draw_bkgnd( gui->main_menu );
+    //group_draw_bkgnd( gui->base_menu );
+    //group_draw_bkgnd( gui->main_menu );
     group_draw_bkgnd( gui->load_menu );
     group_draw_bkgnd( gui->save_menu );
     group_draw_bkgnd( gui->opt_menu );
     //group_draw_bkgnd( gui->unit_buttons);
-    //group_draw_bkgnd( gui->split_menu );
-    //edit_draw_bkgnd( gui->edit );
+    group_draw_bkgnd( gui->split_menu );
     group_draw_bkgnd( gui->confirm );
     group_draw_bkgnd( gui->deploy_window );
     select_dlg_draw_bkgnd( gui->vmode_dlg );
@@ -2096,6 +2114,11 @@ void gui_panel_show()
 	group_hide(gui->save_menu,1);
 	group_hide(gui->opt_menu,1);
 	frame_hide(gui->minimap,0);
+}
+void gui_resize_panel()
+{
+	frame_delete(&gui->panel);
+	gui->panel = frame_create(gui_create_frame( gui_panel_w, sdl.screen->h ), 160, sdl.screen, 0, 0 );
 }
 
 void gui_update_minimap()
