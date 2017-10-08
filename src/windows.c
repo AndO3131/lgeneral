@@ -1359,8 +1359,24 @@ void mmview_render(MMView *mmv, int full)
 	frame_apply(mmf);
 }
 
+static int mmview_has_focus(MMView *mmv, int x, int y)
+{
+	int cx = x - mmv->minimap_frame->img->bkgnd->surf_rect.x - mmv->vsx;
+	int cy = y - mmv->minimap_frame->img->bkgnd->surf_rect.y - mmv->vsy;
+
+	if ( mmv->minimap_frame->img->bkgnd->hide )
+		return 0;
+	if ( cx < 0 || cy < 0)
+		return 0;
+	if ( cx >= minimap->w )
+		return 0;
+	if ( cy >= minimap->h )
+		return 0;
+	return 1;
+}
+
 /** Check if clicked on minimap and translate position to new map coords */
-int mmview_clicked( MMView *mmv, int button_id, int x, int y, int *newx, int *newy )
+int mmview_handle_click( MMView *mmv, int button_id, int x, int y, int *newx, int *newy )
 {
 	int cx = x - mmv->minimap_frame->img->bkgnd->surf_rect.x - mmv->vsx;
 	int cy = y - mmv->minimap_frame->img->bkgnd->surf_rect.y - mmv->vsy;
@@ -1369,13 +1385,23 @@ int mmview_clicked( MMView *mmv, int button_id, int x, int y, int *newx, int *ne
 		return 0;
 	if ( button_id != BUTTON_LEFT )
 		return 0;
-	if ( mmv->minimap_frame->img->bkgnd->hide )
+	if (!mmview_has_focus(mmv,x,y))
 		return 0;
-	if ( cx < 0 || cy < 0)
+	*newx = cx / mmtw - map_sw/2;
+	*newy = cy / mmth - map_sh/2;
+	return 1;
+}
+
+int mmview_handle_motion( MMView *mmv, int x, int y, int *newx, int *newy )
+{
+	int cx = x - mmv->minimap_frame->img->bkgnd->surf_rect.x - mmv->vsx;
+	int cy = y - mmv->minimap_frame->img->bkgnd->surf_rect.y - mmv->vsy;
+
+	if (!minimap)
 		return 0;
-	if ( cx >= minimap->w )
+	if (!event_check_button(BUTTON_LEFT))
 		return 0;
-	if ( cy >= minimap->h )
+	if (!mmview_has_focus(mmv,x,y))
 		return 0;
 	*newx = cx / mmtw - map_sw/2;
 	*newy = cy / mmth - map_sh/2;
