@@ -1125,7 +1125,7 @@ static void engine_select_player( Player *player, int skip_unit_prep )
     actions_clear();
     scroll_block = 0;
     /* render minimap */
-    gui_update_minimap();
+    gui_update_minimap(1);
 }
 
 /*
@@ -1461,6 +1461,7 @@ static void engine_goto_xy( int x, int y )
     if ( x != map_x || y != map_y ) {
         map_x = x; map_y = y;
         draw_map = 1;
+        gui_update_minimap(0);
     }
 }
 
@@ -2615,6 +2616,7 @@ static void engine_check_events(int *reinit)
     Unit *unit;
     int cx, cy, button = 0;
     int mx, my, keypressed = 0;
+    int nx, ny;
     SDL_PumpEvents(); /* gather events in the queue */
     if ( sdl_quit ) term_game = 1; /* end game by window manager */
     if ( status == STATUS_MOVE || status == STATUS_ATTACK || status == STATUS_STRAT_ATTACK )
@@ -2663,8 +2665,9 @@ static void engine_check_events(int *reinit)
 #ifdef WITH_SOUND
                 wav_play( gui->wav_click );
 #endif                
-            }
-            else {
+            } else if (mmview_clicked(gui->minimap, button, cx, cy, &nx, &ny)) {
+        	    engine_goto_xy(nx,ny);
+            } else {
                 switch ( status ) {
                     case STATUS_TITLE:
                         /* title menu
@@ -2711,6 +2714,7 @@ static void engine_check_events(int *reinit)
                                 if ( button == BUTTON_LEFT )
                                     engine_focus( mx, my, 0 );
                                 engine_set_status( STATUS_NONE );
+                                gui_update_minimap(0);
                                 gui_panel_show();
                                 old_mx = old_my = -1;
                                 /* before updating the map, clear the screen */
@@ -3390,7 +3394,7 @@ static void engine_handle_next_action( int *reinit )
                 gui_adjust();
                 if ( setup.type != SETUP_RUN_TITLE ) {
                 	engine_update_mapview_size();
-                    /* reset map pos if nescessary */
+                    /* reset map pos if necessary */
                     if ( map_x + map_sw >= map_w )
                         map_x = map_w - map_sw;
                     if ( map_y + map_sh >= map_h )
@@ -3400,6 +3404,7 @@ static void engine_handle_next_action( int *reinit )
                     /* recreate strategic map */
                     strat_map_delete();
                     strat_map_create();
+                    gui_init_minimap();
                     /* recreate screen buffer */
                     free_surf( &sc_buffer );
                     sc_buffer = create_surf( sdl.screen->w, sdl.screen->h, SDL_SWSURFACE );
@@ -3806,7 +3811,7 @@ static void engine_update( int ms )
                     break;
                 case PHASE_END_MOVE:
                 	/* update minimap */
-                	gui_update_minimap();
+                	gui_update_minimap(1);
                     /* fade out sound */
 #ifdef WITH_SOUND         
                     audio_fade_out( 0, 500 ); /* move sound channel */
@@ -4496,6 +4501,7 @@ int engine_init()
     left_deploy_units = list_create( LIST_NO_AUTO_DELETE, LIST_NO_CALLBACK );
     /* build strategic map */
     strat_map_create();
+    gui_init_minimap();
     /* clear status */
     status = STATUS_NONE;
     /* weather */

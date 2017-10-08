@@ -24,6 +24,7 @@
 #include "purchase_dlg.h"
 #include "date.h"
 #include "scenario.h"
+#include "strat_map.h"
 #include "gui.h"
 
 /*
@@ -37,6 +38,9 @@ extern int old_mx, old_my;
 extern Config config;
 extern GUI *gui;
 extern Setup setup;            /* engine setup with scenario information */
+extern int mm_width, mm_height;
+extern int mmtw, mmth;
+extern SDL_Surface *minimap;
 
 /*
 ====================================================================
@@ -1253,4 +1257,127 @@ int select_dlg_handle_button( SelectDlg *sdlg, int bid, int cx, int cy,
 	if (lbox_handle_button(sdlg->select_lbox,bid,cx,cy,pbtn,&item))
 		return 0; /* internal up/down buttons */
 	return 0;
+}
+
+/** Minimap view */
+extern int map_x, map_y;              /* current position in map */
+extern int map_sw, map_sh;            /* number of tiles drawn to screen */
+extern int map_w, map_h;
+
+MMView *mmview_create(int w, int h)
+{
+	MMView *mmv = calloc(1, sizeof(MMView));
+	if (mmv == 0)
+		fprintf(stderr,"mmview_create: Out of memory\n");
+	mmv->w = w;
+	mmv->h = h;
+	mmv->minimap_frame = frame_create( gui_create_frame( w, h ), 160, sdl.screen, 0, 0 );
+	if (mmv->minimap_frame == 0)
+		fprintf(stderr,"mmview_create: Out of memory\n");
+	/* viewport can only be created after minimap, so not yet */
+	return mmv;
+}
+
+void mmview_delete(MMView **mmv)
+{
+	if (*mmv) {
+		frame_delete(&(*mmv)->minimap_frame);
+		free_surf(&(*mmv)->viewport_box);
+		free(*mmv);
+		*mmv = 0;
+	}
+}
+
+/** Recalc size of viewport and recreate box image. */
+void mmview_resize_viewport(MMView *mmv)
+{
+	if (!minimap)
+		return;
+
+	mmv->vw = map_sw * mmtw;
+	mmv->vh = map_sh * mmth;
+	mmv->vsx = (mmv->w - minimap->w)/2;
+	mmv->vsy = (mmv->h - minimap->h)/2;
+	free_surf(&mmv->viewport_box);
+	mmv->viewport_box = create_surf(mmv->vw,mmv->vh,SDL_SWSURFACE);
+	FULL_DEST(mmv->viewport_box);
+	fill_surf(0xffffff);
+	DEST(mmv->viewport_box,1,1,mmv->vw-2,mmv->vh-2);
+	fill_surf(0x0);
+	mmview_adjust_viewport(mmv);
+}
+
+void mmview_adjust_viewport(MMView *mmv)
+{
+	if (!minimap)
+		return;
+
+	//printf("%d,%d,%d,%d\n",map_x,map_y,map_sw,map_sh);
+	mmv->vx = map_x * mmtw;
+	mmv->vy = map_y * mmth;
+	//printf("%d,%d,%d,%d\n",mmv->vx,mmv->vy,mmv->vw,mmv->vh);
+	if (mmv->vx < 0)
+		mmv->vx = 0;
+	if (mmv->vy < 0)
+		mmv->vy = 0;
+	if (mmv->vx + mmv->vw > mm_width)
+		mmv->vx = mm_width - mmv->vw;
+	if (mmv->vy + mmv->vh > mm_height)
+		mmv->vy = mm_height - mmv->vh;
+}
+
+void mmview_move(MMView *mmv, int x, int y)
+{
+	frame_move(mmv->minimap_frame,x,y);
+}
+
+void mmview_render(MMView *mmv, int full)
+{
+	Frame *mmf = mmv->minimap_frame;
+	int x = mmv->vsx;
+	int y = mmv->vsy;
+
+	if (full) {
+		minimap_render();
+		FULL_DEST(mmf->contents);
+		fill_surf(0x0);
+	}
+
+	if (!minimap)
+		return;
+
+	DEST(mmf->contents,x,y,mm_width,mm_height);
+	FULL_SOURCE(minimap);
+	blit_surf();
+
+	if (mmv->viewport_box) {
+		DEST(mmf->contents,x + mmv->vx, y + mmv->vy,
+				mmv->viewport_box->w,mmv->viewport_box->h);
+		FULL_SOURCE(mmv->viewport_box);
+		alpha_blit_surf(200);
+	}
+	frame_apply(mmf);
+}
+
+/** Check if clicked on minimap and translate position to new map coords */
+int mmview_clicked( MMView *mmv, int button_id, int x, int y, int *newx, int *newy )
+{
+	int cx = x - mmv->minimap_frame->img->bkgnd->surf_rect.x - mmv->vsx;
+	int cy = y - mmv->minimap_frame->img->bkgnd->surf_rect.y - mmv->vsy;
+
+	if (!minimap)
+		return 0;
+	if ( button_id != BUTTON_LEFT )
+		return 0;
+	if ( mmv->minimap_frame->img->bkgnd->hide )
+		return 0;
+	if ( cx < 0 || cy < 0)
+		return 0;
+	if ( cx >= minimap->w )
+		return 0;
+	if ( cy >= minimap->h )
+		return 0;
+	*newx = cx / mmtw - map_sw/2;
+	*newy = cy / mmth - map_sh/2;
+	return 1;
 }
