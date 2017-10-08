@@ -99,7 +99,12 @@ void minimap_create(int wanted_w, int wanted_h)
 	int i, j, tx, ty, sx, sy;
 	Uint32 pixel;
 
-	mmtw = mmth = wanted_w / map_w;
+	mmtw = wanted_w / map_w;
+	mmth = wanted_h / map_h;
+	if (mmth < mmtw)
+		mmtw = mmth;
+	else
+		mmth = mmtw;
 	mm_width = map_w * mmtw;
 	mm_height = map_h * mmth - mmth/2;
 	minimap = create_surf(mm_width, mm_height, SDL_SWSURFACE);
