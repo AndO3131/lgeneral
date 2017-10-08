@@ -509,6 +509,7 @@ Unit *gui_unit_list_unit_clicked(List * units,int cx,int cy);
 /** Show/hide GUI. Buttons are not checked */
 void gui_panel_hide();
 void gui_panel_show();
+void gui_resize_panel();
 
 /* Update(=render) minimap */
 void gui_update_minimap();
