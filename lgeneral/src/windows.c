@@ -1337,14 +1337,14 @@ void mmview_render(MMView *mmv, int full)
 	int x = mmv->vsx;
 	int y = mmv->vsy;
 
+	if (!minimap)
+		return;
+
 	if (full) {
 		minimap_render();
 		FULL_DEST(mmf->contents);
 		fill_surf(0x0);
 	}
-
-	if (!minimap)
-		return;
 
 	DEST(mmf->contents,x,y,mm_width,mm_height);
 	FULL_SOURCE(minimap);
