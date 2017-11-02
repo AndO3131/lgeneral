@@ -4,7 +4,7 @@ list.c misc.c parser.c lgc-pg.1
 lgc_pg_CFLAGS = @SDL_CFLAGS@
 LIBS = $(top_builddir)/util/libutil.a @SDL_LIBS@
 DEFS = @DEFS@ @inst_flag@
-INCLUDES = -I$(top_srcdir)
+AM_CPPFLAGS = -I$(top_srcdir)
 
 shptool_SOURCES = shptool.c misc.c shp.c
 shptool_CFLAGS = -DSHPTOOL @SDL_CFLAGS@

@@ -2,7 +2,7 @@ DEFS = @DEFS@ @sound_flag@ @dl_flag@ @inst_flag@
 
 bin_PROGRAMS = lgeneral
 
-INCLUDES = -I$(top_srcdir)/util $(INTLINCLUDES)
+AM_CPPFLAGS = -I$(top_srcdir)/util $(INTLINCLUDES)
 lgeneral_SOURCES = main.c \
 config.c date.c \
 file.c map.c nation.c \

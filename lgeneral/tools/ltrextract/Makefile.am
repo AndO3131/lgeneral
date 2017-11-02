@@ -1,5 +1,6 @@
 LGENERAL_PATH = $(top_srcdir)/src
 INTL_PATH = $(top_srcdir)/intl
+AUTOMAKE_OPTIONS = subdir-objects
 
 bin_PROGRAMS = ltrextract
 

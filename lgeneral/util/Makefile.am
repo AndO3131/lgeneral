@@ -9,6 +9,6 @@ if compile_paths_linux
   PATHS_PLATFORM = paths-linux.c
 endif
 
-INCLUDES = $(INTLINCLUDES) -I$(top_srcdir)
+AM_CPPFLAGS = $(INTLINCLUDES) -I$(top_srcdir)
 DEFS = -DHAVE_CONFIG_H -DDATADIR=\"@datadir@\" -DPREFIX=\"@prefix@\"
 
