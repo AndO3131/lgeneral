@@ -13,6 +13,7 @@ Table of Contents
 1. About
 2. Installation
    2.1 Building LGeneral on Mac OS X
+   2.2 Building LGeneral with cmake
 3. Troubleshooting
 4. Main Menu
 5. Interface
@@ -62,6 +63,19 @@ Some hints about building LGeneral on Mac OS X:
  * Build gettext from source.
  * Compile LGeneral on a case-sensitive file system, otherwise sdl.h
    and SDL.h conflict.
+
+2.2 Building LGeneral with cmake
+----------------------------------
+
+To compile main program with cmake type in following commands in the
+directory you extracted the LGeneral source (tested in Linux Ubuntu)
+  > mkdir build
+  > cd build
+  > cmake ../
+  > make
+For debugging purposes give cmake additional option -DCMAKE_BUILD_TYPE=Debug
+If compilation runs succesfully, program will be inside build/bin directory.
+It can be run without installation.
 
 3. Troubleshooting
 ------------------
