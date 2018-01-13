@@ -185,6 +185,9 @@ target_link_libraries ( lgeneral -lm ${system_libs} ${SDL_LIBRARY} ${SDLMIXER_LI
 
 add_custom_command ( TARGET lgeneral
   POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/sounds
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/themes/default/click.wav ${EXECUTABLE_OUTPUT_PATH}/sounds
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/themes/default/edit.wav ${EXECUTABLE_OUTPUT_PATH}/sounds
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/campaigns ${EXECUTABLE_OUTPUT_PATH}/campaigns
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/gfx ${EXECUTABLE_OUTPUT_PATH}/gfx
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/themes ${EXECUTABLE_OUTPUT_PATH}/themes
