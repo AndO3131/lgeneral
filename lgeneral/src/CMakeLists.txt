@@ -1,6 +1,5 @@
 #WARNING: All non-linux commands need checking
 
-include_directories ( .. )
 include_directories ( ../util )
 include_directories ( . )
 
