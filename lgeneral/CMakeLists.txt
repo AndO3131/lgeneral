@@ -103,4 +103,6 @@ add_definitions( -DPACKAGE="lgeneral" )
 add_definitions( -DGNULOCALEDIR=\"$(gnulocaledir)\" )
 
 #files to compile
+add_subdirectory ( util )
+add_subdirectory ( lgc-pg )
 add_subdirectory ( src )

@@ -70,49 +70,6 @@ set ( audio_src
 )
 endif ()
 
-set ( util_src
-  ../util/hashtable.c
-  ../util/hashtable.h
-#  util/hashtable_itr.c
-#  util/hashtable_itr.h
-#  util/hashtable_private.h
-#  util/hashtable_utility.c
-#  util/hashtable_utility.h
-  ../util/localize.c
-  ../util/localize.h
-#  util/paths.c
-#  util/paths.h
-  ../util/paths-linux.c
-#  util/portability.c
-)
-
-#set ( intl_src
-#  intl/bindtextdom.c
-#  intl/cat-compat.c
-#  intl/dcgettext.c
-#  intl/dgettext.c
-#  intl/explodename.c
-#  intl/finddomain.c
-#  intl/gettext.c
-#  intl/gettext.h
-#  intl/gettextP.h
-#  intl/hash-string.h
-#  intl/intl-compat.c
-#  intl/l10nflist.c
-#  intl/libgettext.h
-#  intl/loadinfo.h
-#  intl/loadmsgcat.c
-#  intl/localealias.c
-#  intl/textdomain.c
-#)
-
-#set ( fpge_src
-#  FPGE/pg.c
-#  FPGE/pg.h
-#  FPGE/pgf.c
-#  FPGE/pgf.h
-#)
-
 set ( data_install_dir bin )
 if ( CMAKE_COMPILER_IS_GNUCC AND "${CMAKE_BUILD_TYPE}" STREQUAL "Debug" )
   add_definitions ( -DNDEBUG )
@@ -162,7 +119,7 @@ if ( UNIX AND NOT APPLE )
 endif ()
 
 if ( set_exec_path )
-  set ( EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin )
+  set ( EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin/lgeneral )
 endif ()
 
 if ( FORCE_INSTALL_DATA_TO_BIN )
@@ -181,11 +138,18 @@ if ( WIN32 )
   endif ()
   set ( system_libs ${basic_windows_libs} SDLmain ${static_flags} )
 endif ()
-target_link_libraries ( lgeneral -lm ${system_libs} ${SDL_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLIMAGE_LIBRARY} )
+target_link_libraries ( lgeneral util -lm ${system_libs} ${SDL_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLIMAGE_LIBRARY} )
 
 add_custom_command ( TARGET lgeneral
   POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/ai_modules
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/maps
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/music
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/nations
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/scenarios
   COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/sounds
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/terrain
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${EXECUTABLE_OUTPUT_PATH}/units
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/themes/default/click.wav ${EXECUTABLE_OUTPUT_PATH}/sounds
   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/src/themes/default/edit.wav ${EXECUTABLE_OUTPUT_PATH}/sounds
   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/src/campaigns ${EXECUTABLE_OUTPUT_PATH}/campaigns
